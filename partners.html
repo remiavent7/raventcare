@@ -1,0 +1,498 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ravent Care · Practice pilot</title><link rel="icon" href="logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef4fb;--s1:#fff;--s2:#f3f7fc;--line:#d6e2f0;--tx:#10233f;--mut:#4d6180;--ac:#1f6fd1;--ok:#0f6b4a;--warn:#b45309}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 Satoshi,system-ui,sans-serif}a{color:var(--ac)}button,input,select,textarea{font:inherit}
+.top{background:#fff;border-bottom:1px solid var(--line)}.top .in{max-width:980px;margin:auto;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:19px;text-decoration:none;color:var(--tx)}.brand svg{width:30px;height:30px}
+nav{margin-left:auto;display:flex;gap:14px;font-size:14px;flex-wrap:wrap}nav a{text-decoration:none;font-weight:700}nav a.on{color:var(--tx)}
+main{max-width:980px;margin:auto;padding:22px 18px 50px}h1{font-size:clamp(26px,4vw,36px);line-height:1.15;margin:0 0 8px}h2{font-size:19px;margin:0 0 8px}
+.mut{color:var(--mut)}.card{background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;box-shadow:0 1px 2px #10233f0d,0 8px 24px #1f6fd10f}
+.btn{background:var(--ac);color:#fff;border:0;padding:11px 16px;border-radius:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.btn.ghost{background:#fff;color:var(--ac);border:1px solid var(--line)}.btn.red{background:#fff;color:#b42318;border:1px solid #f1c7c2}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--s2);color:var(--mut)}.tag.ok{background:#e1f5ec;color:var(--ok)}.tag.ac{background:#e3eefc;color:var(--ac)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.note{background:#fff7e6;border:1px solid #f3dca8;border-radius:12px;padding:10px 14px;font-size:13.5px}
+footer{max-width:980px;margin:auto;padding:0 18px 30px;font-size:13px;color:var(--mut)}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}nav{margin-left:0;width:100%}}
+.list{padding-left:20px;margin:6px 0}.list li{margin:5px 0}.form label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;margin-bottom:10px}.form input,.form select,.form textarea{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-weight:400;font-size:15px}
+fieldset{border:1px solid var(--line);border-radius:12px;margin:4px 0 12px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px 18px}legend{font-size:13px;font-weight:700;padding:0 4px}.form label.ck,.ck{flex-direction:row;align-items:center;gap:8px;font-weight:500;font-size:14px;display:flex;margin:0}
+</style></head><body>
+<div class="top"><div class="in"><a class="brand" href="index.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Ravent <span style="color:var(--ac)">Care</span></span></a>
+<nav><a href="index.html">Family</a><a href="connect.html" data-p="connect">Connect accounts</a><a href="privacy.html" data-p="privacy">Privacy</a><a href="partners.html" data-p="partners">For practices</a><a href="practice.html">Practice view</a></nav></div></div>
+<main>
+<span class="tag ac">Practice pilot program</span>
+<h1>Bring Ravent Care to your practice</h1>
+<p class="mut" style="max-width:680px">This is a free 90-day pilot for independent and group practices. Patients check in with a QR code. Your staff sees every room, every wait and every provider on one screen. <a href="practice.html">See the practice view demo</a>.</p>
+<div class="g3">
+<div class="card"><span class="tag ok">What you get</span><h2 style="margin-top:8px">Live practice board</h2><p class="mut">See rooms, the waiting room, provider lanes and today's schedule in real time, built for busy days like 10 rooms and 70 patients.</p></div>
+<div class="card"><span class="tag ok">What you get</span><h2 style="margin-top:8px">QR check-in</h2><p class="mut">Patients scan at the front desk. Their insurance, copay and forms are already on their phone. That means fewer clipboards and shorter lines.</p></div>
+<div class="card"><span class="tag ok">What you get</span><h2 style="margin-top:8px">Patient app</h2><p class="mut">Your patients see their benefits, costs, lab results, refills and appointments in one place. It's free for them.</p></div>
+</div>
+<div class="g2">
+<div class="card"><h2>What we need from you</h2><ul class="list">
+<li><b>Business Associate Agreement.</b> We sign a BAA before any patient data is shared.</li>
+<li><b>Security review.</b> We complete your security questionnaire and share our test results.</li>
+<li><b>EHR connection.</b> We start read-only, with schedule and rooms. We work with Epic, athenahealth, eClinicalWorks, NextGen and others.</li>
+<li><b>One pilot lead.</b> An office manager who meets with us for 30 minutes a week.</li></ul></div>
+<div class="card"><h2>Pilot timeline</h2><ol class="list">
+<li><b>Weeks 1–2:</b> BAA, security review, kickoff</li><li><b>Weeks 3–4:</b> Connect the schedule, set up rooms and the QR stand</li><li><b>Weeks 5–12:</b> Go live, with weekly check-ins on wait times and front-desk time</li><li><b>Week 13:</b> Results review, then you decide whether to continue</li></ol>
+<p class="mut" style="margin-bottom:0">There's no cost and no long-term contract during the pilot.</p></div>
+</div>
+<div class="card" id="fcard"><h2>Apply for the pilot</h2>
+<form id="pf" class="form">
+<div class="g2"><label>Practice name<input name="practice" required placeholder="Harbor Family Medicine"></label><label>Your name<input name="name" required></label>
+<label>Role<select name="role"><option>Office manager</option><option>Physician / owner</option><option>Practice administrator</option><option>IT / operations</option><option>Other</option></select></label><label>City<input name="city" placeholder="Long Beach, CA"></label>
+<label>Email<input name="email" type="email" required></label><label>Phone<input name="phone" type="tel"></label>
+<label>EHR system<select name="ehr"><option>Epic</option><option>athenahealth</option><option>eClinicalWorks</option><option>NextGen</option><option>Cerner / Oracle Health</option><option>Other / not sure</option></select></label>
+<label>Exam rooms<input name="rooms" type="number" min="1" value="10"></label><label>Providers<input name="providers" type="number" min="1" value="5"></label><label>Patients per day<input name="ppd" type="number" min="1" value="70"></label></div>
+<fieldset><legend>Most interested in</legend><label class="ck"><input type="checkbox" name="f" value="Practice board" checked> Practice board</label><label class="ck"><input type="checkbox" name="f" value="QR check-in" checked> QR check-in</label><label class="ck"><input type="checkbox" name="f" value="Patient app"> Patient app</label><label class="ck"><input type="checkbox" name="f" value="Benefit and copay checks"> Benefit and copay checks</label></fieldset>
+<label>Anything else<textarea name="notes" rows="3" placeholder="Biggest front-desk pain point, timing, questions"></textarea></label>
+<button class="btn" type="submit">Submit application</button> <span class="mut" style="font-size:13px">Demo form. Nothing is sent anywhere.</span>
+</form></div>
+</main>
+<footer>Ravent Care demo. Sample data only. Not a real medical, insurance or legal service. <a href="privacy.html">Privacy policy</a> · <a href="partners.html">For practices</a></footer>
+<script>(function(){function mk(n){var m={},mem={getItem:function(k){return k in m?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]}};try{var s=window[n+'Storage'];var t='__oc';s.setItem(t,'1');s.removeItem(t);return s}catch(e){return mem}}window.ocLS=mk('local');window.ocSS=mk('session')})();</script><script>document.querySelectorAll('nav a[data-p="partners"]').forEach(a=>{a.classList.add('on')})</script>
+<script>document.getElementById('pf').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),o=Object.fromEntries(f);o.f=f.getAll('f');try{ocLS.setItem('ocPilot',JSON.stringify(o))}catch(x){}
+const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.getElementById('fcard').innerHTML=`<span class="tag ok">Application received (demo)</span><h2 style="margin-top:8px">Thanks, ${esc(o.name)}</h2><p>We have ${esc(o.practice)}${o.city?' in '+esc(o.city):''} down for the pilot: ${esc(o.rooms)} exam rooms, ${esc(o.providers)} providers, about ${esc(o.ppd)} patients a day, on ${esc(o.ehr)}.</p><p><b>Next steps:</b> a 20-minute intro call, then we send the BAA and security packet. Most practices go live in about 4 weeks.</p><p class="mut" style="font-size:13px;margin-bottom:0">Demo only. This form was not sent anywhere.</p>`;document.getElementById('fcard').scrollIntoView({behavior:'smooth',block:'start'})}</script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  const DEFAULT_LINE_HEIGHT = 16;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  const PICK_CAPABILITIES = ["pick"];
+  const PICK_CHAIN_LENGTH = 4;
+  const PICK_MAX_TEXT_CHARS = 120;
+  const PICK_MAX_HTML_CHARS = 300;
+
+  function truncate(value, maxChars) {
+    return value.length > maxChars ? value.slice(0, maxChars - 1) + "…" : value;
+  }
+
+  function isPickableElement(element) {
+    return (
+      element instanceof Element &&
+      element !== document.documentElement &&
+      element !== document.body
+    );
+  }
+
+  function resolvePickTarget(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const element = document.elementFromPoint(x, y);
+    return isPickableElement(element) ? element.closest("svg") || element : null;
+  }
+
+  function pickLabel(element) {
+    if (element.id) return element.localName + "#" + element.id;
+    return [element.localName].concat(Array.from(element.classList).slice(0, 2)).join(".");
+  }
+
+  // Only attributes that help find the element in source. data-* values and URL
+  // query strings or fragments can carry tokens.
+  const PICK_ATTRIBUTES = new Set([
+    "id",
+    "class",
+    "name",
+    "type",
+    "role",
+    "alt",
+    "aria-label",
+    "href",
+    "src",
+  ]);
+
+  function pickAttributeValue(attribute) {
+    return attribute.name === "href" || attribute.name === "src"
+      ? attribute.value.split(/[?#]/)[0]
+      : attribute.value;
+  }
+
+  function describePickElement(element) {
+    const chain = [];
+    for (
+      let current = element;
+      isPickableElement(current) && chain.length < PICK_CHAIN_LENGTH;
+      current = current.parentElement
+    ) {
+      chain.unshift(current);
+    }
+    const attributes = Array.from(element.attributes)
+      .filter((attribute) => PICK_ATTRIBUTES.has(attribute.name))
+      .map((attribute) => ` ${attribute.name}="${pickAttributeValue(attribute).replace(/"/g, "&quot;")}"`)
+      .join("");
+    const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
+    return {
+      chain: chain.map(pickLabel),
+      html: truncate(`<${element.localName}${attributes}>`, PICK_MAX_HTML_CHARS),
+      text: text ? truncate(text, PICK_MAX_TEXT_CHARS) : undefined,
+    };
+  }
+
+  // Hover asks once per frame, and innerText on a large section forces layout,
+  // so only the rect is re-read while the pointer stays on the same element.
+  // Clicks ask for fresh details since the page may have changed the element.
+  let lastPick = null;
+
+  function describePickTarget(element, fresh) {
+    if (fresh || lastPick?.element !== element) {
+      lastPick = { element, details: describePickElement(element) };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+      ...lastPick.details,
+    };
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      capabilities: PICK_CAPABILITIES,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_PICK") {
+      const element = resolvePickTarget(event.data.x, event.data.y);
+      postToTrustedTop({
+        type: "INLINE_EDIT_PICK_RESULT",
+        seq: event.data.seq,
+        target: element ? describePickTarget(element, event.data.fresh === true) : null,
+      });
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_BY") {
+      const { deltaX, deltaY, deltaMode } = event.data;
+      if (!scrollForwarding || !Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+      if (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) return;
+      const lineHeight =
+        parseFloat(getComputedStyle(document.documentElement).lineHeight) || DEFAULT_LINE_HEIGHT;
+      const scaleX = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerWidth : 1;
+      const scaleY = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerHeight : 1;
+      // The selection overlay receives the wheel event instead of this iframe.
+      // Instant scrolling preserves trackpad deltas even on smooth-scroll sites.
+      window.scrollBy({ left: deltaX * scaleX, top: deltaY * scaleY, behavior: "instant" });
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body></html>

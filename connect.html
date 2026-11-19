@@ -1,0 +1,589 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ravent Care · Connect your accounts</title><link rel="icon" href="logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef4fb;--s1:#fff;--s2:#f3f7fc;--line:#d6e2f0;--tx:#10233f;--mut:#4d6180;--ac:#1f6fd1;--ok:#0f6b4a;--warn:#b45309}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 Satoshi,system-ui,sans-serif}a{color:var(--ac)}button,input,select,textarea{font:inherit}
+.top{background:#fff;border-bottom:1px solid var(--line)}.top .in{max-width:980px;margin:auto;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:19px;text-decoration:none;color:var(--tx)}.brand svg{width:30px;height:30px}
+nav{margin-left:auto;display:flex;gap:14px;font-size:14px;flex-wrap:wrap}nav a{text-decoration:none;font-weight:700}nav a.on{color:var(--tx)}
+main{max-width:980px;margin:auto;padding:22px 18px 50px}h1{font-size:clamp(26px,4vw,36px);line-height:1.15;margin:0 0 8px}h2{font-size:19px;margin:0 0 8px}
+.mut{color:var(--mut)}.card{background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;box-shadow:0 1px 2px #10233f0d,0 8px 24px #1f6fd10f}
+.btn{background:var(--ac);color:#fff;border:0;padding:11px 16px;border-radius:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.btn.ghost{background:#fff;color:var(--ac);border:1px solid var(--line)}.btn.red{background:#fff;color:#b42318;border:1px solid #f1c7c2}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--s2);color:var(--mut)}.tag.ok{background:#e1f5ec;color:var(--ok)}.tag.ac{background:#e3eefc;color:var(--ac)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.note{background:#fff7e6;border:1px solid #f3dca8;border-radius:12px;padding:10px 14px;font-size:13.5px}
+footer{max-width:980px;margin:auto;padding:0 18px 30px;font-size:13px;color:var(--mut)}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}nav{margin-left:0;width:100%}}
+.list{padding-left:20px;margin:6px 0}.list li{margin:5px 0}.mem{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.mem button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 14px;text-align:left;cursor:pointer;color:var(--tx)}.mem button span{display:block;font-size:12px;color:var(--mut)}.mem button.on{background:var(--ac);border-color:var(--ac);color:#fff}.mem button.on span{color:#dbe8fb}
+.src{display:flex;gap:14px;align-items:center}.lg{width:46px;height:46px;border-radius:12px;color:#fff;font-weight:900;display:grid;place-items:center;flex:none;font-size:14px}.bd{flex:1;min-width:0}.ac{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+dialog{border:0;border-radius:18px;padding:22px;max-width:460px;width:calc(100% - 28px);color:var(--tx)}dialog::backdrop{background:#10233f80}dialog input{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;margin:6px 0}.ck{display:flex;gap:8px;align-items:flex-start;font-size:14px}.ck input{width:auto;margin:3px 0 0}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}.bar{height:10px;background:var(--s2);border-radius:99px;overflow:hidden;margin:12px 0}.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .3s}
+.idv{background:var(--s2);border-radius:12px;padding:12px;display:flex;flex-direction:column}
+@media(max-width:620px){.src{flex-wrap:wrap}.ac{width:100%;justify-content:flex-start}}
+.chip{border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:7px 13px;font:inherit;font-size:13.5px;cursor:pointer}.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.seg{display:flex;gap:6px}.dtop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}#dirq{flex:1;min-width:180px;max-width:320px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:transparent;color:inherit}.drow{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}.drow .bd{flex:1;min-width:0}.lg.sm{width:40px;height:40px;font-size:12px;flex:none}@media(max-width:560px){.drow{flex-wrap:wrap}.drow .ac{width:100%}.drow .ac .btn{width:100%}}</style></head><body>
+<div class="top"><div class="in"><a class="brand" href="index.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Ravent <span style="color:var(--ac)">Care</span></span></a>
+<nav><a href="index.html">Family</a><a href="connect.html" data-p="connect">Connect accounts</a><a href="privacy.html" data-p="privacy">Privacy</a><a href="partners.html" data-p="partners">For practices</a><a href="practice.html">Practice view</a></nav></div></div>
+<main>
+<div id="cg" class="card" style="max-width:380px;margin:40px auto;text-align:center" hidden><h2>Enter your family code</h2><form id="cgf"><input id="cgc" placeholder="Family code" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;margin:8px 0" autocomplete="off"><button class="btn" style="width:100%">Continue</button><p id="cge" class="mut" style="font-size:13px"></p></form></div>
+<div id="cm" hidden>
+<span class="tag ac">Demo · simulated connections</span>
+<h1>Connect your accounts</h1>
+<p class="mut" style="max-width:700px">Link the places that already hold your health information. Ravent Care pulls it in with read-only access, through the official patient access connections that health plans, Medicare and doctors' systems must offer. You approve each connection and can turn it off any time.</p>
+<div class="mem" id="mem"></div>
+<div id="who" class="note" style="margin-top:12px"></div>
+<div class="srcs" id="srcs"></div>
+<div class="card" id="dir"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 style="margin:0">Find your local plan</h2><span class="mut" id="dirc" style="font-size:13px"></span></div>
+<p class="mut" style="font-size:14px;margin:6px 0 12px">Medi-Cal, Medicare + Medi-Cal, Covered California and PACE plans offered in your county. Add a plan, then connect it above.</p>
+<div class="dtop"><div class="seg" id="dirr"><button class="chip on" data-r="LA">Los Angeles</button><button class="chip" data-r="SD">San Diego</button></div><input id="dirq" type="search" placeholder="Search plans" aria-label="Search plans"></div>
+<div class="chips" id="dirk"></div><div id="dirl"></div>
+<p class="mut" style="font-size:12px;margin:10px 0 0">Plan lists from the California Department of Health Care Services (Medi-Cal, 2026) and Covered California (2027 plan year). Connections are simulated in this demo.</p></div>
+<div class="card"><h2>Activity</h2><div id="log" class="mut" style="font-size:13.5px"></div></div>
+<p class="mut" style="font-size:13px">Read our <a href="privacy.html">plain-language privacy policy</a>. In this demo, no real accounts are contacted and no data leaves your browser.</p>
+</div>
+<dialog id="dlg"><div id="dl"></div></dialog>
+</main>
+<footer>Ravent Care demo. Sample data only. Not a real medical, insurance or legal service. <a href="privacy.html">Privacy policy</a> · <a href="partners.html">For practices</a></footer>
+<script>(function(){function mk(n){var m={},mem={getItem:function(k){return k in m?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]}};try{var s=window[n+'Storage'];var t='__oc';s.setItem(t,'1');s.removeItem(t);return s}catch(e){return mem}}window.ocLS=mk('local');window.ocSS=mk('session')})();</script><script>document.querySelectorAll('nav a[data-p="connect"]').forEach(a=>{a.classList.add('on')})</script>
+<script>
+const GH="725bef75b38f47c1684badc2e9e748c19e1aa08fb445aa50209ffdd69a7026d0";
+const M=[{mid:'XEB71845203-01',n:'Chris Yates',a:44,r:'You (subscriber)',c:'self'},{mid:'XEB71845203-02',n:'Colin Yates',a:46,r:'Spouse',c:'adult'},{mid:'XEB71845203-03',n:'Chayanne Yates',a:19,r:'Daughter',c:'adult'},{mid:'XEB71845203-04',n:'Christian Yates',a:15,r:'Son',c:'minor'},{mid:'4TQ7-RM2-KX58',n:'Margaret Yates',a:79,r:'Mother · Medicare',c:'care',med:1}];
+const S0=p=>[p.med?{id:'cms',t:'Medicare',k:'Health plan',d:'Original Medicare Parts A, B and D claims, going back up to 4 years',via:'Blue Button 2.0 · sign in with Medicare.gov',login:'Medicare.gov',n:212,col:'#0b4a8b',ab:'M'}:{id:'bsc',t:'Blue Shield of California',k:'Health plan',d:'Coverage, claims, deductible progress, prior authorizations',via:'Patient Access API · sign in with your Blue Shield account',login:'Blue Shield',n:148,col:'#0a5cc2',ab:'BS'},
+ p.med?{id:'pg',t:'Plan G supplement',k:'Health plan',d:'Supplement claims and what Plan G paid after Medicare',via:'Patient Access API · sign in with your plan account',login:'your Plan G insurer',n:64,col:'#2b6cb0',ab:'G'}:null,
+ p.med||p.a<18?null:{id:'vsp',t:'VSP Vision Care',k:'Vision plan',d:'Eye exam and glasses coverage, frame and contact lens allowances, claims and your VSP network eye doctors',via:'VSP member account sign-in',login:'VSP',n:11,col:'#00467f',ab:'VSP'},
+ {id:'ehr',t:'Doctors\u2019 records',k:'Medical records',d:'Visits, diagnoses, medications, allergies, immunizations and notes from MemorialCare, Long Beach Medical Center and other offices',via:'MyChart sign-in, plus a nationwide record search through TEFCA',login:'MyChart',n:p.med?486:p.a<18?57:p.mid.endsWith('02')?612:131,col:'#c2410c',ab:'Dr',idv:1},
+ {id:'quest',t:'Quest Diagnostics',k:'Lab results',d:'Blood work and lab results, including the December draw',via:'MyQuest sign-in',login:'MyQuest',n:p.med?38:24,col:'#0f6b4a',ab:'Q'},
+ {id:'cvs',t:'CVS Pharmacy',k:'Pharmacy',d:'Prescriptions, refill dates and what you paid',via:'CVS account sign-in',login:'CVS',n:p.med?27:p.a<18?3:9,col:'#b42318',ab:'CVS'},
+ {id:'uhc',t:'UnitedHealthcare',k:'Health plan',d:'Coverage, claims, deductible progress and in-network providers from a UnitedHealthcare plan',via:'Patient Access API · sign in with your myUHC account',login:'myUHC',n:p.med?41:p.a<18?6:22,col:'#002677',ab:'UHC'},
+ {id:'kp',t:'Kaiser Permanente',k:'Health plan + records',d:'Coverage, visits, test results, prescriptions and messages from Kaiser Permanente',via:'Patient Access API · sign in with your kp.org account',login:'kp.org',n:p.med?93:p.a<18?14:47,col:'#0067a5',ab:'KP'},
+ {id:'labcorp',t:'Labcorp',k:'Lab results',d:'Lab results and test history from Labcorp patient service centers',via:'Labcorp Patient portal sign-in',login:'Labcorp Patient',n:p.med?29:p.a<18?4:16,col:'#1d4f91',ab:'LC'},
+ {id:'wag',t:'Walgreens',k:'Pharmacy',d:'Prescriptions, refill dates, vaccines and what you paid',via:'Walgreens account sign-in',login:'Walgreens',n:p.med?19:p.a<18?2:7,col:'#e31837',ab:'W'},
+ p.med?null:{id:'hsa',t:'HealthEquity HSA',k:'HSA account',d:'HSA balance, contributions, card payments and receipts for medical expenses',via:'HealthEquity member sign-in',login:'HealthEquity',n:p.a<18?0:34,col:'#4a8a3c',ab:'HE'}].filter(Boolean);
+
+const MC='Medi-Cal plan',MM='Medicare + Medi-Cal',CC='Covered California',PA='PACE program';
+const DIR=[
+ ['la-lacare','LA','L.A. Care Health Plan',MC,'Los Angeles County\u2019s public Medi-Cal plan. Coverage, doctors, claims and pharmacy','L.A. Care','#00539b','LAC'],
+ ['la-hncs','LA','Health Net Community Solutions',MC,'Medi-Cal plan for Los Angeles County. Coverage, claims and care team','Health Net','#00447c','HN'],
+ ['la-kpmc','LA','Kaiser Permanente Medi-Cal',MC,'Medi-Cal through Kaiser. Visits, results, prescriptions and messages','kp.org','#0067a5','KP'],
+ ['la-anthem','LA','Anthem Blue Cross Medi-Cal',MC,'Medi-Cal through L.A. Care\u2019s plan partner Anthem','Anthem','#0d5ca8','AB'],
+ ['la-bsp','LA','Blue Shield of California Promise Health Plan',MC,'Medi-Cal through L.A. Care\u2019s plan partner Blue Shield Promise','Blue Shield Promise','#0a5cc2','BSP'],
+ ['la-molina','LA','Molina Healthcare Medi-Cal',MC,'Medi-Cal through Health Net\u2019s partner Molina','Molina','#00a39b','MO'],
+ ['la-ahf','LA','AHF Positive Healthcare',MC,'Medi-Cal plan for people living with HIV, run by AIDS Healthcare Foundation','AHF','#b5121b','AHF'],
+ ['la-mm-anthem','LA','Anthem Medi-Medi Plan',MM,'One plan for people with both Medicare and Medi-Cal','Anthem','#0d5ca8','AB'],
+ ['la-mm-bs','LA','Blue Shield Medi-Medi Plan',MM,'One plan for people with both Medicare and Medi-Cal','Blue Shield','#0a5cc2','BS'],
+ ['la-mm-kp','LA','Kaiser Permanente Medi-Medi Plan',MM,'One plan for people with both Medicare and Medi-Cal','kp.org','#0067a5','KP'],
+ ['la-mm-lacare','LA','L.A. Care Medi-Medi Plan',MM,'One plan for people with both Medicare and Medi-Cal','L.A. Care','#00539b','LAC'],
+ ['la-mm-molina','LA','Molina Medi-Medi Plan',MM,'One plan for people with both Medicare and Medi-Cal','Molina','#00a39b','MO'],
+ ['la-mm-scan','LA','SCAN Connections',MM,'One plan for people with both Medicare and Medi-Cal','SCAN','#5b2c83','SC'],
+ ['la-mm-wellcare','LA','Wellcare Medi-Medi Plan',MM,'One plan for people with both Medicare and Medi-Cal','Wellcare','#c8102e','WC'],
+ ['la-cc-lacare','LA','L.A. Care Covered',CC,'Covered California plan from L.A. Care','L.A. Care','#00539b','LAC'],
+ ['la-cc-kp','LA','Kaiser Permanente (Covered California)',CC,'Covered California HMO plans from Kaiser','kp.org','#0067a5','KP'],
+ ['la-cc-anthem','LA','Anthem Blue Cross HMO',CC,'Covered California HMO plans from Anthem','Anthem','#0d5ca8','AB'],
+ ['la-cc-bs','LA','Blue Shield of California HMO and PPO',CC,'Covered California HMO and PPO plans from Blue Shield','Blue Shield','#0a5cc2','BS'],
+ ['la-cc-hn','LA','Health Net HMO and PPO',CC,'Covered California HMO and PPO plans from Health Net','Health Net','#00447c','HN'],
+ ['la-cc-molina','LA','Molina Healthcare (West LA only)',CC,'Covered California plans in west and southwest LA County. Leaving east LA County in 2027','Molina','#00a39b','MO'],
+ ['sd-bsp','SD','Blue Shield of California Promise Health Plan',MC,'Medi-Cal plan in San Diego County. Coverage, claims and care team','Blue Shield Promise','#0a5cc2','BSP'],
+ ['sd-chg','SD','Community Health Group Partnership Plan',MC,'San Diego\u2019s local Medi-Cal plan. Coverage, doctors and claims','Community Health Group','#1f7a4d','CHG'],
+ ['sd-kpmc','SD','Kaiser Permanente Medi-Cal',MC,'Medi-Cal through Kaiser. Visits, results, prescriptions and messages','kp.org','#0067a5','KP'],
+ ['sd-molina','SD','Molina Healthcare of California Partner Plan',MC,'Medi-Cal plan in San Diego County','Molina','#00a39b','MO'],
+ ['sd-scan','SD','SCAN Health Plan',MC,'Plan for older adults with Medi-Cal in San Diego County','SCAN','#5b2c83','SC'],
+ ['sd-mm-bs','SD','Blue Shield TotalDual Plan',MM,'One plan for people with both Medicare and Medi-Cal','Blue Shield','#0a5cc2','BS'],
+ ['sd-mm-chg','SD','CommuniCare Advantage',MM,'Community Health Group\u2019s plan for people with both Medicare and Medi-Cal','Community Health Group','#1f7a4d','CHG'],
+ ['sd-mm-kp','SD','Kaiser Permanente Dual Complete',MM,'One plan for people with both Medicare and Medi-Cal','kp.org','#0067a5','KP'],
+ ['sd-mm-molina','SD','Molina Medicare Complete Care Plus',MM,'One plan for people with both Medicare and Medi-Cal','Molina','#00a39b','MO'],
+ ['sd-mm-scan','SD','SCAN Connections',MM,'One plan for people with both Medicare and Medi-Cal','SCAN','#5b2c83','SC'],
+ ['sd-cc-kp','SD','Kaiser Permanente (Covered California)',CC,'Covered California HMO plans from Kaiser','kp.org','#0067a5','KP'],
+ ['sd-cc-sharp','SD','Sharp Health Plan',CC,'San Diego\u2019s local Covered California plan, Premier and Performance networks','Sharp','#0072ce','SH'],
+ ['sd-cc-bs','SD','Blue Shield of California HMO and PPO',CC,'Covered California HMO and PPO plans from Blue Shield','Blue Shield','#0a5cc2','BS'],
+ ['sd-cc-molina','SD','Molina Healthcare',CC,'Covered California plans from Molina','Molina','#00a39b','MO'],
+ ['sd-cc-anthem','SD','Anthem Blue Cross HMO',CC,'Covered California HMO plans from Anthem','Anthem','#0d5ca8','AB'],
+ ['sd-cc-hn','SD','Health Net HMO and PPO',CC,'Covered California HMO and PPO plans from Health Net','Health Net','#00447c','HN'],
+ ['sd-pace-fhc','SD','Family Health Centers of San Diego PACE',PA,'All-inclusive care for adults 55+ who qualify for nursing-home care','FHCSD PACE','#7a4b00','PC'],
+ ['sd-pace-west','SD','Gary and Mary West PACE',PA,'All-inclusive care for adults 55+ in north San Diego County','West PACE','#7a4b00','PC'],
+ ['sd-pace-sd','SD','San Diego PACE',PA,'All-inclusive care for adults 55+ who qualify for nursing-home care','San Diego PACE','#7a4b00','PC'],
+ ['sd-pace-stp','SD',"St. Paul\u2019s PACE",PA,'All-inclusive care for adults 55+ who qualify for nursing-home care',"St. Paul\u2019s PACE",'#7a4b00','PC']
+].map(([id,r,t,k,d,login,col,ab])=>({id,r,t,k,d,login,col,ab,via:(k==CC?'Covered California plan':k==PA?'PACE program':'Medi-Cal plan')+' \u00b7 sign in with your '+login+' account',n:(id.length*7)%60+12}));
+let X={};const ldX=()=>{try{X=JSON.parse(ocLS.getItem('ocExtra')||'{}')}catch(e){X={}}};const svX=()=>{ocLS.setItem('ocExtra',JSON.stringify(X))};
+const S=p=>{ldX();return S0(p).concat((X[p.mid]||[]).map(id=>DIR.find(d=>d.id==id)).filter(Boolean))};
+let DR='LA',DK='All',DQ='';
+function drawDir(){ldX();const mine=X[cur.mid]||[];const nm=cur.n.split(' ')[0];
+ const kinds=['All',MC,MM,CC,PA].filter(k=>k=='All'||DIR.some(d=>d.r==DR&&d.k==k));if(!kinds.includes(DK))DK='All';
+ $('dirk').innerHTML=kinds.map(k=>`<button class="chip${k==DK?' on':''}" data-k="${k}">${k=='All'?'All plans':k}</button>`).join('');
+ const q=DQ.toLowerCase(),list=DIR.filter(d=>d.r==DR&&(DK=='All'||d.k==DK)&&(!q||(d.t+' '+d.d).toLowerCase().includes(q)));
+ $('dirc').textContent=list.length+' plan'+(list.length==1?'':'s')+' in '+(DR=='LA'?'Los Angeles County':'San Diego County');
+ $('dirl').innerHTML=list.length?list.map(d=>{const has=mine.includes(d.id);return `<div class="drow"><div class="lg sm" style="background:${d.col}">${d.ab}</div><div class="bd"><b>${d.t}</b> <span class="tag">${d.k}</span><div class="mut" style="font-size:13px">${d.d}</div></div><div class="ac">${has?`<button class="btn ghost" data-rm="${d.id}">Added \u2713</button>`:`<button class="btn" data-ad="${d.id}">Add for ${nm}</button>`}</div></div>`}).join(''):'<p class="mut">No plans match your search.</p>'}
+let C={},L=[],cur=M[0];
+const ld=()=>{try{C=JSON.parse(ocLS.getItem('ocConn')||'{}');L=JSON.parse(ocLS.getItem('ocLog')||'[]')}catch(e){}};
+const sv=()=>{ocLS.setItem('ocConn',JSON.stringify(C));ocLS.setItem('ocLog',JSON.stringify(L.slice(0,30)))};
+const tm=t=>new Date(t).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const $=id=>document.getElementById(id);
+function who(p){return {self:'You can connect your own accounts.',adult:`${p.n.split(' ')[0]} is an adult, so ${p.n.split(' ')[0]} approves each connection. We send ${p.c=='adult'?'a text':'an invite'} to confirm before anything is shared with you.`,minor:`${p.n.split(' ')[0]} is under 18. As a parent you can connect these accounts. Some teen visits may stay private under California law.`,care:`You are Margaret's caregiver. You need her permission, or a healthcare proxy, to connect her accounts. She can see and remove your access any time.`}[p.c]}
+function draw(){ld();$('mem').innerHTML=M.map((p,i)=>`<button data-i="${i}" class="${p===cur?'on':''}"><b>${p.n.split(' ')[0]}</b><span>${Object.keys(C).filter(k=>k.startsWith(p.mid+'|')).length}/${S(p).length} linked</span></button>`).join('');
+ $('who').innerHTML='<b>'+cur.n+'</b> · '+cur.r+'. '+who(cur);
+ $('srcs').innerHTML=S(cur).map(s=>{const k=cur.mid+'|'+s.id,on=C[k];return `<div class="src card"><div class="lg" style="background:${s.col}">${s.ab}</div><div class="bd"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>${s.t}</b><span class="tag">${s.k}</span>${on?'<span class="tag ok">Connected</span>':''}</div><div class="mut" style="font-size:13.5px">${s.d}</div><div class="mut" style="font-size:12px;margin-top:2px">${s.via}</div>${on?`<div style="font-size:13px;margin-top:4px">${s.n} records · last synced ${tm(on)}</div>`:''}</div><div class="ac">${on?`<button class="btn ghost" data-a="sync" data-s="${s.id}">Sync now</button><button class="btn red" data-a="off" data-s="${s.id}">Disconnect</button>`:`<button class="btn" data-a="on" data-s="${s.id}">Connect</button>`}</div></div>`}).join('');
+ const mine=L.filter(x=>x.m==cur.mid);$('log').innerHTML=mine.length?mine.map(x=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)">${tm(x.t)} · ${x.x}</div>`).join(''):'No activity yet.';drawDir()}
+function log(x){L.unshift({t:Date.now(),m:cur.mid,x});sv()}
+function flow(s){const d=$('dlg'),D=$('dl');let st=0;const nm=cur.n.split(' ')[0];
+ const step=()=>{if(st==0)D.innerHTML=`<h2>Connect ${s.t}</h2><p class="mut" style="margin-top:0">for ${cur.n}</p><b>Ravent Care will get read-only access to:</b><p style="margin:4px 0 10px">${s.d}.</p><ul class="list" style="font-size:14px"><li>Used only to show ${nm}'s benefits, care and costs</li><li>Never sold and never used for ads</li><li>Access lasts 12 months, then we ask again</li><li>Disconnect any time, and we delete what came from this account</li></ul><label class="ck" style="margin:10px 0"><input type="checkbox" id="agr"> ${cur.c=='self'||cur.c=='minor'?'I agree':cur.c=='care'?'Margaret has given me permission (or I hold her healthcare proxy)':nm+' will confirm by text'} and I've read the <a href="privacy.html" target="_blank">privacy policy</a></label><div class="row"><button class="btn ghost" data-x>Cancel</button><button class="btn" id="nx" disabled>Continue</button></div>`;
+  else if(st==1)D.innerHTML=s.idv?`<h2>Verify identity</h2><p class="mut">A nationwide record search through TEFCA needs a verified identity. This is a one-time check.</p><div class="idv"><b>ID check</b><span class="mut">Photo ID and a selfie, via CLEAR or ID.me</span></div><div class="row"><button class="btn ghost" data-x>Cancel</button><button class="btn" id="nx">Verify (simulated)</button></div>`:`<h2>Sign in to ${s.login}</h2><p class="mut">You'll go to ${s.login}'s own sign-in page. Ravent Care never sees your password.</p><input value="${nm.toLowerCase()}.yates@example.com" disabled><input type="password" value="........" disabled><div class="row"><button class="btn ghost" data-x>Cancel</button><button class="btn" id="nx">Sign in and allow (simulated)</button></div>`;
+  else if(st==2){D.innerHTML=`<h2>Pulling in records</h2><div class="bar"><i id="bi"></i></div><p class="mut" id="bt">Connecting securely...</p>`;let v=0;const iv=setInterval(()=>{v+=20;$('bi').style.width=v+'%';$('bt').textContent=v<60?'Connecting securely...':'Found '+Math.round(s.n*v/100)+' records...';if(v>=100){clearInterval(iv);C[cur.mid+'|'+s.id]=Date.now();sv();log(`Connected ${s.t}. ${s.n} records synced.`);st=3;step();draw()}},300)}
+  else D.innerHTML=`<h2>${s.t} connected</h2><p>${s.n} records added to ${nm}'s Ravent Care. New info syncs automatically every day.</p><div class="row"><button class="btn" data-x>Done</button></div>`;
+  const a=$('agr'),n=$('nx');if(a)a.onchange=()=>n.disabled=!a.checked;if(n)n.onclick=()=>{st++;step()};D.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>d.close())};
+ step();d.showModal()}
+$('mem').onclick=e=>{const b=e.target.closest('button');if(b){cur=M[b.dataset.i];history.replaceState(0,'','#'+cur.mid);draw()}};
+$('srcs').onclick=e=>{const b=e.target.closest('button[data-a]');if(!b)return;const s=S(cur).find(x=>x.id==b.dataset.s),k=cur.mid+'|'+s.id;
+ if(b.dataset.a=='on')flow(s);else if(b.dataset.a=='sync'){C[k]=Date.now();sv();log(`Synced ${s.t}. No new records.`);draw()}else if(confirm(`Disconnect ${s.t}? Ravent Care stops syncing and deletes the records it got from this account.`)){delete C[k];sv();log(`Disconnected ${s.t} and deleted its records.`);draw()}};
+function go(){$('cg').hidden=true;$('cm').hidden=false;const h=decodeURIComponent(location.hash.slice(1));cur=M.find(p=>p.mid==h)||M[0];draw()}
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+let ok=0;try{ok=ocSS.getItem('ocOK')=='1'}catch(e){}
+if(ok)go();else{$('cg').hidden=false;$('cgf').onsubmit=async e=>{e.preventDefault();if(await sha($('cgc').value.trim().toUpperCase())===GH){try{ocSS.setItem('ocOK','1')}catch(e){}go()}else $('cge').textContent='That code is not valid.'}}
+
+$('dirr').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;DR=b.dataset.r;$('dirr').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c==b));drawDir()};
+$('dirk').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;DK=b.dataset.k;drawDir()};
+$('dirq').oninput=e=>{DQ=e.target.value;drawDir()};
+$('dirl').onclick=e=>{const a=e.target.closest('[data-ad]'),r=e.target.closest('[data-rm]');if(!a&&!r)return;ldX();const l=X[cur.mid]=X[cur.mid]||[];
+ if(a){l.push(a.dataset.ad);const d=DIR.find(x=>x.id==a.dataset.ad);svX();log(`Added ${d.t} to the list.`);}
+ else{const id=r.dataset.rm;if(C[cur.mid+'|'+id]){delete C[cur.mid+'|'+id];sv()}X[cur.mid]=l.filter(x=>x!=id);svX();}
+ draw()};
+</script>
+
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  const DEFAULT_LINE_HEIGHT = 16;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  const PICK_CAPABILITIES = ["pick"];
+  const PICK_CHAIN_LENGTH = 4;
+  const PICK_MAX_TEXT_CHARS = 120;
+  const PICK_MAX_HTML_CHARS = 300;
+
+  function truncate(value, maxChars) {
+    return value.length > maxChars ? value.slice(0, maxChars - 1) + "…" : value;
+  }
+
+  function isPickableElement(element) {
+    return (
+      element instanceof Element &&
+      element !== document.documentElement &&
+      element !== document.body
+    );
+  }
+
+  function resolvePickTarget(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const element = document.elementFromPoint(x, y);
+    return isPickableElement(element) ? element.closest("svg") || element : null;
+  }
+
+  function pickLabel(element) {
+    if (element.id) return element.localName + "#" + element.id;
+    return [element.localName].concat(Array.from(element.classList).slice(0, 2)).join(".");
+  }
+
+  // Only attributes that help find the element in source. data-* values and URL
+  // query strings or fragments can carry tokens.
+  const PICK_ATTRIBUTES = new Set([
+    "id",
+    "class",
+    "name",
+    "type",
+    "role",
+    "alt",
+    "aria-label",
+    "href",
+    "src",
+  ]);
+
+  function pickAttributeValue(attribute) {
+    return attribute.name === "href" || attribute.name === "src"
+      ? attribute.value.split(/[?#]/)[0]
+      : attribute.value;
+  }
+
+  function describePickElement(element) {
+    const chain = [];
+    for (
+      let current = element;
+      isPickableElement(current) && chain.length < PICK_CHAIN_LENGTH;
+      current = current.parentElement
+    ) {
+      chain.unshift(current);
+    }
+    const attributes = Array.from(element.attributes)
+      .filter((attribute) => PICK_ATTRIBUTES.has(attribute.name))
+      .map((attribute) => ` ${attribute.name}="${pickAttributeValue(attribute).replace(/"/g, "&quot;")}"`)
+      .join("");
+    const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
+    return {
+      chain: chain.map(pickLabel),
+      html: truncate(`<${element.localName}${attributes}>`, PICK_MAX_HTML_CHARS),
+      text: text ? truncate(text, PICK_MAX_TEXT_CHARS) : undefined,
+    };
+  }
+
+  // Hover asks once per frame, and innerText on a large section forces layout,
+  // so only the rect is re-read while the pointer stays on the same element.
+  // Clicks ask for fresh details since the page may have changed the element.
+  let lastPick = null;
+
+  function describePickTarget(element, fresh) {
+    if (fresh || lastPick?.element !== element) {
+      lastPick = { element, details: describePickElement(element) };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+      ...lastPick.details,
+    };
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      capabilities: PICK_CAPABILITIES,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_PICK") {
+      const element = resolvePickTarget(event.data.x, event.data.y);
+      postToTrustedTop({
+        type: "INLINE_EDIT_PICK_RESULT",
+        seq: event.data.seq,
+        target: element ? describePickTarget(element, event.data.fresh === true) : null,
+      });
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_BY") {
+      const { deltaX, deltaY, deltaMode } = event.data;
+      if (!scrollForwarding || !Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+      if (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) return;
+      const lineHeight =
+        parseFloat(getComputedStyle(document.documentElement).lineHeight) || DEFAULT_LINE_HEIGHT;
+      const scaleX = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerWidth : 1;
+      const scaleY = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerHeight : 1;
+      // The selection overlay receives the wheel event instead of this iframe.
+      // Instant scrolling preserves trackpad deltas even on smooth-scroll sites.
+      window.scrollBy({ left: deltaX * scaleX, top: deltaY * scaleY, behavior: "instant" });
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body></html>
