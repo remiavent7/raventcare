@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Check my benefits · Ravent Care</title><link rel="icon" type="image/svg+xml" href="logo.svg">
+<title>Check my benefits · CollectCare</title><link rel="icon" type="image/svg+xml" href="logo.svg">
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#eef4fb;--s1:#fff;--s2:#f3f7fc;--line:#d6e2f0;--tx:#10233f;--mut:#4d6180;--ac:#1f6fd1;--ok:#0f7a4f;--okb:#e2f5ec;--bad:#b42318;--badb:#fdecea}
@@ -30,22 +30,22 @@ table{width:100%;border-collapse:collapse;font-size:14px}td{padding:9px 4px;bord
 .foot{font-size:12px;color:var(--mut);margin-top:18px;line-height:1.5}
 .err{background:var(--badb);color:var(--bad);border-radius:12px;padding:12px;font-size:14px}
 </style></head><body>
-<div class="top"><div class="in"><a class="brand" href="index.html"><img src="logo.svg" alt="">Ravent <span style="color:var(--ac)">Care</span></a>
+<div class="top"><div class="in"><a class="brand" href="index.html"><img src="logo.svg" alt="">Collect<span style="color:var(--ac)">Care</span></a>
 <nav><a href="index.html">App</a><a href="find.html">Find a doctor</a><a href="privacy.html">Privacy</a></nav></div></div>
 <main>
 <h1>Check my benefits</h1>
-<p class="mut" style="margin-top:8px;max-width:720px">Ravent Care asks the insurance company directly, in real time, whether coverage is active and what you'll pay: deductible, out-of-pocket maximum, copays and coinsurance.</p>
+<p class="mut" style="margin-top:8px;max-width:720px">CollectCare asks the insurance company directly, in real time, whether coverage is active and what you'll pay: deductible, out-of-pocket maximum, copays and coinsurance.</p>
 <div class="confirm" role="note" style="display:flex;gap:10px;align-items:flex-start;margin:14px 0;padding:12px 14px;border-radius:12px;background:#fff7ec;border:1px solid #f6d9b5;color:#6b3407;font-size:14px;line-height:1.45;max-width:760px"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;margin-top:1px" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5v.5"/></svg><div><b>Always confirm with your insurer.</b> Before any visit, call the member services number on your insurance card, or check your insurer's website, to confirm the provider is in network for your plan. Network lists can be out of date.</div></div>
 <div class="lay">
  <div class="card"><h2>Choose a test patient</h2>
   <p class="mut" style="font-size:13px;margin-bottom:12px">These are practice patients from Stedi, our insurance-check partner. Each check goes through Stedi's real system and returns that insurer's sample answer.</p>
   <div class="pt" id="pts"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   <button class="go" id="go" disabled>Check benefits</button>
-  <div class="banner"><b>Test mode.</b> Real member details can't be checked yet. That starts once Ravent Care has a provider NPI, a live Stedi key and signed HIPAA agreements.</div>
+  <div class="banner"><b>Test mode.</b> Real member details can't be checked yet. That starts once CollectCare has a provider NPI, a live Stedi key and signed HIPAA agreements.</div>
  </div>
  <div class="card" id="res"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7.5-4.6-7.5-10.4A4.4 4.4 0 0 1 12 7.8a4.4 4.4 0 0 1 7.5 2.8C19.5 16.4 12 21 12 21Z"/></svg><h2>Pick a patient and run a check</h2><p class="mut" style="font-size:14px">Results usually come back in a few seconds.</p></div></div>
 </div>
-<p class="foot">Answers come straight from the insurer through Stedi and aren't stored by Ravent Care. In test mode, plans, dates and dollar amounts are the insurer's sample data, not anyone's real coverage.</p>
+<p class="foot">Answers come straight from the insurer through Stedi and aren't stored by CollectCare. In test mode, plans, dates and dollar amounts are the insurer's sample data, not anyone's real coverage.</p>
 </main>
 <script>
 const API=/pplx\.app$/.test(location.hostname)?"__PORT_5000__":"https://raventcare-benefits.pplx.app/port/5000";

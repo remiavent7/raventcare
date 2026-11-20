@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Member profile · Ravent Care</title><link rel="icon" type="image/svg+xml" href="logo.svg">
+<title>Member profile · CollectCare</title><link rel="icon" type="image/svg+xml" href="logo.svg">
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#eef4fb;--s1:#fff;--s2:#f3f7fc;--line:#d6e2f0;--tx:#10233f;--mut:#4d6180;--ac:#1f6fd1;--ok:#0f7a4f;--okb:#e2f5ec;--bad:#b42318;--badb:#fdecea}
@@ -43,7 +43,7 @@ details.svc summary .c{font-weight:500;color:var(--mut);font-size:13px;white-spa
 .tg{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;padding:2px 7px;margin:0 4px 2px 0;background:#eef2f7;color:var(--mut)}.tg.in{background:#e3eefc;color:var(--ac)}.tg.out{background:#fdf0e3;color:#9a4a00}.tg.au{background:#fdecea;color:var(--bad)}
 @media print{.top,.back,.tools,.confirm{display:none}details.svc{break-inside:avoid}}
 </style></head><body>
-<div class="top"><div class="in"><a class="brand" href="https://raventcare.com/"><img src="logo.svg" alt="">Ravent <span style="color:var(--ac)">Care</span></a>
+<div class="top"><div class="in"><a class="brand" href="https://raventcare.com/"><img src="logo.svg" alt="">Collect<span style="color:var(--ac)">Care</span></a>
 <nav><a href="https://raventcare.com/">App</a><a href="https://raventcare.com/find.html">Find a doctor</a><a href="https://raventcare.com/privacy.html">Privacy</a></nav></div></div>
 <main>
 <a class="back" id="back" href="benefits.html">← Back to Check my benefits</a>
@@ -73,7 +73,7 @@ function drawSvc(){const q=($("q").value||"").toLowerCase().trim();let shown=0;
 const id=new URLSearchParams(location.search).get("id");
 (async()=>{try{if(!id)throw new Error("No member was chosen.");
  const r=await fetch(API+"/api/profile",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});const d=await r.json();if(!r.ok)throw new Error(d.error||"The profile couldn't load.");D=d;
- const p=d.person,s=d.summary,a=age(p.dob),ini=(p.name||"?").split(" ").map(x=>x[0]).filter(Boolean);document.title=p.name+" · Member profile · Ravent Care";
+ const p=d.person,s=d.summary,a=age(p.dob),ini=(p.name||"?").split(" ").map(x=>x[0]).filter(Boolean);document.title=p.name+" · Member profile · CollectCare";
  const total=d.services.reduce((n,x)=>n+x.rows.length,0);
  $("app").innerHTML=`<div class="card"><div class="hd" style="margin:0"><div class="ph"><div class="av" aria-hidden="true">${esc((ini[0]||"")+(ini.length>1?ini[ini.length-1]:""))}</div><div><p class="mut" style="font-size:13px">Member profile · ${esc(d.payer.name)}</p><h1 style="font-size:clamp(26px,3.6vw,34px)">${esc(p.name)}</h1><p class="mut" style="font-size:14px">${esc(p.relationship)}</p></div></div>
  <span class="status ${s.active?"ok":"no"}">${s.active?"● Coverage active":"● Coverage not active"}</span></div>
@@ -87,7 +87,7 @@ const id=new URLSearchParams(location.search).get("id");
  <div class="tools"><input id="q" type="search" placeholder="Search benefits, e.g. chiropractic, MRI, copay" aria-label="Search benefits"><button class="chip on" data-net="all">All</button><button class="chip" data-net="in">In network</button><button class="chip" data-net="out">Out of network</button></div>
  <div id="svcs"></div></div>
  <div class="sec">${CONFIRM}</div>
- <p class="foot">Pulled from ${esc(d.payer.name)} through Stedi just now and not stored by Ravent Care. In test mode, these are the insurer's sample answers for a practice patient, not anyone's real coverage.</p>`;
+ <p class="foot">Pulled from ${esc(d.payer.name)} through Stedi just now and not stored by CollectCare. In test mode, these are the insurer's sample answers for a practice patient, not anyone's real coverage.</p>`;
  $("q").oninput=drawSvc;document.querySelectorAll("[data-net]").forEach(b=>b.onclick=()=>{NET=b.dataset.net;document.querySelectorAll("[data-net]").forEach(x=>x.classList.toggle("on",x===b));drawSvc()});drawSvc();
 }catch(e){$("app").innerHTML=`<div class="card"><div class="err">${esc(e.message||"The profile couldn't load.")} Go back and pick a member, or try again in a moment.</div></div>`}})();
 const CONFIRM=`<div class="confirm" role="note" style="display:flex;gap:10px;align-items:flex-start;margin:14px 0;padding:12px 14px;border-radius:12px;background:#fff7ec;border:1px solid #f6d9b5;color:#6b3407;font-size:14px;line-height:1.45;max-width:760px"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;margin-top:1px" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5v.5"/></svg><div><b>Always confirm with your insurer.</b> Before any visit, call the member services number on your insurance card, or check your insurer's website, to confirm the provider is in network for your plan. Network lists can be out of date.</div></div>`;

@@ -1,4 +1,4 @@
-/* Ravent Care desktop layout — applies only on wide screens */
+/* CollectCare desktop layout — applies only on wide screens */
 #dsk{display:none}
 @media (min-width:1180px){
   body.dsk-on #dsk{display:flex}

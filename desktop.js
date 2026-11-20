@@ -1,4 +1,4 @@
-/* Ravent Care desktop shell: sidebar navigation, quick actions, install button */
+/* CollectCare desktop shell: sidebar navigation, quick actions, install button */
 (function(){
   var MQ=window.matchMedia('(min-width:1180px)');
   var sections=[
@@ -17,8 +17,8 @@
     return el.closest('.card')||el;
   }
   var mark=document.querySelector('.brand svg');
-  var nav=document.createElement('aside');nav.id='dsk';nav.setAttribute('aria-label','Ravent Care navigation');
-  nav.innerHTML='<div class="db">'+(mark?mark.outerHTML:'')+'<span>Ravent <span style="color:var(--ac)">Care</span></span></div>'+
+  var nav=document.createElement('aside');nav.id='dsk';nav.setAttribute('aria-label','CollectCare navigation');
+  nav.innerHTML='<div class="db">'+(mark?mark.outerHTML:'')+'<span>Collect<span style="color:var(--ac)">Care</span></span></div>'+
     '<div class="dsub" id="dskwho">Desktop · sample data</div>'+
     '<div class="dlab">Quick actions</div><div class="dqa">'+
     '<button type="button" data-c="qrbtn">Check-in QR code</button>'+
@@ -33,7 +33,7 @@
     '<a href="practice.html"><span class="dot"></span>Practice view</a>'+
     '<a href="privacy.html"><span class="dot"></span>Privacy</a>'+
     '<div class="dfoot"><button type="button" class="dinst" id="dskinst" hidden>Install on this computer</button>'+
-    '<div class="dnote" id="dskinote">Ravent Care demo. Benefits and records shown are sample data.</div></div>';
+    '<div class="dnote" id="dskinote">CollectCare demo. Benefits and records shown are sample data.</div></div>';
   document.body.insertBefore(nav,document.body.firstChild);
   nav.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){var t=document.getElementById(b.dataset.c);if(t)t.click()}});
   var links=[];
@@ -66,6 +66,6 @@
   var deferred=null,ib=document.getElementById('dskinst');
   window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;ib.hidden=false});
   ib.onclick=function(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(){deferred=null;ib.hidden=true})};
-  window.addEventListener('appinstalled',function(){ib.hidden=true;document.getElementById('dskinote').textContent='Installed. Open Ravent Care from your apps or dock.'});
+  window.addEventListener('appinstalled',function(){ib.hidden=true;document.getElementById('dskinote').textContent='Installed. Open CollectCare from your apps or dock.'});
   if('serviceWorker' in navigator && location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(function(){})}
 })();
