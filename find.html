@@ -77,6 +77,60 @@ input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0;border-col
 .er{display:flex;gap:10px;align-items:flex-start;background:#fff1f1;border:1px solid #f3c5c8;color:#6b0f15;border-radius:14px;padding:12px 14px;font-size:14px;margin-top:16px}
 .er b{color:var(--red)}
 .fine{font-size:12.5px;color:var(--mut);margin-top:28px;display:grid;gap:6px;max-width:80ch}
+/* ---- scheduling ---- */
+.acts button.sch{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:14px;font-weight:700;border:1px solid var(--ac);background:var(--ac);color:#fff;padding:8px 12px;border-radius:10px;min-height:40px;cursor:pointer}
+.acts button.sch:hover{background:var(--ac-d)}
+.acts button.sch svg{width:16px;height:16px}
+.mback{position:fixed;inset:0;background:#10233f8c;display:flex;align-items:flex-end;justify-content:center;z-index:50}
+@media(min-width:700px){.mback{align-items:center;padding:24px}}
+.modal{background:var(--s1);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 20px 24px;box-shadow:0 20px 60px #10233f40}
+@media(min-width:700px){.modal{border-radius:22px}}
+.modal h2:focus{outline:none}
+.mh{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.mh h2{font-size:20px;font-weight:900;letter-spacing:-.02em;line-height:1.2}
+.mh p{font-size:13px;color:var(--mut);margin-top:3px}
+.mx{flex:none;border:1px solid var(--line);background:var(--s2);width:36px;height:36px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;color:var(--tx)}
+.stepn{font-size:12px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.ml{display:block;font-size:14px;font-weight:700;color:var(--tx);margin:16px 0 8px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--s2);border-radius:14px;padding:12px;font:inherit;cursor:pointer;color:var(--tx)}
+.opt b{display:block;font-size:15px}.opt span{display:block;font-size:12.5px;color:var(--mut);margin-top:2px}
+.opt.on{border-color:var(--ac);background:#e8f1fc;box-shadow:inset 0 0 0 1px var(--ac)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--s2);border-radius:99px;padding:8px 13px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--tx)}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.chip:disabled{opacity:.35;cursor:not-allowed}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.day{flex:none;width:62px;text-align:center;border:1px solid var(--line);background:var(--s2);border-radius:12px;padding:8px 4px;font:inherit;font-size:12px;cursor:pointer;color:var(--tx)}
+.day b{display:block;font-size:18px;font-weight:900}
+.day.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.day:disabled{opacity:.35;cursor:not-allowed}
+textarea{width:100%;background:var(--s2);border:1px solid var(--line);color:var(--tx);padding:12px;border-radius:12px;font:inherit;font-size:16px;min-height:76px;resize:vertical}
+textarea:focus{outline:2px solid var(--ac);border-color:transparent}
+.mfoot{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.mfoot .go{flex:1;width:auto;min-width:180px}
+.ghost{border:1px solid var(--line);background:var(--s1);border-radius:12px;padding:0 18px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:48px;color:var(--tx)}
+.ghost:hover{border-color:var(--ac)}
+.sum{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px;display:grid;gap:4px}
+.script{background:#f4f9ff;border:1px solid #cfe0f6;border-radius:14px;padding:14px;font-size:14px;margin-top:12px}
+.script p{margin-top:6px}
+.note{font-size:12.5px;color:var(--mut);margin-top:12px}
+.callbtn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700;font-size:16px;border-radius:12px;min-height:48px;margin-top:14px}
+.callbtn svg{width:18px;height:18px}
+.myap{margin:22px 0 4px}
+.myap h2{font-size:18px;font-weight:900;margin-bottom:10px}
+.ap{background:var(--s1);border:1px solid var(--line);border-left:4px solid var(--ac);border-radius:16px;padding:14px 16px;display:grid;gap:4px}
+.ap+.ap{margin-top:10px}
+.ap .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ap h3{font-size:16px;font-weight:900}
+.badge{flex:none;font-size:12px;font-weight:700;padding:4px 9px;border-radius:99px;white-space:nowrap}
+.badge.pend{background:#fff3e0;color:var(--warn);border:1px solid #f6d9b5}
+.badge.conf{background:#e3f5ec;color:var(--ok);border:1px solid #bfe6d2}
+.ap .acts button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--s1);color:var(--tx);padding:7px 11px;border-radius:10px;cursor:pointer;min-height:36px}
+.ap .acts button:hover{border-color:var(--ac)}
+.ap .acts a{font-size:13px;min-height:36px;padding:7px 11px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.opts,.twocol{grid-template-columns:1fr}}
 [hidden]{display:none!important}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media(prefers-reduced-motion:reduce){.sk{animation:none}}
@@ -116,6 +170,8 @@ input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0;border-col
  <div class="er" id="emerg" hidden><span aria-hidden="true">!</span><div><b>Emergency?</b> Call 911 or go to the nearest emergency room. Urgent care is for problems that can't wait but aren't life-threatening.</div></div>
 </form>
 
+<section class="myap" id="myap" hidden aria-label="My appointments"></section>
+
 <section aria-live="polite" id="out">
  <div class="status" id="st" hidden><div><h2 id="sth"></h2><p id="stp"></p></div>
   <div class="sortsel"><label for="sort" style="margin:0;font-weight:500">Sort</label><select id="sort"><option value="d">Nearest</option><option value="n">Name A–Z</option></select></div></div>
@@ -126,6 +182,7 @@ input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0;border-col
 <div class="fine">
  <p>Provider details come from the CMS National Plan and Provider Enumeration System (NPPES), served through the <a href="https://clinicaltables.nlm.nih.gov/apidoc/npi_idv/v3/doc.html" target="_blank" rel="noopener">National Library of Medicine Clinical Tables API</a>. Distances are approximate and measured to the center of each ZIP code, using ZIP data from <a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0).</p>
  <p>The registry lists who is licensed and where they practice. It does not confirm insurance networks, whether a provider is taking new patients, or office hours. Call the office to confirm before your visit.</p>
+ <p>Appointment requests you save are kept only on this device (in your browser) and are not sent to Ravent Care or to the office. Ravent Care can’t book directly with these offices yet, so every appointment is confirmed by calling the office.</p>
  <p>Your location is used only in your browser to sort results and is never saved or sent to Ravent Care. Ravent Care LLC (pending) · raventcare.com</p>
 </div>
 </main>
@@ -305,10 +362,10 @@ function orgName(n){var x=(n||'').replace(/[,\s]+(A\s+)?(PROFESSIONAL|MEDICAL|NU
 function specText(o){var s=clean(o['licenses.taxonomy.specialization']).split(';').map(function(x){return x.trim()}).filter(Boolean),u=[];s.forEach(function(x){if(u.indexOf(x)<0)u.push(x)});
  var pt=clean(o.provider_type).replace(/^Physician\//,'').replace(/Physician\//,'');
  var show=u.length&&!/^(General Practice|Adult Health|Family)$/.test(u[0])?u.slice(0,2).join(' \u00b7 '):pt;return show||pt}
-var IC={ph:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+var IC={cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 14v4M10 16h4"/></svg>',ph:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
  dir:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>',
  id:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h6M7 13h10M7 17h4"/></svg>'};
-function card(o){
+function card(o,i){
  var nm=T==='doc'?personName(o['name.full'],o['name.credential']):orgName(o['name.full']);
  var z=(o['addr_practice.zip']||'').slice(0,5),l2=clean(o['addr_practice.line2']);
  var addr=title(o['addr_practice.line1'])+(l2?' '+title(l2):'')+', '+title(o['addr_practice.city'])+', '+(o['addr_practice.state']||'')+' '+z;
@@ -317,13 +374,129 @@ function card(o){
  var maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(nm.replace(/,.*$/,'')+' '+addr);
  return '<article class="res"><div class="rh"><div><h3>'+esc(nm)+'</h3><div class="sp">'+esc(specText(o))+'</div>'+(gen?'<div class="meta">'+gen+'</div>':'')+'</div>'+(o.d!=null?'<div class="dist">'+(o.d<1?'< 1':o.d.toFixed(1))+' mi</div>':'')+'</div>'+
  '<div class="ad">'+esc(addr)+'</div><div class="acts">'+
- (tel.length>=10?'<a class="pri" href="tel:+1'+tel.slice(-10)+'">'+IC.ph+'Call '+esc(ph)+'</a>':'')+
+ '<button type="button" class="sch" data-i="'+i+'">'+IC.cal+'Schedule appointment</button>'+
+ (tel.length>=10?'<a href="tel:+1'+tel.slice(-10)+'">'+IC.ph+'Call '+esc(ph)+'</a>':'')+
  '<a href="'+maps+'" target="_blank" rel="noopener">'+IC.dir+'Directions</a>'+
  '<a href="https://npiregistry.cms.hhs.gov/provider-view/'+esc(o.NPI)+'" target="_blank" rel="noopener" title="Official NPI registry record">'+IC.id+'NPI '+esc(o.NPI)+'</a></div></article>'}
-function page(){var h='';for(var i=SHOWN;i<Math.min(RES.length,SHOWN+PAGE);i++)h+=card(RES[i]);$('list').insertAdjacentHTML('beforeend',h);SHOWN=Math.min(RES.length,SHOWN+PAGE);$('more').hidden=SHOWN>=RES.length;$('more').textContent='Show more ('+(RES.length-SHOWN)+' left)'}
+function page(){var h='';for(var i=SHOWN;i<Math.min(RES.length,SHOWN+PAGE);i++)h+=card(RES[i],i);$('list').insertAdjacentHTML('beforeend',h);SHOWN=Math.min(RES.length,SHOWN+PAGE);$('more').hidden=SHOWN>=RES.length;$('more').textContent='Show more ('+(RES.length-SHOWN)+' left)'}
 $('more').addEventListener('click',page);
 $('sort').addEventListener('change',function(){if(LAST)render()});
 $('f').addEventListener('submit',function(e){e.preventDefault();run(!!(ORIGIN&&ORIGIN.me&&/^Near me/.test($('loc').value)))});
+
+// ---------- scheduling ----------
+var AKEY='rc_find_appts',S=null;
+function loadA(){try{return JSON.parse(localStorage.getItem(AKEY)||'[]')}catch(e){return []}}
+function saveA(a){try{localStorage.setItem(AKEY,JSON.stringify(a))}catch(e){}}
+function provOf(o){
+ var nm=T==='doc'?personName(o['name.full'],o['name.credential']):orgName(o['name.full']);
+ var z=(o['addr_practice.zip']||'').slice(0,5),l2=clean(o['addr_practice.line2']);
+ var addr=title(o['addr_practice.line1'])+(l2?' '+title(l2):'')+', '+title(o['addr_practice.city'])+', '+(o['addr_practice.state']||'')+' '+z;
+ var ph=clean(o['addr_practice.phone']),tel=ph.replace(/\D/g,'');
+ return {name:nm,spec:specText(o),addr:addr,phone:tel.length>=10?ph:'',tel:tel.length>=10?tel.slice(-10):'',npi:o.NPI,kind:T,cat:$('spec').value}}
+function reasonsFor(p){
+ if(p.kind==='doc'){var r=['Yearly checkup or physical','New problem or symptom','Follow-up visit','Consultation or second opinion','Prescription refill','Something else'];
+  if(p.cat==='peds')r[0]='Well-child checkup';if(p.cat==='opt'||p.cat==='ophth')r[0]='Eye exam';if(p.cat==='dent')r[0]='Cleaning and checkup';if(p.cat==='therapy'||p.cat==='psych')r=['First session','Ongoing session','Medication review','Something else'];if(p.cat==='pt'||p.cat==='chiro')r=['Evaluation for a new injury','Ongoing treatment','Something else'];return r}
+ var m={urgent:['Illness (cold, flu, fever)','Minor injury','Test (COVID, strep, flu)','Something else'],lab:['Blood work','Urine or other test','Something else'],img:['X-ray','MRI','CT scan','Ultrasound','Mammogram','Something else'],rx:['Pick up a prescription','Vaccine or shot','Talk with a pharmacist'],sleepc:['Sleep study','Consultation','Follow-up'],ptc:['Evaluation','Ongoing treatment']};
+ return m[p.cat]||['First visit','Follow-up visit','Something else']}
+var WIN=[['am','Morning','8–11 am'],['mid','Midday','11 am–2 pm'],['pm','Afternoon','2–5 pm']];
+function nextDays(){var out=[],d=new Date();d.setHours(0,0,0,0);for(var i=1;out.length<21;i++){var x=new Date(d);x.setDate(d.getDate()+i);out.push(x)}return out}
+function dkey(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function fromKey(k){var p=k.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function fmtD(d,long){return d.toLocaleDateString('en-US',long?{weekday:'long',month:'long',day:'numeric'}:{weekday:'short',month:'short',day:'numeric'})}
+function fmtT(hm){var p=hm.split(':'),h=+p[0],m=p[1];return (h%12||12)+':'+m+(h<12?' am':' pm')}
+var lastFocus=null;
+function openModal(html){var old=$('mback'),st=0,foc=null;if(old){st=old.querySelector('.modal').scrollTop;var ae=document.activeElement;foc=ae&&old.contains(ae)?(ae.dataset.pt||ae.dataset.why||ae.dataset.fmt||ae.dataset.d||ae.dataset.w||ae.dataset.a):null}else lastFocus=document.activeElement;closeModal(true);var b=document.createElement('div');b.className='mback';b.id='mback';b.innerHTML='<div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">'+html+'</div>';document.body.appendChild(b);document.body.style.overflow='hidden';
+ b.addEventListener('click',function(e){if(e.target===b)closeModal()});b.querySelector('.modal').scrollTop=st;var f=null;if(foc){[].some.call(b.querySelectorAll('button'),function(x){var k=x.dataset.pt||x.dataset.why||x.dataset.fmt||x.dataset.d||x.dataset.w||x.dataset.a;if(k===foc&&!x.disabled){f=x;return true}})}if(!f)f=b.querySelector('.modal h2');if(f){if(f.tagName==='H2')f.setAttribute('tabindex','-1');f.focus({preventScroll:true})}}
+function closeModal(silent){var b=$('mback');if(b)b.remove();document.body.style.overflow='';if(!silent&&lastFocus&&lastFocus.focus)lastFocus.focus()}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('mback'))closeModal()});
+function head(step,t,sub){return '<div class="mh"><div>'+(step?'<div class="stepn">Step '+step+' of 3</div>':'')+'<h2 id="mtitle">'+esc(t)+'</h2><p>'+esc(sub)+'</p></div><button type="button" class="mx" aria-label="Close" data-a="close">×</button></div>'}
+
+function startSched(o){S={p:provOf(o),pt:null,why:null,notes:'',fmt:'in',days:[],win:[],asap:false,who:'',ins:''};step1()}
+function step1(){var p=S.p,R=reasonsFor(p);
+ openModal(head(1,'Schedule with '+p.name,p.spec+' · '+p.addr)+
+ '<label class="ml">Have you been seen here before?</label><div class="opts">'+
+ '<button type="button" class="opt'+(S.pt==='new'?' on':'')+'" data-pt="new" aria-pressed="'+(S.pt==='new')+'"><b>I’m a new patient</b><span>First visit with this '+(p.kind==='doc'?'provider':'office')+'</span></button>'+
+ '<button type="button" class="opt'+(S.pt==='ret'?' on':'')+'" data-pt="ret" aria-pressed="'+(S.pt==='ret')+'"><b>I’m a returning patient</b><span>I’ve been seen here before</span></button></div>'+
+ '<label class="ml">What’s the visit for?</label><div class="chips">'+R.map(function(r){return '<button type="button" class="chip'+(S.why===r?' on':'')+'" data-why="'+esc(r)+'" aria-pressed="'+(S.why===r)+'">'+esc(r)+'</button>'}).join('')+'</div>'+
+ (p.kind==='doc'?'<label class="ml">How would you like to be seen?</label><div class="chips"><button type="button" class="chip'+(S.fmt==='in'?' on':'')+'" data-fmt="in">In person</button><button type="button" class="chip'+(S.fmt==='video'?' on':'')+'" data-fmt="video">Video visit, if offered</button></div>':'')+
+ '<label class="ml" for="snotes">Anything the office should know? (optional)</label><textarea id="snotes" maxlength="400" placeholder="e.g. rash on my arm for 2 weeks">'+esc(S.notes)+'</textarea>'+
+ (p.cat==='urgent'?'<div class="er" style="margin-top:12px"><span aria-hidden="true">!</span><div><b>Most urgent care clinics take walk-ins.</b> You can still save a time to call ahead. For chest pain, trouble breathing or signs of stroke, call 911.</div></div>':'')+
+ '<div class="mfoot"><button type="button" class="ghost" data-a="close">Cancel</button><button type="button" class="go" data-a="n1"'+(S.pt&&S.why?'':' disabled')+'>'+(S.pt&&S.why?'Next: pick a time':'Choose visit type and reason')+'</button></div>');
+ bind1()}
+function bind1(){var m=$('mback');
+ m.addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;S.notes=$('snotes')?$('snotes').value:S.notes;
+  if(t.dataset.pt){S.pt=t.dataset.pt;step1()}else if(t.dataset.why){S.why=t.dataset.why;step1()}else if(t.dataset.fmt){S.fmt=t.dataset.fmt;step1()}else if(t.dataset.a==='n1'){step2()}else if(t.dataset.a==='close')closeModal()})}
+function step2(){var D=nextDays(),ok=S.asap||(S.days.length&&S.win.length);
+ openModal(head(2,'When works for you?',S.p.name+' · '+(S.pt==='new'?'New patient':'Returning patient')+' · '+S.why)+
+ '<div class="chips"><button type="button" class="chip'+(S.asap?' on':'')+'" data-a="asap" aria-pressed="'+S.asap+'">First available is fine</button></div>'+
+ '<label class="ml">Pick up to 3 days that work</label><div class="days" role="group" aria-label="Preferred days">'+D.map(function(d){var k=dkey(d),sun=d.getDay()===0,on=S.days.indexOf(k)>=0;return '<button type="button" class="day'+(on?' on':'')+'" data-d="'+k+'" aria-pressed="'+on+'"'+(sun||S.asap||(!on&&S.days.length>=3)?' disabled':'')+' aria-label="'+fmtD(d,true)+(sun?', most offices closed':'')+'">'+d.toLocaleDateString('en-US',{weekday:'short'})+'<b>'+d.getDate()+'</b>'+d.toLocaleDateString('en-US',{month:'short'})+'</button>'}).join('')+'</div>'+
+ '<label class="ml">Times of day that work</label><div class="chips">'+WIN.map(function(w){var on=S.win.indexOf(w[0])>=0;return '<button type="button" class="chip'+(on?' on':'')+'" data-w="'+w[0]+'" aria-pressed="'+on+'"'+(S.asap?' disabled':'')+'>'+w[1]+' · '+w[2]+'</button>'}).join('')+'</div>'+
+ '<p class="note">Sundays are greyed out because most offices are closed. These are your preferences; the office will offer an actual opening when you call.</p>'+
+ '<div class="twocol" style="margin-top:4px"><div><label class="ml" for="swho">Patient first name (optional)</label><input id="swho" maxlength="40" value="'+esc(S.who)+'" placeholder="e.g. Chris"></div><div><label class="ml" for="sins">Insurance plan (optional)</label><input id="sins" maxlength="60" value="'+esc(S.ins)+'" placeholder="e.g. Blue Shield PPO"></div></div>'+
+ '<div class="mfoot"><button type="button" class="ghost" data-a="b2">Back</button><button type="button" class="go" data-a="n2"'+(ok?'':' disabled')+'>'+(ok?'Next: review':'Pick days and times')+'</button></div>');
+ var m=$('mback');m.addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;S.who=$('swho').value.trim();S.ins=$('sins').value.trim();
+  if(t.dataset.a==='asap'){S.asap=!S.asap;step2()}
+  else if(t.dataset.d){var i=S.days.indexOf(t.dataset.d);if(i>=0)S.days.splice(i,1);else if(S.days.length<3)S.days.push(t.dataset.d);S.days.sort();step2()}
+  else if(t.dataset.w){var j=S.win.indexOf(t.dataset.w);if(j>=0)S.win.splice(j,1);else S.win.push(t.dataset.w);step2()}
+  else if(t.dataset.a==='b2')step1();else if(t.dataset.a==='n2')step3();else if(t.dataset.a==='close')closeModal()})}
+function prefText(a){if(a.asap)return 'First available';var w=WIN.filter(function(x){return a.win.indexOf(x[0])>=0}).map(function(x){return x[1].toLowerCase()}).join(' or ');return a.days.map(function(k){return fmtD(fromKey(k))}).join(', ')+' · '+w}
+function reqText(a){return 'Appointment request for '+a.p.name+' ('+a.p.spec+'), '+a.p.addr+'. '+(a.pt==='new'?'New patient':'Returning patient')+(a.who?' ('+a.who+')':'')+'. Reason: '+a.why+(a.fmt==='video'?' (video visit if offered)':'')+'. Preferred: '+prefText(a)+'.'+(a.ins?' Insurance: '+a.ins+'.':'')+(a.notes?' Notes: '+a.notes:'')}
+function scriptHTML(a){var who=a.who?a.who:'me';
+ return '<div class="script"><b>What to say when you call</b><p>“Hi, I’d like to schedule '+(a.pt==='new'?'a new-patient visit':'an appointment')+' with '+esc(a.p.name.replace(/,.*$/,''))+' for '+(a.who?esc(a.who):'myself')+'. It’s for '+esc(a.why.toLowerCase())+(a.fmt==='video'?', and a video visit would be great if you offer one':'')+'.”</p><p>“'+(a.asap?'I’m flexible, the first opening works.':'Do you have anything '+esc(prefText(a).replace(' · ',' in the '))+'?')+'”</p>'+(a.ins?'<p>“I have '+esc(a.ins)+'. Can you confirm you’re in network for my plan?”</p>':'<p>“Which insurance plans do you accept?”</p>')+(a.pt==='new'?'<p>“Are you accepting new patients, and what should I bring?”</p>':'')+'</div>'}
+function step3(){var a=S;
+ openModal(head(3,'Review and call to book',a.p.name)+
+ '<div class="sum"><div><b>'+esc(a.p.name)+'</b> · '+esc(a.p.spec)+'</div><div>'+esc(a.p.addr)+'</div><div><b>Visit:</b> '+(a.pt==='new'?'New patient':'Returning patient')+(a.who?' · '+esc(a.who):'')+' · '+esc(a.why)+(a.fmt==='video'?' · video if offered':'')+'</div><div><b>Preferred:</b> '+esc(prefText(a))+'</div>'+(a.ins?'<div><b>Insurance:</b> '+esc(a.ins)+'</div>':'')+(a.notes?'<div><b>Notes:</b> '+esc(a.notes)+'</div>':'')+'</div>'+
+ scriptHTML(a)+
+ (a.p.tel?'<a class="callbtn" href="tel:+1'+a.p.tel+'" data-a="call">'+IC.ph+'Call '+esc(a.p.phone)+' to book</a>':'<div class="er"><span aria-hidden="true">!</span><div><b>No phone number on file.</b> The registry doesn’t list a phone for this office. Use Directions or the NPI record to find their contact details.</div></div>')+
+ '<div class="confirm" role="note" style="display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;padding:12px 14px;border-radius:12px;background:#fff7ec;border:1px solid #f6d9b5;color:#6b3407;font-size:13.5px;line-height:1.45"><div><b>Always confirm with your insurer.</b> Ask the office if they take your plan, then check with your insurer that they’re in network before the visit.</div></div>'+
+ '<p class="note">Ravent Care can’t book directly with this office yet, so nothing has been sent. Save this request to keep track of it here, then mark it confirmed once the office gives you a time.</p>'+
+ '<div class="mfoot"><button type="button" class="ghost" data-a="b3">Back</button><button type="button" class="ghost" data-a="copy">Copy request</button><button type="button" class="go" data-a="save">Save to My appointments</button></div>');
+ var m=$('mback');m.addEventListener('click',function(e){var t=e.target.closest('button,a');if(!t)return;
+  if(t.dataset.a==='b3')step2();else if(t.dataset.a==='close')closeModal();
+  else if(t.dataset.a==='copy'){copy(reqText(a),t)}
+  else if(t.dataset.a==='call'){saveReq(true)}
+  else if(t.dataset.a==='save'){saveReq();closeModal();drawMy();$('myap').scrollIntoView({behavior:'smooth',block:'start'})}})}
+function saveReq(quiet){var L=loadA();if(S.id&&L.some(function(x){return x.id===S.id}))return;S.id='a'+Date.now();S.status='pending';S.created=Date.now();L.unshift(JSON.parse(JSON.stringify(S)));saveA(L);drawMy()}
+function copy(txt,btn){var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o},1600)};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,function(){prompt('Copy this request:',txt)});else prompt('Copy this request:',txt)}
+
+// confirm a time the office gave
+function confirmA(id){var a=loadA().filter(function(x){return x.id===id})[0];if(!a)return;var t=new Date();t.setDate(t.getDate()+1);
+ var dv=a.date||(a.days&&a.days[0])||dkey(t),tv=a.time||(a.win&&a.win[0]==='pm'?'14:00':a.win&&a.win[0]==='mid'?'11:30':'09:00');
+ openModal(head(0,'Office confirmed a time',a.p.name)+
+ '<p class="note" style="margin-top:0">Enter the date and time the office gave you. We’ll add it to your list and let you put it on your calendar with a reminder.</p>'+
+ '<div class="twocol"><div><label class="ml" for="cd">Date</label><input type="date" id="cd" min="'+dkey(new Date())+'" value="'+dv+'"></div><div><label class="ml" for="ct">Time</label><input type="time" id="ct" step="300" value="'+tv+'"></div></div>'+
+ '<label class="ml" for="cn">Confirmation number or note (optional)</label><input id="cn" maxlength="60" value="'+esc(a.conf||'')+'" placeholder="e.g. arrive 15 min early">'+
+ '<div class="mfoot"><button type="button" class="ghost" data-a="close">Cancel</button><button type="button" class="go" data-a="ok">Save confirmed time</button></div>');
+ $('mback').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.a==='close')closeModal();
+  if(b.dataset.a==='ok'){var d=$('cd').value,tm=$('ct').value;if(!d||!tm){($('cd').value?$('ct'):$('cd')).focus();return}
+   var L=loadA();L.forEach(function(x){if(x.id===id){x.status='confirmed';x.date=d;x.time=tm;x.conf=$('cn').value.trim()}});saveA(L);closeModal();drawMy()}})}
+function pad(n){return ('0'+n).slice(-2)}
+function icsStamp(d){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00'}
+function startOf(a){var d=fromKey(a.date),p=a.time.split(':');d.setHours(+p[0],+p[1]);return d}
+function icsEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n')}
+function ics(a){var s=startOf(a),e=new Date(s.getTime()+(a.pt==='new'?45:30)*60000),u=new Date();
+ var desc=(a.pt==='new'?'New-patient visit':'Returning-patient visit')+': '+a.why+'. '+(a.p.phone?'Office phone: '+a.p.phone+'. ':'')+(a.conf?'Note: '+a.conf+'. ':'')+(a.pt==='new'?'Bring photo ID, insurance card and medication list. ':'')+'Always confirm with your insurer that this provider is in network. Saved with Ravent Care.';
+ var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ravent Care//Find//EN','BEGIN:VEVENT','UID:'+a.id+'@raventcare.com','DTSTAMP:'+u.toISOString().replace(/[-:]/g,'').replace(/\.\d+/,''),'DTSTART:'+icsStamp(s),'DTEND:'+icsStamp(e),'SUMMARY:'+icsEsc('Appointment: '+a.p.name),'LOCATION:'+icsEsc(a.p.addr),'DESCRIPTION:'+icsEsc(desc),'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:'+icsEsc('Tomorrow: '+a.p.name),'END:VALARM','BEGIN:VALARM','TRIGGER:-PT1H','ACTION:DISPLAY','DESCRIPTION:'+icsEsc('In 1 hour: '+a.p.name),'END:VALARM','END:VEVENT','END:VCALENDAR'];
+ var blob=new Blob([L.join('\r\n')],{type:'text/calendar'}),url=URL.createObjectURL(blob),x=document.createElement('a');x.href=url;x.download='appointment-'+a.p.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.ics';document.body.appendChild(x);x.click();setTimeout(function(){URL.revokeObjectURL(url);x.remove()},1000)}
+function gcal(a){var s=startOf(a),e=new Date(s.getTime()+(a.pt==='new'?45:30)*60000);return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Appointment: '+a.p.name)+'&dates='+icsStamp(s)+'/'+icsStamp(e)+'&location='+encodeURIComponent(a.p.addr)+'&details='+encodeURIComponent(a.why+(a.p.phone?' · Office: '+a.p.phone:'')+(a.conf?' · '+a.conf:''))}
+function drawMy(){var L=loadA(),box=$('myap');
+ L=L.filter(function(a){return a.status!=='confirmed'||startOf(a).getTime()>Date.now()-864e5});
+ if(!L.length){box.hidden=true;box.innerHTML='';return}box.hidden=false;
+ box.innerHTML='<h2>My appointments</h2>'+L.map(function(a){var c=a.status==='confirmed';
+  return '<div class="ap"><div class="top"><div><h3>'+esc(a.p.name)+'</h3><div class="sp" style="font-size:13px">'+esc(a.p.spec)+'</div></div><span class="badge '+(c?'conf':'pend')+'">'+(c?'Confirmed':'Call to confirm')+'</span></div>'+
+  '<div class="meta">'+(c?'<b style="color:var(--tx)">'+fmtD(fromKey(a.date),true)+' at '+fmtT(a.time)+'</b>'+(a.conf?' · '+esc(a.conf):''):'You asked for: '+esc(prefText(a)))+'</div>'+
+  '<div class="meta">'+(a.pt==='new'?'New patient':'Returning patient')+(a.who?' · '+esc(a.who):'')+' · '+esc(a.why)+'</div><div class="meta">'+esc(a.p.addr)+'</div>'+
+  '<div class="acts" style="margin-top:8px">'+(a.p.tel?'<a href="tel:+1'+a.p.tel+'">'+IC.ph+'Call office</a>':'')+
+  (c?'<button type="button" data-ics="'+a.id+'">Add to calendar</button><a href="'+gcal(a)+'" target="_blank" rel="noopener">Google Calendar</a><button type="button" data-cf="'+a.id+'">Change time</button>':'<button type="button" data-cf="'+a.id+'">Office confirmed a time</button><button type="button" data-cp="'+a.id+'">Copy request</button>')+
+  '<button type="button" data-rm="'+a.id+'" style="color:var(--mut)">'+(c?'Cancel':'Remove')+'</button></div></div>'}).join('')}
+$('myap').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var L=loadA();
+ if(b.dataset.cf)confirmA(b.dataset.cf);
+ else if(b.dataset.ics)ics(L.filter(function(x){return x.id===b.dataset.ics})[0]);
+ else if(b.dataset.cp)copy(reqText(L.filter(function(x){return x.id===b.dataset.cp})[0]),b);
+ else if(b.dataset.rm){var a=L.filter(function(x){return x.id===b.dataset.rm})[0];if(confirm(a.status==='confirmed'?'Remove this appointment from your list? Remember to call the office to cancel it.':'Remove this request?')){saveA(L.filter(function(x){return x.id!==b.dataset.rm}));drawMy()}}});
+$('list').addEventListener('click',function(e){var b=e.target.closest('button.sch');if(!b)return;var o=RES[+b.dataset.i];if(o)startSched(o)});
+drawMy();
 
 // ---------- init ----------
 var P=new URLSearchParams(location.search);
