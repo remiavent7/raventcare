@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Find a doctor or clinic near you · Ravent Care</title>
+<meta name="description" content="Search real doctors, specialists, urgent care, labs, imaging and pharmacies near any US ZIP code, using the national NPI provider registry.">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#eef4fb">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef4fb;--s1:#fff;--s2:#f3f7fc;--line:#d6e2f0;--tx:#10233f;--mut:#4d6180;--ac:#1f6fd1;--ac-d:#1659ab;--ok:#0f7a55;--warn:#9a4a07;--red:#b3151f}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--tx);font-family:Satoshi,system-ui,-apple-system,sans-serif;min-height:100vh;line-height:1.45}
+a{color:var(--ac)}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 20px 64px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:26px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:21px;letter-spacing:-.02em;color:var(--tx);text-decoration:none}
+.brand svg{width:30px;height:30px}
+.hlink{font-size:14px;font-weight:700;text-decoration:none;border:1px solid var(--line);background:var(--s1);padding:8px 14px;border-radius:99px;color:var(--tx)}
+.hlink:hover{border-color:var(--ac)}
+h1{font-size:clamp(28px,4.4vw,42px);letter-spacing:-.03em;font-weight:900;line-height:1.08}
+.lede{color:var(--mut);margin:10px 0 22px;font-size:16px;max-width:60ch}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--ok);background:#e3f5ec;border:1px solid #bfe6d2;padding:5px 10px;border-radius:99px;margin-bottom:14px}
+.live i{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 3px #16a34a33}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:20px}
+.tabs{display:inline-flex;background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px;gap:4px}
+.tabs button{border:0;background:transparent;font:inherit;font-weight:700;font-size:14px;color:var(--mut);padding:9px 14px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--s1);color:var(--tx);box-shadow:0 1px 3px #10233f1f}
+.fgrid{display:grid;grid-template-columns:1.3fr 1.2fr .7fr;gap:12px}
+.fgrid2{display:grid;grid-template-columns:1.3fr .9fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:760px){.fgrid,.fgrid2{grid-template-columns:1fr}}
+label{display:block;font-size:13px;font-weight:700;color:var(--mut);margin-bottom:6px}
+input,select{width:100%;background:var(--s2);border:1px solid var(--line);color:var(--tx);padding:12px;border-radius:12px;font:inherit;font-size:16px;min-height:48px}
+input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0;border-color:transparent}
+.locrow{display:flex;gap:8px}
+.locrow input{flex:1;min-width:0}
+.ibtn{flex:none;border:1px solid var(--line);background:var(--s1);border-radius:12px;padding:0 12px;font:inherit;font-size:14px;font-weight:700;color:var(--ac);cursor:pointer;display:flex;align-items:center;gap:6px;min-height:48px}
+.ibtn:hover{border-color:var(--ac)}
+.ibtn svg{width:18px;height:18px}
+.go{align-self:end;background:var(--ac);color:#fff;border:0;padding:0 22px;border-radius:12px;font:inherit;font-weight:700;font-size:16px;cursor:pointer;min-height:48px;width:100%}
+.go:hover{background:var(--ac-d)}
+.go:disabled{opacity:.6;cursor:progress}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.quick button{border:1px solid var(--line);background:var(--s2);border-radius:99px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;color:var(--tx);cursor:pointer}
+.quick button:hover{border-color:var(--ac);color:var(--ac)}
+.status{margin:22px 2px 12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.status h2{font-size:18px;font-weight:900;letter-spacing:-.01em}
+.status p{font-size:13px;color:var(--mut)}
+.sortsel{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}
+.sortsel select{width:auto;min-height:36px;padding:6px 10px;font-size:14px}
+.list{display:grid;gap:10px}
+.res{background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.rh{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.res h3{font-size:17px;font-weight:900;letter-spacing:-.01em;line-height:1.25}
+.sp{font-size:14px;color:var(--ac);font-weight:700;margin-top:2px}
+.meta{font-size:13px;color:var(--mut);margin-top:2px}
+.dist{flex:none;font-size:13px;font-weight:700;background:var(--s2);border:1px solid var(--line);padding:4px 9px;border-radius:99px;white-space:nowrap}
+.ad{font-size:14px;margin-top:8px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.acts a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:14px;font-weight:700;border:1px solid var(--line);color:var(--tx);padding:8px 12px;border-radius:10px;min-height:40px}
+.acts a.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.acts a:hover{border-color:var(--ac)}
+.acts a.pri:hover{background:var(--ac-d)}
+.acts svg{width:16px;height:16px}
+.more{display:block;margin:16px auto 0;border:1px solid var(--line);background:var(--s1);padding:12px 20px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;color:var(--tx)}
+.more:hover{border-color:var(--ac)}
+.msg{background:var(--s1);border:1px dashed var(--line);border-radius:16px;padding:22px;text-align:center;color:var(--mut)}
+.msg b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
+.msg.err{border-style:solid;border-color:#f3c5c8;background:#fff6f6}
+.msg button{margin-top:12px}
+.sk{height:118px;border-radius:16px;background:linear-gradient(90deg,#e6eef8 0,#f4f8fd 40%,#e6eef8 80%);background-size:300% 100%;animation:sh 1.2s infinite linear}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.er{display:flex;gap:10px;align-items:flex-start;background:#fff1f1;border:1px solid #f3c5c8;color:#6b0f15;border-radius:14px;padding:12px 14px;font-size:14px;margin-top:16px}
+.er b{color:var(--red)}
+.fine{font-size:12.5px;color:var(--mut);margin-top:28px;display:grid;gap:6px;max-width:80ch}
+[hidden]{display:none!important}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media(prefers-reduced-motion:reduce){.sk{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <a class="brand" href="./find.html" aria-label="Ravent Care provider search"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Ravent <span style="color:var(--ac)">Care</span></span></a>
+ <a class="hlink" href="./index.html">My Ravent Care</a>
+</header>
+
+<main>
+<div class="live"><i></i>Live search · national provider registry</div>
+<h1>Find a doctor or clinic near you</h1>
+<p class="lede">Search real, licensed providers anywhere in the US by specialty, name and location. Results come straight from the national NPI registry each time you search.</p>
+
+<form id="f" class="card" novalidate>
+ <div class="tabs" role="tablist" aria-label="What to search">
+  <button type="button" role="tab" id="tab-doc" aria-selected="true" data-t="doc">Doctors &amp; clinicians</button>
+  <button type="button" role="tab" id="tab-org" aria-selected="false" data-t="org">Clinics &amp; facilities</button>
+ </div>
+ <div class="fgrid">
+  <div><label for="spec" id="speclab">Specialty</label><select id="spec"></select></div>
+  <div><label for="loc">ZIP code or city</label>
+   <div class="locrow"><input id="loc" placeholder="e.g. 90277 or Redondo Beach, CA" autocomplete="postal-code" inputmode="text">
+   <button type="button" class="ibtn" id="me" title="Use my current location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>Near me</span></button></div></div>
+  <div><label for="rad">Within</label><select id="rad"><option value="3">3 miles</option><option value="5">5 miles</option><option value="10" selected>10 miles</option><option value="25">25 miles</option><option value="50">50 miles</option></select></div>
+ </div>
+ <div class="fgrid2">
+  <div><label for="name" id="namelab">Name (optional)</label><input id="name" placeholder="e.g. Patel" autocomplete="off"></div>
+  <div id="gwrap"><label for="gen">Provider gender</label><select id="gen"><option value="">Any</option><option value="F">Female</option><option value="M">Male</option></select></div>
+  <div style="display:flex"><button class="go" id="go" type="submit">Search</button></div>
+ </div>
+ <div class="quick" id="quick" aria-label="Popular searches"></div>
+ <div class="er" id="emerg" hidden><span aria-hidden="true">!</span><div><b>Emergency?</b> Call 911 or go to the nearest emergency room. Urgent care is for problems that can't wait but aren't life-threatening.</div></div>
+</form>
+
+<section aria-live="polite" id="out">
+ <div class="status" id="st" hidden><div><h2 id="sth"></h2><p id="stp"></p></div>
+  <div class="sortsel"><label for="sort" style="margin:0;font-weight:500">Sort</label><select id="sort"><option value="d">Nearest</option><option value="n">Name A–Z</option></select></div></div>
+ <div class="list" id="list"></div>
+ <button class="more" id="more" hidden>Show more</button>
+</section>
+
+<div class="fine">
+ <p>Provider details come from the CMS National Plan and Provider Enumeration System (NPPES), served through the <a href="https://clinicaltables.nlm.nih.gov/apidoc/npi_idv/v3/doc.html" target="_blank" rel="noopener">National Library of Medicine Clinical Tables API</a>. Distances are approximate and measured to the center of each ZIP code, using ZIP data from <a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0).</p>
+ <p>The registry lists who is licensed and where they practice. It does not confirm insurance networks, whether a provider is taking new patients, or office hours. Call the office to confirm before your visit.</p>
+ <p>Your location is used only in your browser to sort results and is never saved or sent to Ravent Care. Ravent Care LLC (pending) · raventcare.com</p>
+</div>
+</main>
+</div>
+
+<script>
+(function(){
+'use strict';
+var API='https://clinicaltables.nlm.nih.gov/api/';
+function q(s){return '"'+s+'"'}
+function PT(){return [].slice.call(arguments).map(function(s){return 'provider_type:'+q(s)}).join(' OR ')}
+function SP(){return [].slice.call(arguments).map(function(s){return 'licenses.taxonomy.specialization:'+q(s)}).join(' OR ')}
+function CL(){return [].slice.call(arguments).map(function(s){return 'licenses.taxonomy.classification:'+q(s)}).join(' OR ')}
+function J(){return [].slice.call(arguments).join(' OR ')}
+var SPECS={doc:[
+['primary','Primary care (family & internal medicine)',PT('Physician/Family Practice','Physician/Internal Medicine','Physician/General Practice')],
+['family','Family medicine',PT('Physician/Family Practice')],
+['internal','Internal medicine',PT('Physician/Internal Medicine')],
+['peds','Pediatrics',PT('Physician/Pediatric Medicine')],
+['obgyn','OB-GYN',PT('Physician/Obstetrics & Gynecology')],
+['np','Nurse practitioner',PT('Nurse Practitioner')],
+['pa','Physician assistant',PT('Physician Assistant')],
+['allergy','Allergy & immunology',J(PT('Physician/Allergy/ Immunology'),SP('Allergy & Immunology'))],
+['cardio','Cardiology (heart)',J(PT('Physician/Cardiovascular Disease (Cardiology)'),SP('Cardiovascular Disease'))],
+['derm','Dermatology (skin)',PT('Physician/Dermatology')],
+['endo','Endocrinology & diabetes',SP('Endocrinology, Diabetes & Metabolism')],
+['ent','Ear, nose & throat (ENT)',PT('Physician/Otolaryngology')],
+['gi','Gastroenterology (digestive)',J(PT('Physician/Gastroenterology'),SP('Gastroenterology'))],
+['onc','Hematology & oncology (cancer)',J(SP('Hematology & Oncology','Medical Oncology','Hematology'),PT('Physician/Hematology-Oncology','Physician/Medical Oncology'))],
+['neph','Nephrology (kidney)',J(SP('Nephrology'),PT('Physician/Nephrology'))],
+['neuro','Neurology',PT('Physician/Neurology')],
+['ophth','Ophthalmology (eye doctor, MD)',PT('Physician/Ophthalmology')],
+['opt','Optometry (eye exams & glasses)',PT('Optometry')],
+['ortho','Orthopedics (bones & joints)',J(CL('Orthopaedic Surgery'),PT('Physician/Orthopedic Surgery'))],
+['psych','Psychiatry',PT('Physician/Psychiatry')],
+['therapy','Therapy & counseling',CL('Psychologist','Clinical Social Worker','Marriage & Family Therapist','Counselor')],
+['pulm','Pulmonology (lungs)',J(SP('Pulmonary Disease'),PT('Physician/Pulmonary Disease'))],
+['rheum','Rheumatology',J(SP('Rheumatology'),PT('Physician/Rheumatology'))],
+['sleep','Sleep medicine',J(SP('Sleep Medicine'),PT('Physician/Sleep Medicine'))],
+['uro','Urology',PT('Physician/Urology')],
+['pod','Podiatry (foot & ankle)',PT('Podiatry')],
+['chiro','Chiropractic',PT('Chiropractic')],
+['pt','Physical therapy',CL('Physical Therapist')],
+['dent','Dentistry',CL('Dentist')],
+['aud','Audiology (hearing)',CL('Audiologist')],
+['any','Any specialty','']
+],org:[
+['urgent','Urgent care',SP('Urgent Care')],
+['hosp','Hospitals',CL('General Acute Care Hospital')],
+['img','Imaging & radiology',J(CL('Radiology'),SP('Diagnostic Radiology','Mammography','Magnetic Resonance Imaging (MRI)'))],
+['lab','Labs',CL('Clinical Medical Laboratory')],
+['rx','Pharmacies',SP('Community/Retail Pharmacy')],
+['clinic','Primary care & community clinics',SP('Primary Care','Federally Qualified Health Center (FQHC)','Rural Health')],
+['mh','Mental health clinics',J(CL('Community/Behavioral Health'),SP('Mental Health (Including Community Mental Health Center)'))],
+['sleepc','Sleep centers',SP('Sleep Disorder Diagnostic')],
+['ptc','Physical therapy clinics',CL('Physical Therapist')],
+['surg','Surgery centers',SP('Ambulatory Surgical')],
+['dial','Dialysis centers',SP('End-Stage Renal Disease (ESRD) Treatment')],
+['hh','Home health agencies',CL('Home Health')],
+['snf','Skilled nursing facilities',CL('Skilled Nursing Facility')],
+['any','Any facility','']
+]};
+var QUICK=[['doc','primary','Primary care'],['org','urgent','Urgent care'],['doc','peds','Pediatrics'],['doc','derm','Dermatology'],['doc','cardio','Cardiology'],['org','img','Imaging'],['org','lab','Labs'],['org','rx','Pharmacies'],['org','sleepc','Sleep centers']];
+
+var $=function(id){return document.getElementById(id)};
+var T='doc',RES=[],SHOWN=0,PAGE=20,ORIGIN=null,ctl=null;
+var geoIdx=null,zcache={},ccache={};
+
+function setTab(t,keep){T=t;['doc','org'].forEach(function(k){$('tab-'+k).setAttribute('aria-selected',k===t?'true':'false')});
+ var cur=keep||$('spec').value;
+ $('spec').innerHTML=SPECS[t].map(function(s){return '<option value="'+s[0]+'">'+s[1]+'</option>'}).join('');
+ if(SPECS[t].some(function(s){return s[0]===cur}))$('spec').value=cur;
+ $('speclab').textContent=t==='doc'?'Specialty':'Type of place';
+ $('namelab').textContent=t==='doc'?'Provider name (optional)':'Name of place (optional)';
+ $('name').placeholder=t==='doc'?'e.g. Patel':'e.g. Kaiser';
+ $('gwrap').hidden=t!=='doc';
+ emerg();}
+function emerg(){$('emerg').hidden=!(T==='org'&&($('spec').value==='urgent'||$('spec').value==='hosp'))}
+document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){setTab(b.dataset.t)})});
+$('spec').addEventListener('change',emerg);
+$('quick').innerHTML=QUICK.map(function(x){return '<button type="button" data-t="'+x[0]+'" data-s="'+x[1]+'">'+x[2]+'</button>'}).join('');
+$('quick').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;setTab(b.dataset.t,b.dataset.s);$('spec').value=b.dataset.s;emerg();$('name').value='';run()});
+
+// ---------- geography ----------
+function getJSON(u,signal){return fetch(u,{signal:signal}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
+function idx(){return geoIdx?Promise.resolve(geoIdx):getJSON('geo/idx.json').then(function(d){geoIdx=d;return d})}
+function zfile(p){return zcache[p]?Promise.resolve(zcache[p]):getJSON('geo/z'+p+'.json').then(function(d){zcache[p]=d;return d}).catch(function(){zcache[p]={};return {}})}
+function hav(a,b,c,d){var R=3958.8,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
+function boxDist(lat,lng,b){var la=Math.max(b[2],Math.min(b[3],lat)),ln=Math.max(b[4],Math.min(b[5],lng));return hav(lat,lng,la,ln)}
+function prefixesNear(lat,lng,mi){return idx().then(function(I){return Object.keys(I).filter(function(p){return boxDist(lat,lng,I[p])<=mi})})}
+function zipsWithin(lat,lng,mi){return prefixesNear(lat,lng,mi).then(function(ps){return Promise.all(ps.map(zfile))}).then(function(fs){var out=[];fs.forEach(function(f){for(var z in f){var d=hav(lat,lng,f[z][0],f[z][1]);if(d<=mi)out.push({z:z,d:d})}});out.sort(function(a,b){return a.d-b.d});return out})}
+function title(s){return (s||'').toLowerCase().replace(/(^|[\s\-\/'(&.])([a-z])/g,function(m,a,b){return a+b.toUpperCase()}).replace(/\b(Llc|Inc|Pc|Lp|Llp|Md|Do|Dds|Dmd|Np|Pa|Pt|Dpt|Od|Rn|Usa|Ii|Iii|Iv|Mri|Ct|Fqhc|Ucla|Usc|Hmo|Ppo|Ste|Rd)\b/g,function(m){return /^(Ste|Rd)$/.test(m)?m:m.toUpperCase()}).replace(/\bMc([a-z])/g,function(m,a){return 'Mc'+a.toUpperCase()})}
+function resolveLoc(text){
+ text=(text||'').trim();
+ var m=text.match(/\b(\d{5})(?:-\d{4})?\b/);
+ if(m){var z=m[1];return zfile(z.slice(0,3)).then(function(f){if(!f[z])throw new Error('We couldn\u2019t find ZIP code '+z+'. Check the number and try again.');return {lat:f[z][0],lng:f[z][1],label:f[z][2]+', '+f[z][3]+' '+z,zip:z}})}
+ if(!text)return Promise.reject(new Error('Enter a ZIP code or city, or tap Near me.'));
+ var s=text.replace(/\./g,'').replace(/\s+/g,' '),st=null,city=s;
+ var mm=s.match(/^(.*?)[,\s]+([A-Za-z]{2})$/);
+ if(mm&&/^(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|PR|GU|VI|AS|MP)$/i.test(mm[2])){city=mm[1];st=mm[2].toUpperCase()}
+ city=city.replace(/,$/,'').trim().toUpperCase().replace(/^ST /,'SAINT ').replace(/^MT /,'MOUNT ');
+ var tries=st?[st]:['CA'];
+ function look(stt){return (ccache[stt]?Promise.resolve(ccache[stt]):getJSON('geo/c/'+stt+'.json').then(function(d){ccache[stt]=d;return d})).then(function(d){
+   var v=d[city]||d[city.replace(/^SAINT /,'ST ')]||d[city.replace(/^MOUNT /,'MT ')];
+   if(!v){var ks=Object.keys(d).filter(function(k){return k.indexOf(city)===0});if(ks.length)v=d[ks[0]],city=ks[0]}
+   if(!v)return null;return {lat:v[0],lng:v[1],label:title(city)+', '+stt,zip:v[2]}})}
+ return look(tries[0]).then(function(r){if(r)return r;throw new Error(st?'We couldn\u2019t find '+title(city)+', '+st+'. Try a ZIP code instead.':'Add the state, like \u201c'+title(city)+', TX\u201d, or use a ZIP code.')})
+}
+function nearestZip(lat,lng){return zipsWithin(lat,lng,15).then(function(z){return z[0]||null})}
+$('me').addEventListener('click',function(){
+ if(!navigator.geolocation){showMsg('err','Location isn\u2019t available','Your browser can\u2019t share location. Type a ZIP code instead.');return}
+ var b=$('me');b.disabled=true;b.querySelector('span').textContent='Locating\u2026';
+ navigator.geolocation.getCurrentPosition(function(p){
+   var la=p.coords.latitude,ln=p.coords.longitude;
+   nearestZip(la,ln).then(function(z){b.disabled=false;b.querySelector('span').textContent='Near me';
+     if(!z){showMsg('err','Outside the US?','We couldn\u2019t match your location to a US ZIP code. Type a ZIP code instead.');return}
+     var f=zcache[z.z.slice(0,3)][z.z];ORIGIN={lat:la,lng:ln,label:'your location ('+f[2]+')',zip:z.z,me:true};$('loc').value='Near me \u00b7 '+f[2]+' '+z.z;run(true)})
+ },function(){b.disabled=false;b.querySelector('span').textContent='Near me';showMsg('err','Location is off','Allow location for this site in your browser settings, or type a ZIP code.')},{enableHighAccuracy:false,timeout:12000,maximumAge:300000})
+});
+$('loc').addEventListener('input',function(){ORIGIN=null});
+
+// ---------- search ----------
+function zipClause(zs){var l=zs.map(function(x){return x.z});
+ if(l.length>90){var s={};l.forEach(function(z){s[z.slice(0,4)]=1});l=Object.keys(s);if(l.length>90){s={};l.forEach(function(z){s[z.slice(0,3)]=1});l=Object.keys(s)}}
+ return 'addr_practice.zip:('+l.map(function(z){return z+'*'}).join(' OR ')+')'}
+var DF=['NPI','name.full','name.credential','provider_type','licenses.taxonomy.specialization','addr_practice.line1','addr_practice.line2','addr_practice.city','addr_practice.state','addr_practice.zip','addr_practice.phone','gender'];
+function query(set,qs,name,signal){
+ var u=API+set+'/v3/search?count=500&df='+encodeURIComponent(DF.join(','))+'&q='+encodeURIComponent(qs)+'&terms='+encodeURIComponent(name||'');
+ if(name)u+='&sf=name.full';
+ return getJSON(u,signal);
+}
+function skel(){$('st').hidden=true;$('more').hidden=true;$('list').innerHTML='<div class="sk"></div><div class="sk"></div><div class="sk"></div>'}
+function showMsg(k,h,p,retry){$('st').hidden=true;$('more').hidden=true;$('list').innerHTML='<div class="msg'+(k==='err'?' err':'')+'"><b>'+h+'</b>'+p+(retry?'<br><button type="button" class="more" id="retry">Try again</button>':'')+'</div>';if(retry)$('retry').onclick=function(){run(!!ORIGIN)}}
+function saveURL(){try{var p=new URLSearchParams({t:T,s:$('spec').value,l:ORIGIN&&ORIGIN.me?ORIGIN.zip:$('loc').value.trim(),r:$('rad').value});if($('name').value.trim())p.set('n',$('name').value.trim());if($('gen').value&&T==='doc')p.set('g',$('gen').value);history.replaceState(null,'','?'+p.toString())}catch(e){}}
+
+function run(keepOrigin){
+ if(ctl)ctl.abort();ctl=new AbortController();var signal=ctl.signal;
+ var spec=SPECS[T].filter(function(s){return s[0]===$('spec').value})[0],R=+$('rad').value,name=$('name').value.trim().replace(/[^\w\s'\-]/g,' ').trim(),g=T==='doc'?$('gen').value:'';
+ if(spec[0]==='any'&&!name&&T==='org'){}
+ $('go').disabled=true;skel();
+ var orig=(keepOrigin&&ORIGIN)?Promise.resolve(ORIGIN):resolveLoc($('loc').value).then(function(o){ORIGIN=o;return o});
+ var total=0,radUsed=R;
+ orig.then(function(o){return zipsWithin(o.lat,o.lng,R).then(function(zs){
+   if(!zs.length)throw new Error('No US ZIP codes found within '+R+' miles of '+o.label+'.');
+   var rings=[R].concat([25,10,5,2,1].filter(function(r){return r<R})),i=0,set=T==='doc'?'npi_idv':'npi_org';
+   function step(){var r=rings[i],sub=zs.filter(function(x){return x.d<=r});if(!sub.length)sub=zs.slice(0,1);
+     var qs=zipClause(sub)+(spec[2]?' AND ('+spec[2]+')':'')+(g?' AND gender:'+g:'');
+     return query(set,qs,name,signal).then(function(d){total=d[0];radUsed=r;if(d[0]<=500||i===rings.length-1){return d}i++;return step()})}
+   return step().then(function(d){
+     var dist={};zs.forEach(function(x){dist[x.z]=x.d});
+     var seen={},out=[];
+     (d[3]||[]).forEach(function(row,k){var o={};DF.forEach(function(f,j){o[f]=row[j]});var z5=(o['addr_practice.zip']||'').slice(0,5);
+       o.d=dist[z5];if(o.d==null){var f=zcache[z5.slice(0,3)];if(f&&f[z5])o.d=hav(ORIGIN.lat,ORIGIN.lng,f[z5][0],f[z5][1])}
+       if(o.d!=null&&o.d>radUsed+0.5)return;
+       if(T==='org'){var key=(o['name.full']+'|'+o['addr_practice.line1']).toUpperCase();if(seen[key])return;seen[key]=1}
+       out.push(o)});
+     RES=out;return {o:o,total:total,r:radUsed,asked:R}
+   })})})
+ .then(function(x){$('go').disabled=false;saveURL();render(x)})
+ .catch(function(e){$('go').disabled=false;if(e.name==='AbortError')return;
+   var net=/Failed to fetch|NetworkError|HTTP|Load failed/i.test(e.message);
+   showMsg('err',net?'The provider registry didn\u2019t respond':'Check your location',net?'The national registry may be busy. Wait a moment and try again.':e.message,net)})
+}
+function sortRes(){var by=$('sort').value;RES.sort(by==='n'?function(a,b){return (a['name.full']||'').localeCompare(b['name.full']||'')}:function(a,b){return (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d)||(a['name.full']||'').localeCompare(b['name.full']||'')})}
+var LAST=null;
+function render(x){LAST=x||LAST;x=LAST;sortRes();SHOWN=0;$('list').innerHTML='';
+ var spec=$('spec').options[$('spec').selectedIndex].text;
+ if(!RES.length){showMsg('','No matches within '+$('rad').value+' miles','Try a larger distance, a different specialty, or check the spelling of the name.');return}
+ $('st').hidden=false;
+ $('sth').textContent=RES.length+(x.total>500?'+':'')+' '+(T==='doc'?'providers':'places')+' within '+x.r+' mi';
+ $('stp').textContent=spec+' near '+x.o.label+(x.r<x.asked?' \u00b7 there are too many to list within '+x.asked+' mi, so these are the closest':'')+(x.total>500?' \u00b7 showing 500 of '+(x.total>=10000?'10,000+':x.total.toLocaleString())+' matches, add a name to narrow it down':'');
+ page()}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function clean(v){return v&&v!=='<UNAVAIL>'?v:''}
+function personName(full,cred){var p=(full||'').split(','),last=p[0]||'',first=(p[1]||'').trim(),suf=(p[2]||'').trim();var n=title((first?first+' ':'')+last)+(suf?' '+title(suf):'');cred=clean(cred).replace(/\./g,'').trim();return n+(cred?', '+cred.toUpperCase().replace(/\s*,\s*/g,', '):'')}
+function orgName(n){var x=(n||'').replace(/[,\s]+(A\s+)?(PROFESSIONAL|MEDICAL|NURSING|DENTAL)?\s*(CORPORATION|CORP\.?|INC\.?|LLC|L\.L\.C\.?|PC|P\.C\.?|LP|LLP|PLLC|LTD\.?)\.?$/i,'');x=x.replace(/[,\s]+(INC\.?|LLC)$/i,'');return title(x||n)}
+function specText(o){var s=clean(o['licenses.taxonomy.specialization']).split(';').map(function(x){return x.trim()}).filter(Boolean),u=[];s.forEach(function(x){if(u.indexOf(x)<0)u.push(x)});
+ var pt=clean(o.provider_type).replace(/^Physician\//,'').replace(/Physician\//,'');
+ var show=u.length&&!/^(General Practice|Adult Health|Family)$/.test(u[0])?u.slice(0,2).join(' \u00b7 '):pt;return show||pt}
+var IC={ph:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+ dir:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>',
+ id:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h6M7 13h10M7 17h4"/></svg>'};
+function card(o){
+ var nm=T==='doc'?personName(o['name.full'],o['name.credential']):orgName(o['name.full']);
+ var z=(o['addr_practice.zip']||'').slice(0,5),l2=clean(o['addr_practice.line2']);
+ var addr=title(o['addr_practice.line1'])+(l2?' '+title(l2):'')+', '+title(o['addr_practice.city'])+', '+(o['addr_practice.state']||'')+' '+z;
+ var ph=clean(o['addr_practice.phone']),tel=ph.replace(/\D/g,'');
+ var gen=T==='doc'&&o.gender?(o.gender==='F'?'Female':o.gender==='M'?'Male':''):'';
+ var maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(nm.replace(/,.*$/,'')+' '+addr);
+ return '<article class="res"><div class="rh"><div><h3>'+esc(nm)+'</h3><div class="sp">'+esc(specText(o))+'</div>'+(gen?'<div class="meta">'+gen+'</div>':'')+'</div>'+(o.d!=null?'<div class="dist">'+(o.d<1?'< 1':o.d.toFixed(1))+' mi</div>':'')+'</div>'+
+ '<div class="ad">'+esc(addr)+'</div><div class="acts">'+
+ (tel.length>=10?'<a class="pri" href="tel:+1'+tel.slice(-10)+'">'+IC.ph+'Call '+esc(ph)+'</a>':'')+
+ '<a href="'+maps+'" target="_blank" rel="noopener">'+IC.dir+'Directions</a>'+
+ '<a href="https://npiregistry.cms.hhs.gov/provider-view/'+esc(o.NPI)+'" target="_blank" rel="noopener" title="Official NPI registry record">'+IC.id+'NPI '+esc(o.NPI)+'</a></div></article>'}
+function page(){var h='';for(var i=SHOWN;i<Math.min(RES.length,SHOWN+PAGE);i++)h+=card(RES[i]);$('list').insertAdjacentHTML('beforeend',h);SHOWN=Math.min(RES.length,SHOWN+PAGE);$('more').hidden=SHOWN>=RES.length;$('more').textContent='Show more ('+(RES.length-SHOWN)+' left)'}
+$('more').addEventListener('click',page);
+$('sort').addEventListener('change',function(){if(LAST)render()});
+$('f').addEventListener('submit',function(e){e.preventDefault();run(!!(ORIGIN&&ORIGIN.me&&/^Near me/.test($('loc').value)))});
+
+// ---------- init ----------
+var P=new URLSearchParams(location.search);
+setTab(P.get('t')==='org'?'org':'doc',P.get('s')||'primary');
+if(P.get('s'))$('spec').value=P.get('s');
+if(P.get('r'))$('rad').value=P.get('r');
+if(P.get('n'))$('name').value=P.get('n');
+if(P.get('g'))$('gen').value=P.get('g');
+emerg();
+if(P.get('l')){$('loc').value=P.get('l');run()}
+else{showMsg('','Search to see providers','Pick a specialty, enter a ZIP code or city, then tap Search.')}
+})();
+</script>
+</body>
+</html>

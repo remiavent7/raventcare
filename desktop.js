@@ -26,6 +26,7 @@
     '<button type="button" data-c="back">Change card</button></div>'+
     '<div class="dlab">Your dashboard</div><nav id="dsknav"></nav>'+
     '<div class="dlab">More</div>'+
+    '<a href="find.html" style="color:var(--ac);font-weight:700"><span class="dot"></span>Live doctor search</a>'+
     '<a href="connect.html"><span class="dot"></span>Connect accounts</a>'+
     '<a href="partners.html"><span class="dot"></span>For practices</a>'+
     '<a href="practice.html"><span class="dot"></span>Practice view</a>'+
