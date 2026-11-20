@@ -4,7 +4,7 @@
   var sections=[
     ['Overview','toprow'],['Benefits','bens'],['Records & connections','dataconn'],
     ['Care journey','cjcard'],['Lab results','labres'],['Medicare drugs','mdrug'],
-    ['Prescription refills','rxcard'],['Find a specialist','h2:Find a specialist'],
+    ['Pharmacy tracker','rxcard'],['Find a specialist','h2:Find a specialist'],
     ['Appointments','appts'],['Use it before you lose it','expire']
   ];
   function card(ref){
