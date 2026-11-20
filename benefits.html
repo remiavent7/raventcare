@@ -14,7 +14,7 @@ h1{font-size:clamp(28px,4vw,40px);letter-spacing:-.03em;font-weight:900}h2{font-
 @media(max-width:860px){.lay{grid-template-columns:1fr}}
 .pt{display:grid;gap:8px}.pt button{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;color:var(--tx);cursor:pointer}
 .pt button:hover{border-color:var(--ac)}.pt button.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac) inset;background:#fff}
-.pt b{display:block;font-size:15px}.pt small{color:var(--mut);font-size:12.5px}
+.pt b{display:block;font-size:15px}.pt .pl{font-size:12.5px;font-weight:700;color:var(--ac);text-decoration:none;margin:-2px 0 4px 14px}.pt .pl:hover{text-decoration:underline}.pbtn{display:inline-block;background:var(--ac);color:#fff;border-radius:10px;padding:9px 14px;font-weight:700;font-size:14px;text-decoration:none}.pbtn:hover{filter:brightness(1.08)}.pt small{color:var(--mut);font-size:12.5px}
 .go{width:100%;margin-top:14px;background:var(--ac);color:#fff;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer}.go:disabled{opacity:.6;cursor:wait}
 .banner{font-size:13px;background:#fff7e6;border:1px solid #f4d9a6;color:#7a4b00;border-radius:12px;padding:10px 12px;margin-top:14px}
 .status{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 12px;font-weight:700;font-size:13px}.status.ok{background:var(--okb);color:var(--ok)}.status.no{background:var(--badb);color:var(--bad)}
@@ -54,7 +54,7 @@ const usd=v=>v==null?"—":"$"+Number(v).toLocaleString("en-US",{maximumFraction
 const dt=s=>{if(!s||s.length<8)return null;return new Date(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8)).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 fetch(API+"/api/patients").then(r=>r.json()).then(ps=>{
- $("pts").innerHTML=ps.map(p=>`<button type="button" data-id="${esc(p.id)}"><span><b>${esc(p.payer)}</b><small>${esc(p.first)} ${esc(p.last)} · ID ${esc(p.member)}</small></span></button>`).join("");
+ $("pts").innerHTML=ps.map(p=>`<button type="button" data-id="${esc(p.id)}"><span><b>${esc(p.payer)}</b><small>${esc(p.first)} ${esc(p.last)} · ID ${esc(p.member)}</small></span></button><a class="pl" href="profile.html?id=${encodeURIComponent(p.id)}">Full profile →</a>`).join("");
  $("pts").querySelectorAll("button").forEach(b=>b.onclick=()=>{$("pts").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));sel=b.dataset.id;$("go").disabled=false});
 }).catch(()=>{$("pts").innerHTML='<div class="err">The benefits service didn\'t respond. Refresh to try again.</div>'});
 function pick(o,lvl){for(const n of["in","any","out"]){const t=o[`${n}_${lvl}_total`],r=o[`${n}_${lvl}_remaining`];if(t!=null||r!=null)return{t,r,n}}return null}
@@ -68,7 +68,7 @@ $("go").onclick=async()=>{if(!sel)return;$("go").disabled=true;$("go").textConte
   if(!r.ok)throw new Error(d.error||"Check failed");
   const pb=dt(d.planBegin),pe=dt(d.planEnd);
   $("res").innerHTML=`<div class="hd"><div><p class="mut" style="font-size:13px">${esc(d.payer)} · ${esc(d.member)} · ID ${esc(d.memberId)}</p><h2 style="margin:4px 0 0;font-size:22px">${esc(d.plan||d.payer+" plan")}</h2>${d.group?`<p class="mut" style="font-size:13px;margin-top:2px">Group: ${esc(d.group)}</p>`:""}${pb?`<p class="mut" style="font-size:13px">Plan started ${pb}${pe?" · ends "+pe:""}</p>`:""}</div>
-  <span class="status ${d.active?"ok":"no"}">${d.active?"● Coverage active":"● Coverage not active"}</span></div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><span class="status ${d.active?"ok":"no"}">${d.active?"● Coverage active":"● Coverage not active"}</span><a class="pbtn" href="profile.html?id=${encodeURIComponent(sel)}">View full profile →</a></div></div>
   ${d.errors&&d.errors.length?`<div class="err" style="margin-bottom:14px">${d.errors.map(esc).join("<br>")}</div>`:""}
   ${d.active?`<div class="kp">${kpi("Deductible",d.deductible)}${kpi("Out-of-pocket max",d.oop)}</div>
   <div class="kp"><div><h3>Copays</h3>${rows(d.copays,r=>usd(r.amount))}</div><div><h3>Coinsurance (you pay)</h3>${rows(d.coinsurance,r=>r.percent+"%")}</div></div>`:`<p class="mut">The insurer reports this plan is no longer active. Ask the patient for their current insurance card.</p>`}
