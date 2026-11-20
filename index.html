@@ -18,6 +18,8 @@ h1{font-size:clamp(26px,4vw,38px);letter-spacing:-.03em;font-weight:900}h2{font-
 .chg{display:flex;align-items:flex-start;gap:10px;background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px;font-size:14px;color:var(--tx);cursor:pointer}.chg input{width:18px;height:18px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ac)}
 textarea.cf{width:100%;min-height:76px;background:var(--s2);border:1px solid var(--line);color:var(--tx);padding:12px;border-radius:12px;font:inherit;resize:vertical}textarea.cf:focus{outline:2px solid var(--ac);border-color:transparent}
 .cwarn{background:#fde7dc;color:#8a2f06;border-radius:12px;padding:10px 12px;font-size:13px;margin-top:12px}
+.ptc{display:block;width:100%;text-align:left;background:var(--s2);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:12px;color:var(--tx);font:inherit;cursor:pointer}.ptc b{display:block;font-size:15.5px}.ptc span{display:block;font-size:13px;color:var(--mut);margin-top:3px;line-height:1.4}.ptc.on{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 12%,var(--s2))}
+.ptb{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,var(--ac) 18%,transparent);color:var(--tx);vertical-align:middle}
 .csum{font-size:13.5px;line-height:1.5}.csum b{color:var(--tx)}
 input[type=range].pr{padding:0;background:transparent;border:0;accent-color:var(--ac)}
 label{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
@@ -359,64 +361,127 @@ function pickTime(k,pid){const b=(CUR.find(x=>x.k==k)||SPEC[k]||XTRA[k]),p=(wind
  let d=new Date();d.setHours(0,0,0,0);while(days.length<7){d=new Date(d.getTime()+864e5);if(d.getDay()%6)days.push(new Date(d))}
  const times=[9,9.5,10,11,13,14,15,16.5];
  const grid=days.map(dd=>({dd,slots:times.map(t=>({t,taken:r()<.35}))})).filter((x,i)=>i>=p.next-1);
- SEL={k,p,b,grid,di:0,ti:null,rem:'1440'};drawTime()}
+ SEL={k,p,b,grid,di:0,ti:null,rem:'1440',pt:seenHereP(p)};drawPType()}
+// ---- Step 1: new vs returning patient ----
+function seenHere(p){return APPTS.some(a=>a.p&&(a.p.id==p.id||a.p.name==p.name))}
+function seenHereP(p){return seenHere(p)?'ret':null}
+function drawPType(){const {p,b}=SEL,seen=seenHere(p),pt=SEL.pt;
+ openM(hdr('Have you been here before?',`${b.n} · ${p.name}`)+
+ `<p class="mut" style="font-size:13px;margin:0">Offices schedule new and returning patients differently, so we'll tailor the next questions to you.</p>
+ ${seen?`<div class="prov" style="margin-top:12px;font-size:13px"><b>Looks like you've booked with ${hx(p.name)} in Ravent Care before.</b><div class="mut" style="margin-top:2px">We've suggested Returning patient. Change it if that's not right.</div></div>`:''}
+ <button class="ptc ${pt=='new'?'on':''}" onclick="SEL.pt='new';drawPType()"><b>I'm a new patient</b><span>First time seeing this provider or anyone at this office in the last 3 years. Longer first visit, plus a short health history.</span></button>
+ <button class="ptc ${pt=='ret'?'on':''}" onclick="SEL.pt='ret';drawPType()"><b>I'm a returning patient</b><span>I've been seen here before. Quick questions about what's changed since last time.</span></button>
+ <button class="btn" ${pt?'':'disabled style="opacity:.5"'} onclick="drawTime()">${pt?'Next: pick a time':'Choose one to continue'}</button>
+ <button class="calbtn" onclick="showProviders('${SEL.k}')">Back to providers</button>`)}
+
 function tlabel(t){const h=Math.floor(t),m=t%1?'30':'00';return `${h>12?h-12:h}:${m} ${h>=12?'PM':'AM'}`}
 function drawTime(){const {p,b,grid,di,ti}=SEL,g=grid[di];
- openM(hdr('Pick a time',`${p.name} · ${netLbl(p)} · ${p.cost}`)+
+ const NP=SEL.pt=='new';openM(hdr('Pick a time',`${NP?'New patient':'Returning patient'} · ${p.name} · ${netLbl(p)} · ${p.cost}`)+
+ `<div class="prov" style="font-size:13px;margin-bottom:10px"><b>${NP?'New-patient visit · about '+vmin(b.k,'new')+' min':'Returning visit · about '+vmin(b.k,'ret')+' min'}</b><div class="mut" style="margin-top:2px">${NP?'Please arrive 15 minutes early. Late-afternoon slots are held for returning patients.':'Arrive 5 minutes early to check in.'} <a href="#" onclick="event.preventDefault();SEL.ti=null;drawPType()" style="color:var(--ac)">Change</a></div></div>`+
  `<div class="days">${grid.map((x,i)=>`<button class="slot day ${i==di?'on':''}" onclick="SEL.di=${i};SEL.ti=null;drawTime()">${x.dd.toLocaleDateString('en-US',{weekday:'short'})}<br><b>${x.dd.getDate()}</b></button>`).join('')}</div>
- <div class="slots">${g.slots.map((s,i)=>`<button class="slot ${i===ti?'on':''}" ${s.taken?'disabled':''} onclick="SEL.ti=${i};drawTime()">${tlabel(s.t)}</button>`).join('')}</div>
+ <div class="slots">${g.slots.map((s,i)=>{const off=s.taken||(NP&&s.t>=16);return `<button class="slot ${i===ti?'on':''}" ${off?'disabled':''} ${NP&&s.t>=16&&!s.taken?'title="Returning patients only"':''} onclick="SEL.ti=${i};drawTime()">${tlabel(s.t)}</button>`}).join('')}</div>
  <label for="rem">Reminder</label><select id="rem" onchange="SEL.rem=this.value">${[['60','1 hour before'],['1440','1 day before'],['2880','2 days before'],['0','No reminder']].map(o=>`<option value="${o[0]}" ${SEL.rem==o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
  <label for="note">Note for the office (optional)</label><input id="note" placeholder="e.g. lower back focus" value="${(SEL.note||'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';')}" oninput="SEL.note=this.value">
  <div class="prov" style="margin-top:14px;font-size:13px"><b>Coverage for this visit</b><div class="mut" style="margin-top:4px">${b.n}: ${b.d}. Always confirm with your insurer that this provider is in network with ${p.v?'VSP':CURP.car}. This demo does not contact the office.</div></div>
- <button class="btn" ${ti===null?'disabled style="opacity:.5"':''} onclick="SEL.chk=SEL.chk||{feel:null,cmp:null,why:'',sym:[],pain:0,dur:'',chg:[],chgd:'',q:''};drawCheck()">${ti===null?'Choose a time':'Next: how you\'re feeling · '+tlabel(g.slots[ti].t)+', '+g.dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</button>
- <button class="calbtn" onclick="showProviders('${SEL.k}')">Back to providers</button>`)}
+ <button class="btn" ${ti===null?'disabled style="opacity:.5"':''} onclick="if(!SEL.chk||SEL.chk.pt!=SEL.pt)SEL.chk=newChk(SEL.pt);drawCheck()">${ti===null?'Choose a time':'Next: how you\'re feeling · '+tlabel(g.slots[ti].t)+', '+g.dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</button>
+ <button class="calbtn" onclick="SEL.ti=null;drawPType()">Back</button>`)}
 
 // ---- Pre-visit check-in: how the patient is feeling and what changed ----
 const FEEL=[['Great','5'],['Good','4'],['Okay','3'],['Not well','2'],['Very unwell','1']];
-const CMP=['Better','About the same','Worse','First visit for this'];
+const CMP=['Better','About the same','Worse'];
+const SRC=['Found them on Ravent Care','Referred by another doctor','Friend or family','My insurance directory','Other'];
+const PCP=['Yes','No','Not sure'];
+const COND=['High blood pressure','Diabetes','High cholesterol','Heart disease','Asthma or COPD','Thyroid condition','Depression or anxiety','Arthritis','Cancer (past or current)','Sleep apnea','None of these'];
+const REC=['Yes, please request them','I\'ll bring them','No previous records'];
+const LAST=['Within a month','1–3 months ago','3–6 months ago','6–12 months ago','Over a year ago','Not sure'];
+const VT=['Follow-up on the same issue','A new problem','Routine check-up','Medication refill','Review test results'];
+const UPD=['My insurance changed','My address or phone changed','My pharmacy changed','Nothing changed'];
+function newChk(pt){return {pt,feel:null,cmp:null,why:'',sym:[],pain:0,dur:'',chg:[],chgd:'',q:'',src:'',ref:'',pcp:'',pcpn:'',meds:'',nomeds:false,alg:'',noalg:false,cond:[],surg:'',rec:'',last:'',vt:'',refill:false,refm:'',upd:[]}}
+const chips=(arr,cur,set)=>`<div class="cq">${arr.map((f,i)=>`<button class="slot ${cur==f?'on':''}" onclick="${set}=${JSON.stringify(f).replace(/"/g,'&quot;')};drawCheck()">${hx(f)}</button>`).join('')}</div>`;
+const mchips=(arr,name,key)=>`<div class="cq">${arr.map((f,i)=>`<button class="slot ${SEL.chk[key].includes(f)?'on':''}" onclick="togArr(SEL.chk.${key},${name}[${i}]);drawCheck()">${hx(f)}</button>`).join('')}</div>`;
+const ta=(id,key,ph)=>`<textarea class="cf" id="${id}" placeholder="${ph}" oninput="SEL.chk.${key}=this.value">${hx(SEL.chk[key])}</textarea>`;
+function excl(key,none){const a=SEL.chk[key];if(a.includes(none)&&a[a.length-1]==none)SEL.chk[key]=[none];else SEL.chk[key]=a.filter(x=>x!=none)}
 const SYM=['Pain','Tired or low energy','Trouble sleeping','Stress, anxiety or low mood','Fever or chills','Dizziness','Cough or congestion','Stomach or digestion','Headache','Skin or rash','Vision changes','Other'];
 const CHG=['Started a new medication or supplement','Stopped or changed a medication','New diagnosis from another doctor','ER visit or hospital stay','Fall or injury','Weight change of 10 lb or more','Big life change (job, stress, loss)','New allergy or reaction'];
 const DUR=['Today','A few days','1–2 weeks','About a month','Several months','Longer'];
 const hx=t=>String(t||'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 function togArr(a,v){const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)}
 function chkRed(){const c=SEL.chk;return c.feel==='1'||c.pain>=8}
-function drawCheck(){const {p,b,grid,di,ti}=SEL,g=grid[di],c=SEL.chk,y=S.scrollTop;
- openM(hdr('How are you feeling?',`${b.n} · ${p.name} · ${tlabel(g.slots[ti].t)}, ${g.dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}`)+
- `<p class="mut" style="font-size:13px;margin:0">Share how you're doing so your doctor can prepare before the visit. Takes about 1 minute. Every question is optional.</p>
- <label>Overall, how do you feel today?</label><div class="cq">${FEEL.map(f=>`<button class="slot ${c.feel==f[1]?'on':''}" onclick="SEL.chk.feel='${f[1]}';drawCheck()">${f[0]}</button>`).join('')}</div>
- <label>Compared with your last visit, are you…</label><div class="cq">${CMP.map(f=>`<button class="slot ${c.cmp==f?'on':''}" onclick="SEL.chk.cmp='${f}';drawCheck()">${f}</button>`).join('')}</div>
- <label for="cwhy">Main reason for this visit</label><textarea class="cf" id="cwhy" placeholder="e.g. lower back pain getting worse when I sit" oninput="SEL.chk.why=this.value">${hx(c.why)}</textarea>
- <label>Any symptoms right now? (tap all that apply)</label><div class="cq">${SYM.map((f,i)=>`<button class="slot ${c.sym.includes(f)?'on':''}" onclick="togArr(SEL.chk.sym,SYM[${i}]);drawCheck()">${f}</button>`).join('')}</div>
- ${c.sym.length?`<label>How long have you had ${c.sym.length>1?'these':'this'}?</label><div class="cq">${DUR.map(f=>`<button class="slot ${c.dur==f?'on':''}" onclick="SEL.chk.dur='${f}';drawCheck()">${f}</button>`).join('')}</div>`:''}
- <label for="cpain">Pain level right now: <b id="cpv" style="color:var(--tx)">${c.pain}/10${c.pain==0?' (none)':c.pain>=8?' (severe)':''}</b></label><input type="range" class="pr" id="cpain" min="0" max="10" step="1" value="${c.pain}" oninput="SEL.chk.pain=+this.value;$('cpv').textContent=this.value+'/10'+(this.value==0?' (none)':this.value>=8?' (severe)':'')" onchange="drawCheck()">
+function drawCheck(){const {p,b,grid,di,ti}=SEL,g=grid[di],c=SEL.chk,y=S.scrollTop,NP=c.pt=='new';
+ const common1=`<label>Overall, how do you feel today?</label><div class="cq">${FEEL.map(f=>`<button class="slot ${c.feel==f[1]?'on':''}" onclick="SEL.chk.feel='${f[1]}';drawCheck()">${f[0]}</button>`).join('')}</div>`;
+ const sym=`<label>Any symptoms right now? (tap all that apply)</label>${mchips(SYM,'SYM','sym')}
+ ${c.sym.length?`<label>How long have you had ${c.sym.length>1?'these':'this'}?</label>${chips(DUR,c.dur,'SEL.chk.dur')}`:''}
+ <label for="cpain">Pain level right now: <b id="cpv" style="color:var(--tx)">${c.pain}/10${c.pain==0?' (none)':c.pain>=8?' (severe)':''}</b></label><input type="range" class="pr" id="cpain" min="0" max="10" step="1" value="${c.pain}" oninput="SEL.chk.pain=+this.value;$('cpv').textContent=this.value+'/10'+(this.value==0?' (none)':this.value>=8?' (severe)':'')" onchange="drawCheck()">`;
+ const sec=t=>`<h2 style="margin:20px 0 0;font-size:15px">${t}</h2>`;
+ const body=NP?`
+ ${sec('About this visit')}
+ ${common1}
+ <label for="cwhy">What brings you in?</label>${ta('cwhy','why','e.g. lower back pain for 3 weeks, worse when I sit')}
+ ${sym}
+ ${sec('Getting to know you')}
+ <label>How did you find ${hx(p.name)}?</label>${chips(SRC,c.src,'SEL.chk.src')}
+ ${c.src==SRC[1]?`<label for="cref">Referring doctor's name</label><input id="cref" placeholder="e.g. Dr. Patel, Stanford Primary Care" value="${hx(c.ref)}" oninput="SEL.chk.ref=this.value">`:''}
+ <label>Do you have a primary care doctor?</label>${chips(PCP,c.pcp,'SEL.chk.pcp')}
+ ${c.pcp=='Yes'?`<label for="cpcpn">Primary care doctor's name</label><input id="cpcpn" placeholder="e.g. Dr. Nguyen" value="${hx(c.pcpn)}" oninput="SEL.chk.pcpn=this.value">`:''}
+ <label>Should we request records from your previous provider?</label>${chips(REC,c.rec,'SEL.chk.rec')}
+ ${sec('Health history')}
+ <label for="cmeds">Medications and supplements you take</label>
+ <label class="chg"><input type="checkbox" ${c.nomeds?'checked':''} onchange="SEL.chk.nomeds=this.checked;drawCheck()">I don't take any medications</label>
+ ${c.nomeds?'':ta('cmeds','meds','e.g. lisinopril 10 mg daily, vitamin D 1000 IU')}
+ <label for="calg">Allergies</label>
+ <label class="chg"><input type="checkbox" ${c.noalg?'checked':''} onchange="SEL.chk.noalg=this.checked;drawCheck()">No known allergies</label>
+ ${c.noalg?'':ta('calg','alg','e.g. penicillin (hives), latex')}
+ <label>Ongoing conditions (tap all that apply)</label><div class="cq">${COND.map((f,i)=>`<button class="slot ${c.cond.includes(f)?'on':''}" onclick="togArr(SEL.chk.cond,COND[${i}]);excl('cond','None of these');drawCheck()">${hx(f)}</button>`).join('')}</div>
+ <label for="csurg">Past surgeries or hospital stays (optional)</label>${ta('csurg','surg','e.g. appendix removed 2015')}
+ <label for="cq">Questions for your new doctor</label>${ta('cq','q','e.g. Do I need a referral for PT? Can you take over my prescriptions?')}
+ <div class="prov" style="margin-top:14px;font-size:13px"><b>Bring to your first visit</b><div class="mut" style="margin-top:4px">Photo ID · insurance card (member ID ${hx(CURP.mid)}) · your medication bottles or list · arrive 15 minutes early for new-patient paperwork.</div></div>`
+ :`
+ ${sec('Since your last visit')}
+ <label>When was your last visit here?</label>${chips(LAST,c.last,'SEL.chk.last')}
+ <label>What's this visit for?</label>${chips(VT,c.vt,'SEL.chk.vt')}
+ ${c.vt==VT[0]||!c.vt?`<label>Compared with your last visit, are you…</label>${chips(CMP,c.cmp,'SEL.chk.cmp')}`:''}
+ ${common1}
+ <label for="cwhy">${c.vt==VT[1]?'Tell us about the new problem':'Anything specific to cover?'}</label>${ta('cwhy','why',c.vt==VT[1]?'e.g. new knee pain since last week':'e.g. back pain is better but still stiff in the morning')}
+ ${sym}
  <label>Anything changed since your last visit?</label>${CHG.map((f,i)=>`<label class="chg"><input type="checkbox" ${c.chg.includes(f)?'checked':''} onchange="togArr(SEL.chk.chg,CHG[${i}]);drawCheck()">${f}</label>`).join('')}
- ${c.chg.length?`<label for="cchgd">Tell us a bit more about the changes</label><textarea class="cf" id="cchgd" placeholder="e.g. started lisinopril 10 mg on Nov 2, ER visit for a sprained ankle" oninput="SEL.chk.chgd=this.value">${hx(c.chgd)}</textarea>`:''}
- <label for="cq">Questions for your doctor</label><textarea class="cf" id="cq" placeholder="e.g. Should I keep taking ibuprofen? Do I need a referral for PT?" oninput="SEL.chk.q=this.value">${hx(c.q)}</textarea>
+ ${c.chg.length?`<label for="cchgd">Tell us a bit more about the changes</label>${ta('cchgd','chgd','e.g. started lisinopril 10 mg on Nov 2, ER visit for a sprained ankle')}`:''}
+ <label class="chg" style="margin-top:12px"><input type="checkbox" ${c.refill?'checked':''} onchange="SEL.chk.refill=this.checked;drawCheck()">I need a prescription refill</label>
+ ${c.refill?`<label for="crefm">Which medications?</label><input id="crefm" placeholder="e.g. lisinopril 10 mg" value="${hx(c.refm)}" oninput="SEL.chk.refm=this.value">`:''}
+ <label>Is your info on file still current?</label><div class="cq">${UPD.map((f,i)=>`<button class="slot ${c.upd.includes(f)?'on':''}" onclick="togArr(SEL.chk.upd,UPD[${i}]);excl('upd','Nothing changed');drawCheck()">${hx(f)}</button>`).join('')}</div>
+ <label for="cq">Questions for your doctor</label>${ta('cq','q','e.g. Should I keep taking ibuprofen? Can we recheck my labs?')}`;
+ openM(hdr(NP?'Welcome, new patient':'Welcome back',`${b.n} · ${p.name} · ${tlabel(g.slots[ti].t)}, ${g.dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}`)+
+ `<p class="mut" style="font-size:13px;margin:0">${NP?'A few questions so your new doctor can get to know you before the first visit. Takes about 3 minutes. Every question is optional.':'Quick update so your doctor can prepare. Takes about 1 minute. Every question is optional.'}</p>
+ ${body}
  ${chkRed()?`<div class="cwarn"><b>Feeling very unwell or in severe pain?</b> Don't wait for this appointment. Call the office at ${p.phone}, visit urgent care, or call 911 for chest pain, trouble breathing, signs of stroke or thoughts of self-harm (call or text 988).</div>`:`<p class="mut" style="font-size:12px;margin-top:12px">This form is not monitored in real time. For an emergency, call 911.</p>`}
  ${SEL.edit?`<button class="btn" onclick="confirmBook()">Save & send update to doctor</button><button class="calbtn" onclick="SEL={};closeM()">Cancel</button>`:`<button class="btn" onclick="confirmBook()">Send to doctor & request visit</button>
- <button class="calbtn" onclick="SEL.chk=null;confirmBook()">Skip the form & request visit</button>
+ <button class="calbtn" onclick="SEL.chk=newChk(SEL.pt);SEL.chk.skip=1;confirmBook()">Skip the form & request visit</button>
  <button class="calbtn" onclick="drawTime()">Back to times</button>`}`);S.scrollTop=y}
-function chkHas(c){return c&&(c.feel||c.cmp||c.why||c.sym.length||c.pain||c.chg.length||c.chgd||c.q)}
-function chkText(c){if(!chkHas(c))return '';const L=[];const f=FEEL.find(x=>x[1]==c.feel);
- if(f)L.push('Feeling: '+f[0]);if(c.cmp)L.push('Since last visit: '+c.cmp);if(c.why)L.push('Reason: '+c.why);
- if(c.sym.length)L.push('Symptoms: '+c.sym.join(', ')+(c.dur?' ('+c.dur+')':''));L.push('Pain: '+c.pain+'/10');
- if(c.chg.length)L.push('Changes: '+c.chg.join('; ')+(c.chgd?' — '+c.chgd:''));if(c.q)L.push('Questions: '+c.q);return L.join('. ')}
-function chkHTML(c){if(!chkHas(c))return '<div class="mut" style="font-size:13px">No check-in form sent.</div>';const f=FEEL.find(x=>x[1]==c.feel),r=(k,v)=>v?`<div><b>${k}:</b> ${hx(v)}</div>`:'';
- return `<div class="csum mut">${r('Feeling',f&&f[0])}${r('Since last visit',c.cmp)}${r('Reason for visit',c.why)}${r('Symptoms',c.sym.join(', ')+(c.sym.length&&c.dur?' · '+c.dur:''))}${r('Pain level',c.pain+'/10')}${r('Changes',c.chg.join('; '))}${r('Details',c.chgd)}${r('Questions',c.q)}</div>`}
+function chkHas(c){return c&&!c.skip&&(c.feel||c.cmp||c.why||c.sym.length||c.pain||c.chg.length||c.chgd||c.q||c.src||c.pcp||c.meds||c.nomeds||c.alg||c.noalg||(c.cond||[]).length||c.surg||c.rec||c.last||c.vt||c.refill||(c.upd||[]).length)}
+function chkRows(c){const f=FEEL.find(x=>x[1]==c.feel),R=[],r=(k,v)=>{if(v)R.push([k,v])};
+ if(c.pt=='new'){r('Feeling',f&&f[0]);r('Reason for visit',c.why);r('Symptoms',c.sym.join(', ')+(c.sym.length&&c.dur?' · '+c.dur:''));r('Pain level',c.pain?c.pain+'/10':'');
+  r('Found provider via',c.src+(c.ref?' ('+c.ref+')':''));r('Primary care doctor',c.pcp+(c.pcpn?' · '+c.pcpn:''));r('Previous records',c.rec);
+  r('Medications',c.nomeds?'None':c.meds);r('Allergies',c.noalg?'No known allergies':c.alg);r('Conditions',(c.cond||[]).join(', '));r('Surgeries / hospital stays',c.surg);r('Questions',c.q)}
+ else{r('Last visit',c.last);r('Visit type',c.vt);r('Since last visit',c.cmp);r('Feeling',f&&f[0]);r('Details',c.why);r('Symptoms',c.sym.join(', ')+(c.sym.length&&c.dur?' · '+c.dur:''));r('Pain level',c.pain?c.pain+'/10':'');
+  r('Changes',c.chg.join('; '));r('Change details',c.chgd);r('Refill needed',c.refill?(c.refm||'Yes'):'');r('Info on file',(c.upd||[]).join(', '));r('Questions',c.q)}
+ return R}
+function chkText(c){if(!chkHas(c))return '';return (c.pt=='new'?'New patient. ':'Returning patient. ')+chkRows(c).map(x=>x[0]+': '+x[1]).join('. ')}
+function chkHTML(c){if(!chkHas(c))return '<div class="mut" style="font-size:13px">No check-in form sent.</div>';
+ return `<div class="csum mut"><div style="margin-bottom:4px"><span class="ptb">${c.pt=='new'?'New patient':'Returning patient'}</span></div>${chkRows(c).map(x=>`<div><b>${x[0]}:</b> ${hx(x[1])}</div>`).join('')}</div>`}
 function showChk(id){const a=APPTS.find(x=>x.id==id);openM(hdr('Your pre-visit check-in',`${a.b.n} · ${a.p.name} · ${when(a)}`)+`<div class="prov">${chkHTML(a.chk)}</div>
  <p class="mut" style="font-size:12px;margin-top:10px">Shared with ${hx(a.p.name)} with your appointment request. Demo only: nothing is sent to a real office.</p>
  <button class="btn" onclick="editChk('${a.id}')">${chkHas(a.chk)?'Update my answers':'Fill out the form'}</button><button class="calbtn" onclick="closeM()">Close</button>`)}
-function editChk(id){const a=APPTS.find(x=>x.id==id);SEL={edit:id,p:a.p,b:a.b,grid:[{dd:a.st,slots:[{t:a.st.getHours()+(a.st.getMinutes()?.5:0)}]}],di:0,ti:0,chk:JSON.parse(JSON.stringify(a.chk||{feel:null,cmp:null,why:'',sym:[],pain:0,dur:'',chg:[],chgd:'',q:''}))};drawCheck()}
+function editChk(id){const a=APPTS.find(x=>x.id==id);SEL={edit:id,p:a.p,b:a.b,grid:[{dd:a.st,slots:[{t:a.st.getHours()+(a.st.getMinutes()?.5:0)}]}],di:0,ti:0,pt:a.pt||'ret',chk:Object.assign(newChk(a.pt||'ret'),JSON.parse(JSON.stringify(a.chk&&!a.chk.skip?a.chk:{})),{pt:a.pt||'ret',skip:0})};drawCheck()}
 function confirmBook(){if(SEL.edit){const a=APPTS.find(x=>x.id==SEL.edit);a.chk=SEL.chk;SEL={};drawAppts();showChk(a.id);return}
 const {p,b,grid,di,ti,rem}=SEL,g=grid[di],t=g.slots[ti].t,st=new Date(g.dd);st.setHours(Math.floor(t),t%1?30:0);
- const en=new Date(st.getTime()+(b.k=='massage'||b.k=='therapy'?60:b.k=='physical'||b.k=='clean'?45:30)*6e4);
- const a={id:'oc'+Date.now(),p,b:{k:b.k,n:b.n,d:b.d},st,en,rem:+rem,note:SEL.note||'',chk:SEL.chk||null,conf:'OC-'+Math.floor(100000+Math.random()*899999)};
+ const en=new Date(st.getTime()+vmin(b.k,SEL.pt)*6e4);
+ const a={id:'oc'+Date.now(),p,b:{k:b.k,n:b.n,d:b.d},st,en,rem:+rem,note:SEL.note||'',pt:SEL.pt||'ret',chk:SEL.chk||null,conf:'OC-'+Math.floor(100000+Math.random()*899999)};
  APPTS.push(a);APPTS.sort((x,y)=>x.st-y.st);
  const bb=CURP.b[b.k];if(bb&&b.unit!='$')bb[0]=Math.min(bb[1],bb[0]+1);CUR=ben(CURP);
  const on=document.querySelector('#tabs .on');draw(on?on.dataset.c:'All');drawAppts();showConfirm(a)}
+function vmin(k,pt){const base=k=='massage'||k=='therapy'?60:k=='physical'||k=='clean'?45:30;return pt=='new'&&k!='massage'?base+(k=='therapy'?30:15):base}
 function when(a){return a.st.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+' · '+a.st.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
 function showConfirm(a){openM(hdr('Demo request saved',`Confirmation ${a.conf}`)+
- `<div class="prov"><b>${a.b.n} at ${a.p.name}</b><div class="mut" style="font-size:13px;margin-top:4px">${when(a)}<br>${a.p.name} · ${a.p.addr}<br>${a.p.phone} · ${a.p.cost}${a.rem?'<br>Reminder: '+({60:'1 hour',1440:'1 day',2880:'2 days'})[a.rem]+' before':''}</div></div>
+ `<div class="prov"><b>${a.b.n} at ${a.p.name}</b> <span class="ptb">${a.pt=='new'?'New patient':'Returning'}</span><div class="mut" style="font-size:13px;margin-top:4px">${when(a)}${a.pt=='new'?'<br>Arrive 15 min early · bring photo ID, insurance card and medication list':''}<br>${a.p.name} · ${a.p.addr}<br>${a.p.phone} · ${a.p.cost}${a.rem?'<br>Reminder: '+({60:'1 hour',1440:'1 day',2880:'2 days'})[a.rem]+' before':''}</div></div>
  <h2 style="margin-top:18px">Sent to your doctor</h2><div class="prov">${chkHTML(a.chk)}<button class="find" onclick="editChk('${a.id}')">${chkHas(a.chk)?'Edit answers':'Fill out how you\'re feeling'}</button></div>
  <h2 style="margin-top:18px">Add to your phone calendar</h2>${calButtons(a)}
  <p class="mut" style="font-size:12px;margin-top:12px">Demo booking. In the live app, the office confirms the request before the visit.</p>
@@ -425,7 +490,7 @@ function calButtons(a){return `<button class="calbtn" onclick="dlICS('${a.id}')"
  <a class="calbtn" target="_blank" rel="noopener" href="${gURL(a)}">Google Calendar</a>
  <a class="calbtn" target="_blank" rel="noopener" href="${oURL(a)}">Outlook</a>`}
 const z=d=>d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
-const desc=a=>`${a.b.n} at ${a.p.name} (${a.p.type}). Coverage: ${a.p.cost}. Plan: ${a.p.v?'VSP Vision Care, VSP Choice':CURP.car+' '+CURP.plan}, member ID ${CURP.mid}. Phone: ${a.p.phone}. Confirmation ${a.conf}.${a.note?' Note: '+a.note:''}${chkHas(a.chk)?' Pre-visit check-in: '+chkText(a.chk)+'.':''} Demo only: call the office to book.`;
+const desc=a=>`${a.pt=='new'?'New-patient visit':'Returning-patient visit'}: ${a.b.n} at ${a.p.name} (${a.p.type}).${a.pt=='new'?' Arrive 15 min early with photo ID, insurance card and medication list.':''} Coverage: ${a.p.cost}. Plan: ${a.p.v?'VSP Vision Care, VSP Choice':CURP.car+' '+CURP.plan}, member ID ${CURP.mid}. Phone: ${a.p.phone}. Confirmation ${a.conf}.${a.note?' Note: '+a.note:''}${chkHas(a.chk)?' Pre-visit check-in: '+chkText(a.chk)+'.':''} Demo only: call the office to book.`;
 const gURL=a=>'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(a.b.n+' · '+a.p.name)+'&dates='+z(a.st)+'/'+z(a.en)+'&details='+encodeURIComponent(desc(a))+'&location='+encodeURIComponent(a.p.addr);
 const oURL=a=>'https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject='+encodeURIComponent(a.b.n+' · '+a.p.name)+'&startdt='+a.st.toISOString()+'&enddt='+a.en.toISOString()+'&body='+encodeURIComponent(desc(a))+'&location='+encodeURIComponent(a.p.addr);
 const esc=t=>t.replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
@@ -436,7 +501,7 @@ function ics(a){const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ravent Care/
 function fold(l){const o=[];let u=new TextEncoder(),cur='';for(const ch of l){if(u.encode(cur+ch).length>(o.length?74:75)){o.push(cur);cur=ch}else cur+=ch}o.push(cur);return o.join('\r\n ')}
 function dlICS(id){const a=APPTS.find(x=>x.id==id),blob=new Blob([ics(a)],{type:'text/calendar;charset=utf-8'}),u=URL.createObjectURL(blob),el=document.createElement('a');
  el.href=u;el.download='raventcare-'+a.b.k+'-'+a.conf+'.ics';document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
-function drawAppts(){AP[CURP.mid]=APPTS;$('appts').innerHTML=APPTS.length?APPTS.map(a=>`<div class="ben" style="align-items:start"><div class="emo" style="background:#5be3a822;color:var(--ac)">${a.st.getDate()}</div><div style="flex:1;min-width:0"><b>${a.b.n}</b><div class="mut" style="font-size:13px">${when(a)}<br>${a.p.name} · ${a.p.cost}</div>
+function drawAppts(){AP[CURP.mid]=APPTS;$('appts').innerHTML=APPTS.length?APPTS.map(a=>`<div class="ben" style="align-items:start"><div class="emo" style="background:#5be3a822;color:var(--ac)">${a.st.getDate()}</div><div style="flex:1;min-width:0"><b>${a.b.n}</b> <span class="ptb">${a.pt=='new'?'New':'Returning'}</span><div class="mut" style="font-size:13px">${when(a)}<br>${a.p.name} · ${a.p.cost}</div>
  <button class="find" onclick="showChk('${a.id}')">${chkHas(a.chk)?'Check-in form ✓':'How I\'m feeling'}</button> <button class="find" onclick="showConfirm(APPTS.find(x=>x.id=='${a.id}'))">Add to calendar</button> <button class="find" style="color:var(--mut)" onclick="cancelA('${a.id}')">Cancel</button></div></div>`).join(''):'<p class="mut" style="font-size:14px">No appointments yet. Tap "Find providers & book" on any benefit.</p>'}
 function cancelA(id){const a=APPTS.find(x=>x.id==id);APPTS=APPTS.filter(x=>x.id!=id);const bb=CURP.b[a.b.k];if(bb&&CAT[a.b.k][4]!='$')bb[0]=Math.max(0,bb[0]-1);CUR=ben(CURP);const on=document.querySelector('#tabs .on');draw(on?on.dataset.c:'All');drawAppts()}
 //---------------------------------------------------------------------
