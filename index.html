@@ -14,6 +14,12 @@ h1{font-size:clamp(26px,4vw,38px);letter-spacing:-.03em;font-weight:900}h2{font-
 @media(max-width:800px){.g2,.g3,.g4{grid-template-columns:1fr}}
 @media(min-width:500px) and (max-width:800px){.g4{grid-template-columns:1fr 1fr}}
 .drop{border:2px dashed var(--line);border-radius:16px;padding:28px;text-align:center;cursor:pointer;transition:.2s}.drop:hover{border-color:var(--ac)}
+.cq{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.cq .slot{padding:9px 12px;flex:0 0 auto}
+.chg{display:flex;align-items:flex-start;gap:10px;background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px;font-size:14px;color:var(--tx);cursor:pointer}.chg input{width:18px;height:18px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--ac)}
+textarea.cf{width:100%;min-height:76px;background:var(--s2);border:1px solid var(--line);color:var(--tx);padding:12px;border-radius:12px;font:inherit;resize:vertical}textarea.cf:focus{outline:2px solid var(--ac);border-color:transparent}
+.cwarn{background:#fde7dc;color:#8a2f06;border-radius:12px;padding:10px 12px;font-size:13px;margin-top:12px}
+.csum{font-size:13.5px;line-height:1.5}.csum b{color:var(--tx)}
+input[type=range].pr{padding:0;background:transparent;border:0;accent-color:var(--ac)}
 label{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
 input,select{width:100%;background:var(--s2);border:1px solid var(--line);color:var(--tx);padding:12px;border-radius:12px;font:inherit}
 input:focus,select:focus{outline:2px solid var(--ac);border-color:transparent}
@@ -362,17 +368,56 @@ function drawTime(){const {p,b,grid,di,ti}=SEL,g=grid[di];
  <label for="rem">Reminder</label><select id="rem" onchange="SEL.rem=this.value">${[['60','1 hour before'],['1440','1 day before'],['2880','2 days before'],['0','No reminder']].map(o=>`<option value="${o[0]}" ${SEL.rem==o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
  <label for="note">Note for the office (optional)</label><input id="note" placeholder="e.g. lower back focus" value="${(SEL.note||'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';')}" oninput="SEL.note=this.value">
  <div class="prov" style="margin-top:14px;font-size:13px"><b>Coverage for this visit</b><div class="mut" style="margin-top:4px">${b.n}: ${b.d}. Always confirm with your insurer that this provider is in network with ${p.v?'VSP':CURP.car}. This demo does not contact the office.</div></div>
- <button class="btn" ${ti===null?'disabled style="opacity:.5"':''} onclick="confirmBook()">${ti===null?'Choose a time':'Request '+tlabel(g.slots[ti].t)+', '+g.dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</button>
+ <button class="btn" ${ti===null?'disabled style="opacity:.5"':''} onclick="SEL.chk=SEL.chk||{feel:null,cmp:null,why:'',sym:[],pain:0,dur:'',chg:[],chgd:'',q:''};drawCheck()">${ti===null?'Choose a time':'Next: how you\'re feeling · '+tlabel(g.slots[ti].t)+', '+g.dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</button>
  <button class="calbtn" onclick="showProviders('${SEL.k}')">Back to providers</button>`)}
-function confirmBook(){const {p,b,grid,di,ti,rem}=SEL,g=grid[di],t=g.slots[ti].t,st=new Date(g.dd);st.setHours(Math.floor(t),t%1?30:0);
+
+// ---- Pre-visit check-in: how the patient is feeling and what changed ----
+const FEEL=[['Great','5'],['Good','4'],['Okay','3'],['Not well','2'],['Very unwell','1']];
+const CMP=['Better','About the same','Worse','First visit for this'];
+const SYM=['Pain','Tired or low energy','Trouble sleeping','Stress, anxiety or low mood','Fever or chills','Dizziness','Cough or congestion','Stomach or digestion','Headache','Skin or rash','Vision changes','Other'];
+const CHG=['Started a new medication or supplement','Stopped or changed a medication','New diagnosis from another doctor','ER visit or hospital stay','Fall or injury','Weight change of 10 lb or more','Big life change (job, stress, loss)','New allergy or reaction'];
+const DUR=['Today','A few days','1–2 weeks','About a month','Several months','Longer'];
+const hx=t=>String(t||'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+function togArr(a,v){const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)}
+function chkRed(){const c=SEL.chk;return c.feel==='1'||c.pain>=8}
+function drawCheck(){const {p,b,grid,di,ti}=SEL,g=grid[di],c=SEL.chk,y=S.scrollTop;
+ openM(hdr('How are you feeling?',`${b.n} · ${p.name} · ${tlabel(g.slots[ti].t)}, ${g.dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}`)+
+ `<p class="mut" style="font-size:13px;margin:0">Share how you're doing so your doctor can prepare before the visit. Takes about 1 minute. Every question is optional.</p>
+ <label>Overall, how do you feel today?</label><div class="cq">${FEEL.map(f=>`<button class="slot ${c.feel==f[1]?'on':''}" onclick="SEL.chk.feel='${f[1]}';drawCheck()">${f[0]}</button>`).join('')}</div>
+ <label>Compared with your last visit, are you…</label><div class="cq">${CMP.map(f=>`<button class="slot ${c.cmp==f?'on':''}" onclick="SEL.chk.cmp='${f}';drawCheck()">${f}</button>`).join('')}</div>
+ <label for="cwhy">Main reason for this visit</label><textarea class="cf" id="cwhy" placeholder="e.g. lower back pain getting worse when I sit" oninput="SEL.chk.why=this.value">${hx(c.why)}</textarea>
+ <label>Any symptoms right now? (tap all that apply)</label><div class="cq">${SYM.map((f,i)=>`<button class="slot ${c.sym.includes(f)?'on':''}" onclick="togArr(SEL.chk.sym,SYM[${i}]);drawCheck()">${f}</button>`).join('')}</div>
+ ${c.sym.length?`<label>How long have you had ${c.sym.length>1?'these':'this'}?</label><div class="cq">${DUR.map(f=>`<button class="slot ${c.dur==f?'on':''}" onclick="SEL.chk.dur='${f}';drawCheck()">${f}</button>`).join('')}</div>`:''}
+ <label for="cpain">Pain level right now: <b id="cpv" style="color:var(--tx)">${c.pain}/10${c.pain==0?' (none)':c.pain>=8?' (severe)':''}</b></label><input type="range" class="pr" id="cpain" min="0" max="10" step="1" value="${c.pain}" oninput="SEL.chk.pain=+this.value;$('cpv').textContent=this.value+'/10'+(this.value==0?' (none)':this.value>=8?' (severe)':'')" onchange="drawCheck()">
+ <label>Anything changed since your last visit?</label>${CHG.map((f,i)=>`<label class="chg"><input type="checkbox" ${c.chg.includes(f)?'checked':''} onchange="togArr(SEL.chk.chg,CHG[${i}]);drawCheck()">${f}</label>`).join('')}
+ ${c.chg.length?`<label for="cchgd">Tell us a bit more about the changes</label><textarea class="cf" id="cchgd" placeholder="e.g. started lisinopril 10 mg on Nov 2, ER visit for a sprained ankle" oninput="SEL.chk.chgd=this.value">${hx(c.chgd)}</textarea>`:''}
+ <label for="cq">Questions for your doctor</label><textarea class="cf" id="cq" placeholder="e.g. Should I keep taking ibuprofen? Do I need a referral for PT?" oninput="SEL.chk.q=this.value">${hx(c.q)}</textarea>
+ ${chkRed()?`<div class="cwarn"><b>Feeling very unwell or in severe pain?</b> Don't wait for this appointment. Call the office at ${p.phone}, visit urgent care, or call 911 for chest pain, trouble breathing, signs of stroke or thoughts of self-harm (call or text 988).</div>`:`<p class="mut" style="font-size:12px;margin-top:12px">This form is not monitored in real time. For an emergency, call 911.</p>`}
+ ${SEL.edit?`<button class="btn" onclick="confirmBook()">Save & send update to doctor</button><button class="calbtn" onclick="SEL={};closeM()">Cancel</button>`:`<button class="btn" onclick="confirmBook()">Send to doctor & request visit</button>
+ <button class="calbtn" onclick="SEL.chk=null;confirmBook()">Skip the form & request visit</button>
+ <button class="calbtn" onclick="drawTime()">Back to times</button>`}`);S.scrollTop=y}
+function chkHas(c){return c&&(c.feel||c.cmp||c.why||c.sym.length||c.pain||c.chg.length||c.chgd||c.q)}
+function chkText(c){if(!chkHas(c))return '';const L=[];const f=FEEL.find(x=>x[1]==c.feel);
+ if(f)L.push('Feeling: '+f[0]);if(c.cmp)L.push('Since last visit: '+c.cmp);if(c.why)L.push('Reason: '+c.why);
+ if(c.sym.length)L.push('Symptoms: '+c.sym.join(', ')+(c.dur?' ('+c.dur+')':''));L.push('Pain: '+c.pain+'/10');
+ if(c.chg.length)L.push('Changes: '+c.chg.join('; ')+(c.chgd?' — '+c.chgd:''));if(c.q)L.push('Questions: '+c.q);return L.join('. ')}
+function chkHTML(c){if(!chkHas(c))return '<div class="mut" style="font-size:13px">No check-in form sent.</div>';const f=FEEL.find(x=>x[1]==c.feel),r=(k,v)=>v?`<div><b>${k}:</b> ${hx(v)}</div>`:'';
+ return `<div class="csum mut">${r('Feeling',f&&f[0])}${r('Since last visit',c.cmp)}${r('Reason for visit',c.why)}${r('Symptoms',c.sym.join(', ')+(c.sym.length&&c.dur?' · '+c.dur:''))}${r('Pain level',c.pain+'/10')}${r('Changes',c.chg.join('; '))}${r('Details',c.chgd)}${r('Questions',c.q)}</div>`}
+function showChk(id){const a=APPTS.find(x=>x.id==id);openM(hdr('Your pre-visit check-in',`${a.b.n} · ${a.p.name} · ${when(a)}`)+`<div class="prov">${chkHTML(a.chk)}</div>
+ <p class="mut" style="font-size:12px;margin-top:10px">Shared with ${hx(a.p.name)} with your appointment request. Demo only: nothing is sent to a real office.</p>
+ <button class="btn" onclick="editChk('${a.id}')">${chkHas(a.chk)?'Update my answers':'Fill out the form'}</button><button class="calbtn" onclick="closeM()">Close</button>`)}
+function editChk(id){const a=APPTS.find(x=>x.id==id);SEL={edit:id,p:a.p,b:a.b,grid:[{dd:a.st,slots:[{t:a.st.getHours()+(a.st.getMinutes()?.5:0)}]}],di:0,ti:0,chk:JSON.parse(JSON.stringify(a.chk||{feel:null,cmp:null,why:'',sym:[],pain:0,dur:'',chg:[],chgd:'',q:''}))};drawCheck()}
+function confirmBook(){if(SEL.edit){const a=APPTS.find(x=>x.id==SEL.edit);a.chk=SEL.chk;SEL={};drawAppts();showChk(a.id);return}
+const {p,b,grid,di,ti,rem}=SEL,g=grid[di],t=g.slots[ti].t,st=new Date(g.dd);st.setHours(Math.floor(t),t%1?30:0);
  const en=new Date(st.getTime()+(b.k=='massage'||b.k=='therapy'?60:b.k=='physical'||b.k=='clean'?45:30)*6e4);
- const a={id:'oc'+Date.now(),p,b:{k:b.k,n:b.n,d:b.d},st,en,rem:+rem,note:SEL.note||'',conf:'OC-'+Math.floor(100000+Math.random()*899999)};
+ const a={id:'oc'+Date.now(),p,b:{k:b.k,n:b.n,d:b.d},st,en,rem:+rem,note:SEL.note||'',chk:SEL.chk||null,conf:'OC-'+Math.floor(100000+Math.random()*899999)};
  APPTS.push(a);APPTS.sort((x,y)=>x.st-y.st);
  const bb=CURP.b[b.k];if(bb&&b.unit!='$')bb[0]=Math.min(bb[1],bb[0]+1);CUR=ben(CURP);
  const on=document.querySelector('#tabs .on');draw(on?on.dataset.c:'All');drawAppts();showConfirm(a)}
 function when(a){return a.st.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+' · '+a.st.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
 function showConfirm(a){openM(hdr('Demo request saved',`Confirmation ${a.conf}`)+
  `<div class="prov"><b>${a.b.n} at ${a.p.name}</b><div class="mut" style="font-size:13px;margin-top:4px">${when(a)}<br>${a.p.name} · ${a.p.addr}<br>${a.p.phone} · ${a.p.cost}${a.rem?'<br>Reminder: '+({60:'1 hour',1440:'1 day',2880:'2 days'})[a.rem]+' before':''}</div></div>
+ <h2 style="margin-top:18px">Sent to your doctor</h2><div class="prov">${chkHTML(a.chk)}<button class="find" onclick="editChk('${a.id}')">${chkHas(a.chk)?'Edit answers':'Fill out how you\'re feeling'}</button></div>
  <h2 style="margin-top:18px">Add to your phone calendar</h2>${calButtons(a)}
  <p class="mut" style="font-size:12px;margin-top:12px">Demo booking. In the live app, the office confirms the request before the visit.</p>
  <button class="btn" onclick="closeM()">Done</button>`)}
@@ -380,7 +425,7 @@ function calButtons(a){return `<button class="calbtn" onclick="dlICS('${a.id}')"
  <a class="calbtn" target="_blank" rel="noopener" href="${gURL(a)}">Google Calendar</a>
  <a class="calbtn" target="_blank" rel="noopener" href="${oURL(a)}">Outlook</a>`}
 const z=d=>d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
-const desc=a=>`${a.b.n} at ${a.p.name} (${a.p.type}). Coverage: ${a.p.cost}. Plan: ${a.p.v?'VSP Vision Care, VSP Choice':CURP.car+' '+CURP.plan}, member ID ${CURP.mid}. Phone: ${a.p.phone}. Confirmation ${a.conf}.${a.note?' Note: '+a.note:''} Demo only: call the office to book.`;
+const desc=a=>`${a.b.n} at ${a.p.name} (${a.p.type}). Coverage: ${a.p.cost}. Plan: ${a.p.v?'VSP Vision Care, VSP Choice':CURP.car+' '+CURP.plan}, member ID ${CURP.mid}. Phone: ${a.p.phone}. Confirmation ${a.conf}.${a.note?' Note: '+a.note:''}${chkHas(a.chk)?' Pre-visit check-in: '+chkText(a.chk)+'.':''} Demo only: call the office to book.`;
 const gURL=a=>'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(a.b.n+' · '+a.p.name)+'&dates='+z(a.st)+'/'+z(a.en)+'&details='+encodeURIComponent(desc(a))+'&location='+encodeURIComponent(a.p.addr);
 const oURL=a=>'https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject='+encodeURIComponent(a.b.n+' · '+a.p.name)+'&startdt='+a.st.toISOString()+'&enddt='+a.en.toISOString()+'&body='+encodeURIComponent(desc(a))+'&location='+encodeURIComponent(a.p.addr);
 const esc=t=>t.replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
@@ -392,7 +437,7 @@ function fold(l){const o=[];let u=new TextEncoder(),cur='';for(const ch of l){if
 function dlICS(id){const a=APPTS.find(x=>x.id==id),blob=new Blob([ics(a)],{type:'text/calendar;charset=utf-8'}),u=URL.createObjectURL(blob),el=document.createElement('a');
  el.href=u;el.download='raventcare-'+a.b.k+'-'+a.conf+'.ics';document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
 function drawAppts(){AP[CURP.mid]=APPTS;$('appts').innerHTML=APPTS.length?APPTS.map(a=>`<div class="ben" style="align-items:start"><div class="emo" style="background:#5be3a822;color:var(--ac)">${a.st.getDate()}</div><div style="flex:1;min-width:0"><b>${a.b.n}</b><div class="mut" style="font-size:13px">${when(a)}<br>${a.p.name} · ${a.p.cost}</div>
- <button class="find" onclick="showConfirm(APPTS.find(x=>x.id=='${a.id}'))">Add to calendar</button> <button class="find" style="color:var(--mut)" onclick="cancelA('${a.id}')">Cancel</button></div></div>`).join(''):'<p class="mut" style="font-size:14px">No appointments yet. Tap "Find providers & book" on any benefit.</p>'}
+ <button class="find" onclick="showChk('${a.id}')">${chkHas(a.chk)?'Check-in form ✓':'How I\'m feeling'}</button> <button class="find" onclick="showConfirm(APPTS.find(x=>x.id=='${a.id}'))">Add to calendar</button> <button class="find" style="color:var(--mut)" onclick="cancelA('${a.id}')">Cancel</button></div></div>`).join(''):'<p class="mut" style="font-size:14px">No appointments yet. Tap "Find providers & book" on any benefit.</p>'}
 function cancelA(id){const a=APPTS.find(x=>x.id==id);APPTS=APPTS.filter(x=>x.id!=id);const bb=CURP.b[a.b.k];if(bb&&CAT[a.b.k][4]!='$')bb[0]=Math.max(0,bb[0]-1);CUR=ben(CURP);const on=document.querySelector('#tabs .on');draw(on?on.dataset.c:'All');drawAppts()}
 //---------------------------------------------------------------------
 //
