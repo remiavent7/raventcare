@@ -1,0 +1,182 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pharmacy connection · CollectCare</title><link rel="icon" type="image/svg+xml" href="logo.svg"><link rel="manifest" href="manifest.json">
+<meta name="description" content="How CollectCare connects patients, doctors' offices and pharmacies so a refill request can be followed from start to pickup.">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef4fb;--s1:#fff;--s2:#f3f7fc;--line:#d6e2f0;--tx:#10233f;--mut:#4d6180;--ac:#1f6fd1;--ok:#0f7a4f;--okb:#e2f5ec;--bad:#b42318;--badb:#fdecea;--wa:#7a4b00;--wab:#fff7e6;--in:#4f5fd6;--inb:#ecefff}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--tx);font:16px/1.5 Satoshi,system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+button,select{font:inherit;color:inherit}a{color:var(--ac)}
+:focus-visible{outline:3px solid #0ea5c6;outline-offset:2px;border-radius:8px}
+.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}.top .in{max-width:1160px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px;text-decoration:none;color:var(--tx)}.brand img{width:28px;height:28px}
+.top nav{margin-left:auto;display:flex;gap:16px;font-size:14px;flex-wrap:wrap}.top nav a{color:var(--mut);text-decoration:none}.top nav a:hover,.top nav a.on{color:var(--ac)}.top nav a.on{font-weight:700}
+main{max-width:1160px;margin:auto;padding:26px 20px 60px}
+h1{font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;font-weight:900;line-height:1.1}h2{font-size:20px;font-weight:900;letter-spacing:-.01em}h3{font-size:15.5px;font-weight:700}
+.mut{color:var(--mut)}.card{background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:22px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 11px;font-weight:700;font-size:12.5px;white-space:nowrap}
+.p-ok{background:var(--okb);color:var(--ok)}.p-in{background:var(--inb);color:var(--in)}.p-wa{background:var(--wab);color:var(--wa)}.p-mu{background:#eef2f7;color:var(--mut)}
+.lede{max-width:760px;margin-top:10px;font-size:17px}
+.tabs{display:flex;gap:6px;margin:22px 0 14px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:9px 16px;font-weight:700;font-size:14px;color:var(--mut);cursor:pointer}.tabs button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}@media(max-width:960px){.flow{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}.col .hd{display:flex;align-items:center;gap:10px}.col .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
+.col .hd small{display:block;color:var(--mut);font-size:12.5px;font-weight:500}
+.btn{border:0;background:var(--ac);color:#fff;border-radius:12px;padding:12px 14px;font-weight:700;font-size:14.5px;cursor:pointer;width:100%}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sec{background:#fff;color:var(--ac);border:1px solid var(--line)}.btn.ok{background:var(--ok)}.btn.no{background:#fff;color:var(--bad);border:1px solid #f2c4bf}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label.f{display:block;font-size:13px;font-weight:700;color:var(--mut);margin-bottom:4px}
+select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;font-size:14.5px}
+.item{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px}.item b{display:block;font-size:15px}.item .m{color:var(--mut);font-size:13px}
+.item.new{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac) inset;background:#fff}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--mut);font-size:14px}
+.tl{list-style:none;padding:0;margin:4px 0 0;position:relative}.tl li{position:relative;padding:0 0 14px 28px;font-size:14px}
+.tl li:before{content:"";position:absolute;left:7px;top:18px;bottom:-2px;width:2px;background:var(--line)}.tl li:last-child:before{display:none}
+.tl li i{position:absolute;left:0;top:3px;width:16px;height:16px;border-radius:50%;border:2px solid #b8c8dc;background:#fff}
+.tl li.done i{background:var(--ok);border-color:var(--ok)}.tl li.done:before{background:var(--ok)}.tl li.cur i{background:var(--in);border-color:var(--in);box-shadow:0 0 0 4px #dfe3ff}
+.tl li.no i{background:var(--bad);border-color:var(--bad)}
+.tl b{font-weight:700}.tl .t{color:var(--mut);font-size:12.5px;white-space:nowrap}.tl .src{display:block;color:var(--mut);font-size:12.5px;margin-top:1px}
+.tl .h{display:flex;justify-content:space-between;gap:10px}
+.tl li.todo b{color:var(--mut);font-weight:500}
+.note{font-size:13px;background:var(--wab);border:1px solid #f4d9a6;color:var(--wa);border-radius:12px;padding:10px 12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+.pc{display:flex;flex-direction:column;gap:8px}.pc .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pc ul{padding-left:18px;font-size:14px;display:grid;gap:3px}.pc .nx{font-size:13.5px;background:var(--s2);border-radius:10px;padding:8px 10px}
+.pc .lk{font-size:13px}
+.ck{list-style:none;padding:0;display:grid;gap:8px;margin-top:12px}.ck li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;background:var(--s2);border-radius:12px;padding:10px 12px}
+.ck li .b{width:20px;height:20px;border-radius:6px;border:2px solid #b8c8dc;flex:none;margin-top:1px;display:grid;place-items:center;font-size:13px;font-weight:900;color:#fff}.ck li.y .b{background:var(--ok);border-color:var(--ok)}
+.ck li.y{color:var(--mut)}
+#toasts{position:fixed;right:16px;bottom:16px;z-index:99;display:flex;flex-direction:column;gap:8px;max-width:min(360px,calc(100vw - 32px))}
+.toast{background:#fff;border:1px solid var(--line);border-left:4px solid var(--in);border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px #10233f2e;font-size:13.5px;animation:tin .25s ease-out;transition:opacity .5s}.toast b{display:block;font-size:14px}.toast.out{opacity:0}
+#toasts .toast:nth-last-child(n+4){display:none}
+@media(max-width:640px){.top .in{flex-wrap:wrap}.top nav{width:100%;margin-left:0;overflow-x:auto;white-space:nowrap;flex-wrap:nowrap}}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+.sec{margin-top:34px}
+.foot{font-size:12.5px;color:var(--mut);margin-top:30px;line-height:1.55}
+.only{display:none}.v-all .col{display:flex}.v-pat .col:not(.c-pat),.v-doc .col:not(.c-doc),.v-ph .col:not(.c-ph){display:none}
+.v-pat .flow,.v-doc .flow,.v-ph .flow{grid-template-columns:minmax(0,560px)}
+</style></head><body>
+<div class="top"><div class="in"><a class="brand" href="index.html"><img src="logo.svg" alt=""><span>Collect<span style="color:var(--ac)">Care</span></span></a>
+<nav><a href="app.html">App</a><a href="find.html">Find a doctor</a><a href="benefits.html">Check my benefits</a><a class="on" href="pharmacy.html">Pharmacy connection</a><a href="practice.html">For practices</a></nav></div></div>
+<main>
+<span class="pill p-in">Project · in development</span>
+<h1 style="margin-top:12px">Pharmacy connection</h1>
+<p class="lede mut">One refill request that travels from the patient to the doctor's office to the pharmacy, with every hand-off showing up in the patient's Pharmacy tracker.</p>
+
+<section class="sec" style="margin-top:26px">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap"><div><h2>Try the full loop</h2><p class="mut" style="font-size:14.5px;margin-top:4px">Play all three roles here, or open each role in its own browser tab. They stay in sync.</p></div>
+<button class="btn sec" id="reset" style="width:auto;padding:9px 14px;font-size:13.5px">Start over</button></div>
+<div class="tabs" role="tablist" id="tabs"><button data-v="all" class="on">All three</button><button data-v="pat">Patient</button><button data-v="doc">Doctor's office</button><button data-v="ph">Pharmacy</button></div>
+<div id="wrap" class="v-all"><div class="flow">
+
+<div class="col c-pat card"><div class="hd"><div class="ic" style="background:#e3eefc;color:var(--ac)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><div><h3>1 · Patient</h3><small>CollectCare app</small></div></div>
+<div><label class="f" for="med">Prescription with no refills left</label><select id="med"></select></div>
+<div class="row2"><div><label class="f" for="phm">Pharmacy</label><select id="phm"><option value="cvs">CVS Pharmacy · 596 Long Beach Blvd</option><option value="wag">Walgreens · 1170 E 4th St</option></select></div><div><label class="f" for="emr">Doctor's system</label><select id="emr"><option value="athena">athenahealth</option><option value="epic">Epic</option><option value="inbox">CollectCare practice inbox</option></select></div></div>
+<button class="btn" id="ask">Ask my doctor for a refill</button>
+<div id="patTl"></div>
+<label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" id="pop" style="width:18px;height:18px"> Pop-up alerts on this device</label>
+</div>
+
+<div class="col c-doc card"><div class="hd"><div class="ic" style="background:#e2f5ec;color:var(--ok)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6M12 8v4M10 10h4"/></svg></div><div><h3>2 · Doctor's office</h3><small id="docSys">Refill inbox in the practice's EHR</small></div></div>
+<div id="docBox"></div>
+</div>
+
+<div class="col c-ph card"><div class="hd"><div class="ic" style="background:#fdf0e3;color:#9a4a00"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 8h6M12 11v6M9 14h6"/></svg></div><div><h3>3 · Pharmacy</h3><small id="phSys">Pharmacy system</small></div></div>
+<div id="phBox"></div>
+</div>
+</div></div>
+<p class="note" style="margin-top:14px">Demo with sample patients. No real prescriptions are sent. Each step shows where the real update will come from once that connection is live.</p>
+</section>
+
+<section class="sec"><h2>Connections</h2><p class="mut" style="font-size:14.5px;margin-top:4px">What each partner allows outside apps to do today, and the next step for CollectCare.</p>
+<div class="grid3" id="partners"></div></section>
+
+<section class="sec card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline"><h2>Go-live checklist</h2><span class="mut" style="font-size:13.5px" id="ckc"></span></div>
+<p class="mut" style="font-size:14px;margin-top:4px">Tap an item to mark it done. Progress is saved on this device.</p>
+<ul class="ck" id="ck"></ul></section>
+
+<p class="foot">Partner capabilities are summarized from each company's public developer documentation as of November 2026 and can change. CollectCare is not affiliated with or endorsed by CVS, Walgreens, Surescripts, athenahealth or Epic. Always confirm with your insurer and pharmacist.</p>
+</main>
+<div id="toasts" aria-live="polite"></div>
+<script>
+const K='ccLoop',LS=(()=>{try{localStorage.setItem('_t','1');return localStorage}catch(e){return null}})();
+const MEDS=[
+ {id:'a',who:'Chris Yates',n:'Lisinopril 10 mg tablet',dr:'Optum, Downtown Long Beach',doc:'Dr. Patel'},
+ {id:'b',who:'Colin Yates',n:'Anastrozole 1 mg tablet',dr:'MemorialCare Todd Cancer Institute',doc:'Dr. Nguyen'},
+ {id:'c',who:'Christian Yates',n:'Albuterol HFA inhaler',dr:'Optum, Downtown Long Beach',doc:'Dr. Patel'},
+ {id:'d',who:'Margaret Yates',n:'Apixaban (Eliquis) 5 mg tablet',dr:'MemorialCare Heart & Vascular Institute',doc:'Dr. Romero'}];
+const PH={cvs:{n:'CVS Pharmacy',a:'596 Long Beach Blvd',api:'CVS Retail Guest Refill API'},wag:{n:'Walgreens',a:'1170 E 4th St',api:'Walgreens Pharmacy Prescription API'}};
+const EMR={athena:{n:'athenahealth',in:'Refill task in the athenaOne clinical inbox',back:'athenahealth prescription data shows which pharmacy it went to'},epic:{n:'Epic',in:'Refill request in the Epic In Basket (set up per health system)',back:'Epic signed-order data shows the prescription was sent'},inbox:{n:'CollectCare practice inbox',in:'Refill request in the CollectCare practice inbox',back:'Staff tap "Sent to pharmacy" in CollectCare'}};
+function steps(r){const p=PH[r.ph],e=EMR[r.emr];return [
+ ['req','You asked for a refill','CollectCare'],
+ ['inbox','Delivered to '+r.dr,e.in],
+ ['appr',r.doc+' approved it','Doctor signs in their own system'],
+ ['sent','Sent to '+p.n,'E-prescription over Surescripts · '+e.back],
+ ['rcv',p.n+' received it',p.api],
+ ['ready','Ready for pickup',p.n+' pickup time via '+p.api],
+ ['pick','Picked up','Pharmacy pickup notice']]}
+let S=load();
+function load(){try{return JSON.parse(LS&&LS.getItem(K)||'')||{r:null}}catch(e){return {r:null}}}
+function save(){try{LS&&LS.setItem(K,JSON.stringify(S))}catch(e){}}
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tm=t=>new Date(t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'});
+$('med').innerHTML=MEDS.map(m=>`<option value="${m.id}">${esc(m.who)} · ${esc(m.n)}</option>`).join('');
+function ev(k){return S.r&&S.r.ev[k]}
+function stage(){if(!S.r)return null;const L=steps(S.r);if(S.r.deny)return 'deny';let c=null;for(const s of L)if(!ev(s[0])){c=s[0];break}return c||'done'}
+function tl(r){const L=steps(r);let cur=false;return '<ul class="tl">'+L.map(s=>{const t=r.ev[s[0]];let cl='todo';
+ if(r.deny&&s[0]=='appr'){return `<li class="no"><i></i><div class="h"><b>${esc(r.doc)} needs to see you first</b><span class="t">${tm(r.deny.t)}</span></div><span class="src">${esc(r.deny.why)}</span></li>`}
+ if(t)cl='done';else if(!cur&&!r.deny){cl='cur';cur=true}
+ return `<li class="${cl}"><i></i><div class="h"><b>${esc(s[1])}</b>${t?`<span class="t">${tm(t)}</span>`:''}</div><span class="src">${t||cl=='cur'?'Live source: '+esc(s[2]):''}</span></li>`}).join('')+'</ul>'}
+function draw(){const r=S.r,st=stage();
+ $('ask').disabled=!!r&&st!=='done'&&st!=='deny';
+ ['med','phm','emr'].forEach(i=>$(i).disabled=$('ask').disabled);
+ if(r){$('med').value=r.mid;$('phm').value=r.ph;$('emr').value=r.emr}
+ const e=EMR[$('emr').value],p=PH[$('phm').value];$('docSys').textContent=e.in.replace(/ \(.*\)/,'');$('phSys').textContent=p.n+' · '+p.a;
+ $('patTl').innerHTML=r?`<div class="item"><b>${esc(r.n)}</b><span class="m">${esc(r.who)} · ${esc(PH[r.ph].n)}</span>${tl(r)}${st=='pick'?'<button class="btn ok" data-a="pick">I picked it up</button>':''}</div>`:'<div class="empty">Pick a prescription and tap the button. Watch it move to the doctor\'s office.</div>';
+ // doctor
+ if(!r||!ev('inbox'))$('docBox').innerHTML='<div class="empty">No refill requests waiting.</div>';
+ else if(st=='appr')$('docBox').innerHTML=`<div class="item new"><span class="pill p-in" style="margin-bottom:6px">New refill request</span><b>${esc(r.who)}</b><span class="m">${esc(r.n)} · 0 refills left · last filled 28 days ago<br>Send to: ${esc(PH[r.ph].n)}, ${esc(PH[r.ph].a)}<br>From CollectCare at ${tm(r.ev.req)}</span></div>
+  <div class="row2"><button class="btn ok" data-a="appr">Approve and send</button><button class="btn no" data-a="deny">Needs a visit</button></div>
+  <p class="mut" style="font-size:12.5px">In the live version the doctor approves inside ${esc(EMR[r.emr].n)} and CollectCare picks up the result automatically.</p>`;
+ else $('docBox').innerHTML=`<div class="item"><b>${esc(r.who)} · ${esc(r.n)}</b><span class="m">${r.deny?'Asked the patient to book a visit':'Approved by '+esc(r.doc)+' and sent to '+esc(PH[r.ph].n)}${ev('appr')?' at '+tm(ev('appr')):''}</span></div>`;
+ // pharmacy
+ if(!r||!ev('sent'))$('phBox').innerHTML='<div class="empty">Waiting for an e-prescription.</div>';
+ else{const nx={rcv:'Received, filling now',ready:'Ready for pickup',pick:'Picked up'}[st]||'Done';
+  $('phBox').innerHTML=`<div class="item ${st=='ready'||st=='pick'?'new':''}"><span class="pill ${st=='done'?'p-ok':'p-wa'}" style="margin-bottom:6px">${st=='rcv'?'Incoming e-prescription':st=='ready'?'Filling':st=='pick'?'Waiting for pickup':'Picked up'}</span><b>${esc(r.who)}</b><span class="m">${esc(r.n)}<br>Prescriber: ${esc(r.doc)}, ${esc(r.dr)}</span></div>
+  ${st=='ready'?'<button class="btn" data-a="ready">Mark ready for pickup</button>':st=='pick'?'<button class="btn sec" data-a="pick">Patient picked it up</button>':''}
+  <p class="mut" style="font-size:12.5px">${esc(PH[r.ph].api)} will supply the pickup time in the live version.</p>`}
+}
+function toast(t,b){const el=document.createElement('div');el.className='toast';el.innerHTML=`<b>${esc(t)}</b>${esc(b)}`;$('toasts').appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),600)},5200);
+ if($('pop').checked&&'Notification' in window&&Notification.permission=='granted'){try{new Notification('CollectCare: '+t,{body:b,icon:'icon-192.png'})}catch(e){}}}
+let last=stage();
+function tick(){const st=stage();if(st!==last&&S.r){const L=steps(S.r),d=L.find(s=>s[0]==last);if(S.r.deny&&last=='appr')toast(S.r.doc+' needs to see you first','Book a visit to renew '+S.r.n+'.');else if(d)toast(d[1],S.r.n+' · '+S.r.who)}last=st;draw()}
+function act(a){const r=S.r,n=Date.now();if(!r)return;
+ if(a=='appr'){r.ev.appr=n;save();tick();setTimeout(()=>{S=load();if(S.r&&!S.r.ev.sent){S.r.ev.sent=Date.now();save();tick()}},1600);setTimeout(()=>{S=load();if(S.r&&S.r.ev.sent&&!S.r.ev.rcv){S.r.ev.rcv=Date.now();save();tick()}},3600)}
+ else if(a=='deny'){r.deny={t:n,why:'It has been over a year since the last visit. Book an appointment and the doctor will renew it then.'};save();tick()}
+ else if(a=='ready'){r.ev.ready=n;save();tick()}
+ else if(a=='pick'){r.ev.pick=n;save();tick()}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b)act(b.dataset.a)});
+$('ask').onclick=()=>{const m=MEDS.find(x=>x.id==$('med').value);S={r:{mid:m.id,who:m.who,n:m.n,dr:m.dr,doc:m.doc,ph:$('phm').value,emr:$('emr').value,ev:{req:Date.now()}}};save();last=stage();draw();
+ setTimeout(()=>{S=load();if(S.r&&!S.r.ev.inbox){S.r.ev.inbox=Date.now();save();tick()}},1500)};
+['phm','emr'].forEach(i=>$(i).onchange=draw);
+$('reset').onclick=()=>{S={r:null};save();last=null;draw()};
+$('pop').onchange=()=>{if($('pop').checked&&'Notification' in window&&Notification.permission!='granted')Notification.requestPermission()};
+window.addEventListener('storage',e=>{if(e.key===K){S=load();tick()}});
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$('wrap').className='v-'+b.dataset.v;history.replaceState(null,'','#'+b.dataset.v)});
+const h=location.hash.slice(1);if(['pat','doc','ph'].includes(h))document.querySelector(`#tabs [data-v="${h}"]`).click();
+
+const PARTNERS=[
+ {n:'Walgreens',s:['Public API','p-ok'],what:['Refill a Walgreens prescription from inside an app','Transfer a prescription in from another pharmacy','Walgreens texts the patient when it is ready'],gap:'Does not send each step back to outside apps.',next:'Register on the Walgreens developer portal for an API key and affiliate ID.',l:[['Prescription Refill & Transfer API','https://developer.walgreens.com/api/prescription-refill-transfer']]},
+ {n:'CVS Pharmacy',s:['Approval needed','p-wa'],what:['Check whether a prescription can be refilled','Earliest pickup date and time','Place the refill order'],gap:'Step-by-step status is not offered publicly.',next:'Request a CVS Health developer account and test in the sandbox.',l:[['CVS Health developer portal','https://developer.cvshealth.com/']]},
+ {n:'athenahealth',s:['Partner program','p-wa'],what:['Create a refill task in the practice\'s clinical inbox','See the new prescription and which pharmacy it went to'],gap:'Each practice must turn on CollectCare.',next:'Apply to the athenahealth Marketplace partner program, then pilot with one practice.',l:[['athenahealth API docs','https://docs.athenahealth.com/api'],['Patient cases','https://help.athenahealth.com/Ohelp/Content/C_Patient_Case_Tab_PH.htm']]},
+ {n:'Epic',s:['Per health system','p-wa'],what:['Read signed prescriptions and fill status','Sending requests in is set up with each health system'],gap:'Each Epic customer approves the app separately.',next:'Register on Epic on FHIR and Vendor Services, then work with one health system.',l:[['Epic on FHIR','https://fhir.epic.com/'],['Vendor Services','https://vendorservices.epic.com/']]},
+ {n:'Surescripts',s:['Through the EHR','p-mu'],what:['Carries the e-prescription from doctor to pharmacy','Pickup notices (RxFill) go back to the prescriber'],gap:'Not a direct feed to consumer apps.',next:'No contract needed at first. CollectCare reads the result from the EHR.',l:[['Surescripts e-prescribing','https://surescripts.com/products/e-prescribing']]},
+ {n:'CollectCare practice inbox',s:['Built · demo','p-ok'],what:['Works with any practice on day one','Staff tap "Sent to pharmacy" after approving in their EHR'],gap:'Relies on staff to update it.',next:'Add real staff logins once HIPAA hosting is in place.',l:[['Practice view','practice.html']]}];
+$('partners').innerHTML=PARTNERS.map(p=>`<div class="card pc"><div class="hd"><h3 style="font-size:17px">${esc(p.n)}</h3><span class="pill ${p.s[1]}">${esc(p.s[0])}</span></div><ul>${p.what.map(w=>`<li>${esc(w)}</li>`).join('')}</ul><p class="mut" style="font-size:13.5px">${esc(p.gap)}</p><div class="nx"><b>Next:</b> ${esc(p.next)}</div><div class="lk">${p.l.map(l=>`<a href="${l[1]}" ${l[1].startsWith('http')?'target="_blank" rel="noopener"':''}>${esc(l[0])} →</a>`).join(' · ')}</div></div>`).join('');
+
+const CK=[['llc','California LLC approved (Ravent Care LLC)'],['dba','File a CollectCare fictitious business name (DBA)'],['hipaa','HIPAA-ready hosting and a signed BAA with the host'],['wag','Walgreens developer account and API key'],['cvs','CVS Health developer account approved'],['ath','athenahealth Marketplace partner application'],['epic','Epic on FHIR app registration'],['pilot','First pilot practice signed, with a BAA'],['consent','Patient consent screen for linking a doctor\'s office']];
+let CS={};try{CS=JSON.parse(LS&&LS.getItem('ccLoopCk')||'{}')}catch(e){}
+function drawCk(){$('ck').innerHTML=CK.map(c=>`<li class="${CS[c[0]]?'y':''}" role="checkbox" aria-checked="${!!CS[c[0]]}" tabindex="0" data-k="${c[0]}" style="cursor:pointer"><span class="b">${CS[c[0]]?'✓':''}</span>${esc(c[1])}</li>`).join('');$('ckc').textContent=CK.filter(c=>CS[c[0]]).length+' of '+CK.length+' done'}
+$('ck').addEventListener('click',e=>{const li=e.target.closest('[data-k]');if(!li)return;CS[li.dataset.k]=!CS[li.dataset.k];try{LS&&LS.setItem('ccLoopCk',JSON.stringify(CS))}catch(x){}drawCk()});
+$('ck').addEventListener('keydown',e=>{if(e.key==' '||e.key=='Enter'){e.preventDefault();e.target.click()}});
+drawCk();draw();
+</script>
+</body></html>

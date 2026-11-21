@@ -28,6 +28,7 @@
     '<div class="dlab">More</div>'+
     '<a href="find.html" style="color:var(--ac);font-weight:700"><span class="dot"></span>Live doctor search</a>'+
     '<a href="benefits.html" style="color:var(--ac);font-weight:700"><span class="dot"></span>Check my benefits</a>'+
+    '<a href="pharmacy.html" style="color:var(--ac);font-weight:700"><span class="dot"></span>Pharmacy connection</a>'+
     '<a href="connect.html"><span class="dot"></span>Connect accounts</a>'+
     '<a href="partners.html"><span class="dot"></span>For practices</a>'+
     '<a href="practice.html"><span class="dot"></span>Practice view</a>'+
