@@ -2873,7 +2873,7 @@ function rxTrack(rx){const f=rxFind(rx);if(!f)return;RXOPEN=rx;const {m,d}=f,st=
  <button class="calbtn" id="rxfast">Watch every step in about a minute (demo)</button>
  <a class="calbtn" href="tel:${RXPH.ph.replace(/\D/g,'')}">Call ${RXPH.n} · ${RXPH.ph}</a>
  <p class="mut" style="font-size:12px;margin-top:10px">Demo. Steps and times are simulated from a typical refill. In the live app, they come straight from the pharmacy.</p>`);
- $('rxn_on').onchange=async e=>{if(e.target.checked&&'Notification'in window&&Notification.permission!='granted'){let r='denied';try{r=await Notification.requestPermission()}catch(x){}if(r!='granted'){$('rxn_msg').textContent='Your browser blocked pop-up alerts. Allow notifications for raventcare.com in browser settings. In-app alerts still work.'}}RXN.on=e.target.checked?1:0;rxSave();rxNoteBar()};
+ $('rxn_on').onchange=async e=>{if(e.target.checked&&'Notification'in window&&Notification.permission!='granted'){let r='denied';try{r=await Notification.requestPermission()}catch(x){}if(r!='granted'){$('rxn_msg').textContent='Your browser blocked pop-up alerts. Allow notifications for collectmycare.com in browser settings. In-app alerts still work.'}}RXN.on=e.target.checked?1:0;rxSave();rxNoteBar()};
  $('rxn_text').onchange=e=>{RXN.text=e.target.checked?1:0;rxSave()};$('rxn_email').onchange=e=>{RXN.email=e.target.checked?1:0;rxSave()};
  $('rxfast').onclick=()=>{RXREQ[rx]={t:Date.now(),f:1};RXSEEN[rx]=0;delete RXPICK[rx];rxSave();drawRx(CURP);rxTrack(rx)};
  RXOPEN_I=ci+'|'+st.k}
