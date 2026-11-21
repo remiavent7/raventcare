@@ -1,0 +1,177 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>CollectCare Provider View · Post-op recovery summary (sample)</title><link rel="icon" href="logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="healthbot.css">
+<style>
+main{max-width:1180px}.top .in{max-width:1180px}
+.pt{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}.av{width:58px;height:58px;border-radius:18px;background:#e3eefc;color:var(--ac);display:grid;place-items:center;font-weight:900;font-size:22px}
+.pt h1{font-size:clamp(24px,3.4vw,32px);margin:0}.facts{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--mut);margin-top:4px}.facts b{color:var(--tx)}
+.vis{background:#0f1b2d;color:#fff;border-radius:14px;padding:10px 14px;text-align:right}.vis b{display:block;font-size:18px}.vis span{font-size:12.5px;color:#b9cbe4}
+.kg{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.kc{background:var(--s2);border-radius:14px;padding:12px}.kc span{font-size:12px;color:var(--mut);display:block}.kc b{font-size:22px;line-height:1.15;display:block;font-variant-numeric:tabular-nums}.kc i{font-style:normal;font-size:12.5px;font-weight:700}.up{color:var(--ok)}.dn{color:#b42318}.fl{color:var(--mut)}
+@media(max-width:900px){.kg{grid-template-columns:repeat(3,minmax(0,1fr))}.pt{grid-template-columns:auto 1fr}.vis{grid-column:1/-1;text-align:left}}
+@media(max-width:480px){.kg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:820px){.two{grid-template-columns:1fr}}
+.att{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.att:first-of-type{border-top:0}.att .lv{flex:none;width:10px;border-radius:5px}.att b{display:block}.att p{margin:2px 0 0;font-size:13.5px;color:var(--mut)}
+.goal td:last-child{font-weight:800}.met{color:var(--ok)}.near{color:var(--warn)}
+.note-out{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:12px;max-height:340px;overflow:auto}
+.lg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mut);margin-top:6px}.lg span{display:inline-flex;align-items:center;gap:5px}.lg i{display:block;width:14px;height:3px}
+.src{font-size:12px;color:var(--mut)}
+</style>
+</head><body>
+<div class="top"><div class="in"><a class="brand" href="practice.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span style="color:var(--ac)">Care</span></span></a>
+<span class="tag ac">Provider view</span><span class="mut" style="font-size:13px">Harbor Orthopedics &amp; Joint Center (sample practice)</span>
+<nav><a href="practice.html">Practice view</a><a href="#" class="on">Post-op summary</a><a href="#" onclick="HB.lock();return false">Lock</a></nav></div></div>
+<main>
+<div id="gatebox"></div>
+<div id="pv" class="hidden">
+ <div class="card"><div class="pt"><div class="av">MY</div><div><span class="mut" style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">Health Bot recovery summary · shared by patient</span><h1>Margaret Yates</h1>
+  <div class="facts"><span><b>79</b> yrs, female</span><span>Medicare <b>4TQ7-RM2-KX58</b></span><span>Procedure <b>Right total knee replacement</b></span><span>Surgery <b>Tue Oct 13, 2026</b></span><span>Surgeon <b>Dr. Alana Reyes</b> (sample)</span></div></div>
+  <div class="vis"><span>Today's visit</span><b>2nd post-op follow-up</b><span id="podtxt"></span></div></div>
+  <div class="row" style="margin-top:12px"><div class="chips" id="rng" style="margin:0"><button class="chip on" data-r="last">Since 1st follow-up (Oct 27)</button><button class="chip" data-r="all">Since surgery (Oct 13)</button></div><span class="sp"></span><button class="btn ghost sm" id="cpy">Copy interval history</button><button class="btn sm" onclick="window.print()">Print</button></div>
+ </div>
+
+ <div class="card"><h2 id="kgh">Since the 1st follow-up</h2><div class="kg" id="kg"></div>
+  <p class="syn" id="syn" style="margin:14px 0 0"></p></div>
+
+ <div class="two">
+  <div class="card"><h2>Needs your attention</h2><div id="att"></div></div>
+  <div class="card"><h2>6-week goals <span class="mut" style="font-size:12.5px;font-weight:500">set by the care team</span></h2><div class="tw"><table class="goal" id="goals"></table></div></div>
+ </div>
+
+ <div class="two">
+  <div class="card chart"><h2>Pain by day</h2><div id="c1"></div><div class="lg"><span><i style="background:#b42318"></i>With activity / PT</span><span><i style="background:#ea7a2e;height:0;border-top:3px dashed #ea7a2e"></i>At rest / night</span><span><i style="background:#94a3b8;width:2px;height:12px"></i>Follow-up visits</span></div></div>
+  <div class="card chart"><h2>Knee bend (flexion)</h2><div id="c2"></div><div class="lg"><span><i style="background:#1f6fd1"></i>Measured at PT, reported in Health Bot</span><span><i style="background:#16a34a33;height:10px"></i>Goal 110° or more by 6 weeks</span></div></div>
+ </div>
+ <div class="two">
+  <div class="card chart"><h2>Walking: steps per day</h2><div id="c3"></div><div class="lg" id="aidlg"></div></div>
+  <div class="card chart"><h2>Opioid use: oxycodone 5 mg tablets per day</h2><div id="c4"></div><div class="lg"><span>Acetaminophen 1 g three times a day through day 30, then as needed. Aspirin 81 mg twice a day for clot prevention, days 1 to 35.</span></div></div>
+ </div>
+
+ <div class="two">
+  <div class="card"><h2>Incision, swelling and sleep</h2><div class="tw"><table id="wt"></table></div></div>
+  <div class="card"><h2>Physical therapy and home exercises</h2><div class="tw"><table id="ptt"></table></div></div>
+ </div>
+
+ <div class="card"><h2>In the patient's own words</h2><div id="words"></div></div>
+ <div class="two">
+  <div class="card"><h2>Patient's questions for today</h2><ol id="qs" style="margin:0;padding-left:20px"></ol></div>
+  <div class="card"><h2>Interval history draft</h2><p class="mut" style="font-size:12.5px;margin:0 0 8px">Built from patient-reported data. Review and edit before adding to the chart.</p><div class="note-out" id="hx"></div></div>
+ </div>
+ <p class="src">Sample data for a demo. Margaret Yates, Dr. Reyes and Harbor Orthopedics are made up. All values are patient-reported through CollectCare Health Bot daily recovery check-ins, except knee bend, which the patient copies from her physical therapist's measurement. Not a diagnosis or a medical record. Care-team goals shown are sample practice settings, not clinical guidance. In a live version the patient chooses to share this summary with the practice, and it is sent over a secure, HIPAA-compliant connection.</p>
+</div>
+</main>
+<script src="healthbot.js"></script>
+<script>
+const $=HB.$,esc=HB.esc;
+/* ---------- sample recovery data (deterministic) ---------- */
+const SURG=new Date(2026,9,13),F1=14,F2=42,TODAY=39;
+const dOf=p=>{const d=new Date(SURG);d.setDate(d.getDate()+p);return d};
+const fd=(p,o)=>dOf(p).toLocaleDateString('en-US',o||{month:'short',day:'numeric'});
+let sd=11;const rnd=()=>{sd=(sd*16807)%2147483647;return(sd-1)/2147483646};
+const MISS=new Set([12,29]);
+const FLEX={3:68,7:80,10:85,14:90,17:95,21:99,24:101,28:104,31:107,35:110,38:112};
+const EXT={3:10,7:8,14:5,21:4,28:3,35:2,38:2};
+const PTD=new Set([3,7,10,17,21,24,28,31,35,38]);const PTMISS=new Set([17]);
+const E=[];
+for(let p=1;p<=TODAY;p++){if(MISS.has(p))continue;
+ const base=8-5.2*(1-Math.exp(-p/13));let pa=Math.round(base+(rnd()-.5)*1.2),pr=Math.round(base*.62-0.6+(rnd()-.5));
+ if(p>=26&&p<=27){pa+=2;pr+=1}if(p==32){pa+=1}
+ const oxy=p<=4?4:p<=8?3:p<=12?2:p<=16?1:p==17?1:p==26?1:0;
+ const steps=Math.round((260+p*92+(rnd()-.5)*420)/10)*10-(p==26||p==27?600:0)-(p==32?700:0);
+ const aid=p<=15?'Walker':p<=32?'Cane':'None indoors';
+ const sw=p<=10?'Moderate':p<=21?'Mild to moderate':'Mild';
+ const inc=p<=5?'Dressing on, dry':p<=8?'Small spot of clear drainage':p<=13?'Clean, dry, staples in':p<=16?'Staples out, strips on':'Healed, no redness';
+ const sleep=Math.round((4.4+2.1*(1-Math.exp(-p/16))+(rnd()-.5)*.8)*2)/2;
+ const feel=Math.max(1,Math.min(5,Math.round(1.8+2.4*(1-Math.exp(-p/15))+(rnd()-.5)*.8)));
+ const hx=p<=30?(rnd()<.9?'Done':'Partly'):(rnd()<.82?'Done':'Partly');
+ const asp=p<=35?(p==20?'Missed 1 dose':'Taken'):'Course done';
+ const temp=p==9?'100.3':'';
+ E.push({p,pa:Math.max(1,pa),pr:Math.max(0,pr),oxy,steps:Math.max(200,steps),aid,sw,inc,sleep,feel,hx,asp,temp,flex:FLEX[p]||null,ext:EXT[p]??null,pt:PTD.has(p)?(PTMISS.has(p)?'Missed':'Attended'):''})}
+const NOTES={2:'Home from the hospital. Walker in the house. Daughter staying with me.',6:'A little clear wetness on the bandage this morning. Called the nurse line, they said keep it dry and watch it.',9:'Felt warm tonight, 100.3. Drank water and took Tylenol, back to normal by morning.',15:'Staples out yesterday. Feels much better without them.',16:'Switched to the cane around the house. A bit scary on the stairs.',22:'Tightness in my right calf after sitting a long time at my granddaughter\'s recital. No swelling. Called the nurse line, walked around, gone by morning.',26:'PT pushed harder today. Very sore tonight, took one pain pill so I could sleep.',31:'Almost fell stepping off a curb with my cane. Caught myself, no fall. Knee sore the next day.',34:'Walking around the house without the cane now. Still use it outside.',36:'Finished the aspirin yesterday.',38:'Knee clicks when I bend it. It does not hurt. Still warm at night.'};
+const STAR=new Set([22,31,38]);
+const QS=['When can I drive again? It is my right knee.','Is it normal for the knee to still feel warm at night?','Can I start water aerobics at the Y?','The knee clicks when I bend it. Is that the implant?','Do I need antibiotics before my dental cleaning in January?'];
+/* ---------- helpers ---------- */
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0,r1=x=>Math.round(x*10)/10;
+const win=(a,b)=>E.filter(e=>e.p>=a&&e.p<=b);
+const lastV=(k,upto)=>{for(let i=E.length-1;i>=0;i--)if(E[i].p<=upto&&E[i][k]!=null)return E[i];return null};
+function line(el,pts,{min,max,band,step,suffix,series}){const W=560,H=200,pl=38,pr=12,pt=12,pb=28,x0=pts.x0,x1=pts.x1;
+ const X=p=>pl+(W-pl-pr)*(p-x0)/Math.max(1,x1-x0),Y=v=>pt+(H-pt-pb)*(1-(v-min)/(max-min));let s='';
+ for(let v=min;v<=max;v+=step)s+=`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e3ebf5"/><text x="${pl-6}" y="${Y(v)+4}" font-size="10" text-anchor="end" fill="#4d6180">${v}${suffix||''}</text>`;
+ if(band)s+=`<rect x="${pl}" width="${W-pl-pr}" y="${Y(band[1])}" height="${Y(band[0])-Y(band[1])}" fill="#16a34a" opacity=".12"/>`;
+ [[F1,'1st visit'],[TODAY,'Today'],[F2,'Visit 2']].forEach(([p,l])=>{if(p<x0||p>x1+3)return;const xx=Math.min(X(p),W-pr);s+=`<line x1="${xx}" x2="${xx}" y1="${pt}" y2="${H-pb}" stroke="${p==TODAY?'#1f6fd1':'#94a3b8'}" stroke-dasharray="${p==TODAY?'':'3 3'}"/><text x="${xx}" y="${pt+8}" font-size="9.5" text-anchor="${xx>W-60?'end':xx<pl+30?'start':'middle'}" fill="#4d6180" dx="${xx>W-60?-3:xx<pl+30?3:0}">${l}</text>`});
+ for(let p=x0;p<=x1;p+=7)s+=`<text x="${X(p)}" y="${H-10}" font-size="10" text-anchor="${X(p)>W-30?'end':'middle'}" fill="#4d6180">Day ${p}</text>`;
+ series.forEach(sr=>{const q=sr.data.filter(d=>d[1]!=null&&d[0]>=x0&&d[0]<=x1);
+  if(sr.bar){const bw=Math.max(3,(W-pl-pr)/(x1-x0+1)*.7);q.forEach(([p,v])=>{s+=`<rect x="${X(p)-bw/2}" y="${Y(v)}" width="${bw}" height="${Y(min)-Y(v)}" rx="1.5" fill="${typeof sr.c=='function'?sr.c(p):sr.c}"/>`});return}
+  s+=`<path d="${q.map((d,i)=>(i?'L':'M')+X(d[0]).toFixed(1)+' '+Y(d[1]).toFixed(1)).join(' ')}" fill="none" stroke="${sr.c}" stroke-width="${sr.w||2.5}" ${sr.dash?'stroke-dasharray="5 4"':''} stroke-linejoin="round"/>`;
+  if(sr.dots)q.forEach(([p,v])=>{s+=`<circle cx="${X(p)}" cy="${Y(v)}" r="3.5" fill="${sr.c}"/>`;if(sr.lab)s+=`<text x="${X(p)}" y="${Y(v)-7}" font-size="9.5" text-anchor="middle" fill="${sr.c}">${v}°</text>`})});
+ el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img">${s}</svg>`}
+/* ---------- render ---------- */
+let R='last';
+function draw(){
+ const a=R=='last'?F1:1,b=TODAY,W=win(a,b),pre=win(Math.max(1,F1-4),F1),late=win(TODAY-6,TODAY);
+ $('kgh').textContent=R=='last'?'Since the 1st follow-up (Oct 27 to today)':'Since surgery (Oct 13 to today)';
+ const start=R=='last'?pre:win(1,4);
+ const fs=lastV('flex',a+1)||{flex:FLEX[3]},fl=lastV('flex',b);
+ const ch=(now,then,good,unit,dec)=>{const d=r1(now-then);const better=good=='down'?d<0:d>0;return `<i class="${d==0?'fl':better?'up':'dn'}">${d>0?'+':''}${dec?d:Math.round(d)}${unit} vs ${R=='last'?'1st visit':'first days'}</i>`};
+ const pA=avg(late.map(e=>e.pa)),pA0=avg(start.map(e=>e.pa)),pR=avg(late.map(e=>e.pr)),pR0=avg(start.map(e=>e.pr));
+ const st=avg(late.map(e=>e.steps)),st0=avg(start.map(e=>e.steps)),sl=avg(late.map(e=>e.sleep)),sl0=avg(start.map(e=>e.sleep));
+ const lastOxy=[...E].reverse().find(e=>e.oxy>0);const days=b-a+1,logged=W.length;
+ $('kg').innerHTML=[
+  ['Pain with activity',r1(pA)+'/10',ch(pA,pA0,'down','',1),'7-day average'],
+  ['Pain at rest',r1(pR)+'/10',ch(pR,pR0,'down','',1),'7-day average'],
+  ['Knee bend',fl.flex+'°',ch(fl.flex,fs.flex,'up','°'),'Lacks '+(lastV('ext',b).ext)+'° of straightening'],
+  ['Steps per day',Math.round(st).toLocaleString(),ch(st,st0,'up','',0).replace(/(\d)(?=(\d{3})+(?!\d))/g,'$1,'),'7-day average'],
+  ['Opioid use','None',`<i class="up">Last tablet ${fd(lastOxy.p)} (day ${lastOxy.p})</i>`,'Acetaminophen as needed'],
+  ['Check-ins',logged+'/'+days,`<i class="fl">${Math.round(logged/days*100)}% of days</i>`,'Sleep avg '+r1(sl)+' h']
+ ].map(([l,v,c,s])=>`<div class="kc"><span>${l}</span><b>${v}</b>${c}<span style="margin-top:2px">${s}</span></div>`).join('');
+ const syn=R=='last'
+  ?`Margaret checked in on ${logged} of ${days} days since her first follow-up. Pain with activity fell from about ${Math.round(pA0)}/10 to ${r1(pA)}/10 and rest pain from ${Math.round(pR0)}/10 to ${r1(pR)}/10, with one flare after PT was advanced on Nov 8 (day 26). Knee bend improved from 90° to 112°, and she lacks about 2° of straightening. She moved from a walker to a cane on day 16 and walks without a device indoors since day 34. She stopped oxycodone after day 17, apart from one tablet on day 26. She finished aspirin on day 35, missing 1 dose. Reported events: calf tightness on Nov 4 (day 22) that resolved by morning, and a near-fall off a curb on Nov 13 (day 31) without injury. She still reports warmth at night and painless clicking.`
+  :`Margaret checked in on ${logged} of ${days} days since surgery. Pain with activity fell from about ${Math.round(pA0)}/10 in the first days to ${r1(pA)}/10 this week. Knee bend went from 68° (day 3) to 112° (day 38). Before the first visit she reported clear drainage on days 6 to 8 and a single temperature of 100.3 F on day 9, both resolved. Since then: walker to cane on day 16, no device indoors since day 34, off oxycodone after day 17 apart from one tablet on day 26, and aspirin course completed on day 35. Reported events: calf tightness on day 22 that resolved, and a near-fall on day 31 without injury.`;
+ $('syn').textContent=syn;
+ const att=[
+  ['#b42318','Calf tightness, right leg · Nov 4 (day 22)','Patient-reported after prolonged sitting. No swelling noted by patient. Called the nurse line, gone by morning. She was taking aspirin at the time. Consider examining the calf today.'],
+  ['#b45309','Near-fall stepping off a curb · Nov 13 (day 31)','Using a cane, no fall and no injury. Knee sore the next day (activity pain 6/10), then back to baseline. May want to review balance and curb technique with PT.'],
+  ['#b45309','Warmth at night and painless clicking · ongoing','Mentioned on several days since day 30. No fever reported since day 9. The incision has been described as healed with no redness since day 17.'],
+  ['#4d6180','Pain flare after PT was advanced · Nov 8 (day 26)','Activity pain rose to 7/10 for 2 days, with 1 oxycodone tablet. Settled by day 28.']];
+ $('att').innerHTML=att.map(([c,t,d])=>`<div class="att"><span class="lv" style="background:${c}"></span><div><b>${t}</b><p>${d}</p></div></div>`).join('');
+ const ptA=E.filter(e=>e.pt=='Attended'&&e.p>=a).length,ptT=E.filter(e=>e.pt&&e.p>=a).length+(MISS.has(29)&&a<=29?0:0);
+ $('goals').innerHTML='<tr><th>Goal at 6 weeks</th><th>Now</th><th>Status</th></tr>'+[
+  ['Knee bend 110° or more','112° (day 38)','Met','met'],['Lacks 5° or less of straightening','Lacks 2°','Met','met'],['Walks without a device indoors','Since day 34','Met','met'],['Off opioid pain medicine','Since day 27','Met','met'],['Incision healed','Since day 17','Met','met'],['Clot-prevention course finished','Day 35, 1 dose missed','Met','met'],['PT sessions attended',`${ptA} of ${ptT} in range`,ptA==ptT?'Met':'Nearly','near'],['Sleeps 6+ hours',`${r1(sl)} h average`,sl>=6?'Met':'Not yet',sl>=6?'met':'near']
+ ].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="${r[3]}">${r[2]}</td></tr>`).join('');
+ const x0=a,x1=F2;
+ line($('c1'),{x0,x1},{min:0,max:10,step:2,series:[{data:W.map(e=>[e.p,e.pa]),c:'#b42318'},{data:W.map(e=>[e.p,e.pr]),c:'#ea7a2e',dash:1}]});
+ line($('c2'),{x0:Math.min(a,3),x1},{min:60,max:130,step:10,suffix:'°',band:[110,130],series:[{data:E.filter(e=>e.flex).map(e=>[e.p,e.flex]),c:'#1f6fd1',dots:1,lab:1,w:3}]});
+ const aidC=p=>p<=15?'#94a3b8':p<=32?'#0ea5c6':'#16a34a';
+ line($('c3'),{x0,x1},{min:0,max:5000,step:1000,series:[{data:W.map(e=>[e.p,e.steps]),bar:1,c:aidC}]});
+ $('aidlg').innerHTML='<span><i style="background:#94a3b8;height:10px;width:10px"></i>Walker</span><span><i style="background:#0ea5c6;height:10px;width:10px"></i>Cane</span><span><i style="background:#16a34a;height:10px;width:10px"></i>No device indoors</span>';
+ line($('c4'),{x0:Math.min(a,1),x1},{min:0,max:5,step:1,series:[{data:E.map(e=>[e.p,e.oxy]),bar:1,c:'#6d4fd6'}]});
+ const wk=[];for(let s=a;s<=b;s+=7){const g=win(s,Math.min(b,s+6));if(!g.length)continue;const L=g[g.length-1];wk.push(`<tr><td>Days ${s} to ${Math.min(b,s+6)}<br><span class="mut" style="font-size:12px">${fd(s)} to ${fd(Math.min(b,s+6))}</span></td><td>${esc(L.inc)}</td><td>${esc(L.sw)}</td><td>${r1(avg(g.map(e=>e.sleep)))} h</td><td>${g.some(e=>e.temp)?'<b class="dn">'+g.find(e=>e.temp).temp+' F once</b>':'None'}</td></tr>`)}
+ $('wt').innerHTML='<tr><th>Week</th><th>Incision</th><th>Swelling</th><th>Sleep</th><th>Fever</th></tr>'+wk.join('');
+ const pw=[];for(let s=a;s<=b;s+=7){const g=win(s,Math.min(b,s+6));if(!g.length)continue;const ses=E.filter(e=>e.p>=s&&e.p<=Math.min(b,s+6)&&e.pt);pw.push(`<tr><td>Days ${s} to ${Math.min(b,s+6)}</td><td>${ses.filter(e=>e.pt=='Attended').length} of ${ses.length}</td><td>${g.filter(e=>e.hx=='Done').length} of ${g.length} days fully</td><td>${esc(g[g.length-1].aid)}</td></tr>`)}
+ $('ptt').innerHTML='<tr><th>Week</th><th>PT visits</th><th>Home exercises</th><th>Walking aid</th></tr>'+pw.join('');
+ const ns=Object.entries(NOTES).map(([p,t])=>[+p,t]).filter(([p])=>p>=a).reverse();
+ $('words').innerHTML=ns.map(([p,t])=>`<div class="ent"><i class="dot" style="background:${STAR.has(p)?'#1f6fd1':'#cbd5e1'}"></i><div class="bd"><div class="row" style="gap:6px"><b>${fd(p,{weekday:'short',month:'short',day:'numeric'})}</b><span class="mut" style="font-size:12.5px">Day ${p}</span>${STAR.has(p)?'<span class="tag ac">Flagged for doctor</span>':''}</div><p>${esc(t)}</p></div></div>`).join('');
+ $('qs').innerHTML=QS.map(q=>`<li style="margin:5px 0">${esc(q)}</li>`).join('');
+ HX=`INTERVAL HISTORY (patient-reported via CollectCare Health Bot, ${fd(a)}–${fd(b)}, ${logged}/${days} days logged)
+79F s/p R TKA ${fd(0,{month:'numeric',day:'numeric',year:'numeric'})}, POD ${F2} today, 2nd post-op visit.
+Pain: activity ${Math.round(pA0)}→${r1(pA)}/10, rest ${Math.round(pR0)}→${r1(pR)}/10 (7-day avg). Transient flare POD 26-27 after PT progression.
+ROM (PT-measured, pt-reported): flexion ${fs.flex}°→${fl.flex}° (POD 38), extension lag 2°.
+Mobility: walker→cane POD 16; no device indoors since POD 34, cane outdoors. ~${Math.round(st/100)*100} steps/day.
+Meds: oxycodone discontinued after POD 17 (1 tab POD 26). APAP PRN. ASA 81 BID completed POD 35 (1 missed dose).
+Wound: healed, no redness/drainage reported since POD 17. No fever since POD 9 (single 100.3 F).
+Events: R calf tightness POD 22 after prolonged sitting, no swelling, resolved <24 h. Near-fall off curb POD 31, no fall/injury.
+Ongoing: nocturnal warmth, painless clicking with flexion. Sleep avg ${r1(sl)} h.
+PT: ${ptA}/${ptT} sessions attended in range; HEP done most days.
+Patient questions: driving (R knee), night warmth, aquatic exercise, clicking, dental antibiotic prophylaxis.`;
+ $('hx').textContent=HX}
+let HX='';
+$('rng').onclick=e=>{const b=e.target.closest('button');if(!b)return;R=b.dataset.r;[...$('rng').children].forEach(c=>c.classList.toggle('on',c==b));draw()};
+$('cpy').onclick=async()=>{try{await navigator.clipboard.writeText(HX);$('cpy').textContent='Copied'}catch(e){$('cpy').textContent='Copy blocked, use Print'}setTimeout(()=>$('cpy').textContent='Copy interval history',2500)};
+$('podtxt').textContent=`Tue Nov 24, 2026 · day ${F2} after surgery (6 weeks)`;
+/* Provider gate: Health Bot password only (demo). */
+(function(){const box=$('gatebox'),main=$('pv');const go=()=>{box.classList.add('hidden');main.classList.remove('hidden');draw()};
+ if(ocSS.getItem('ccHB:open')=='1')return go();
+ box.innerHTML=`<div class="card gate"><div class="bot-ic" style="margin:0 auto 10px">${HB.botSVG}</div><h2>Patient-shared Health Bot data</h2><p class="mut" style="font-size:13.5px">This page shows private, patient-reported health notes. Enter the Health Bot password to continue.</p><form id="pf"><input id="pc" type="password" placeholder="Password" autocomplete="off" autocapitalize="off" aria-label="Password"><button class="btn" style="width:100%;justify-content:center">Open summary</button><p id="pe" class="mut" style="font-size:13px" role="alert"></p></form></div>`;
+ $('pf').onsubmit=async e=>{e.preventDefault();if(await HB.sha($('pc').value.trim().toLowerCase())===HB.PW){ocSS.setItem('ccHB:open','1');go()}else $('pe').textContent='That password is not right.'};$('pc').focus()})();
+</script>
+</body></html>
