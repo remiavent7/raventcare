@@ -1,0 +1,136 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>CollectCare · Health Bot</title><link rel="icon" href="logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="healthbot.css">
+</head><body>
+<div class="top"><div class="in"><a class="brand" href="app.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span style="color:var(--ac)">Care</span></span></a>
+<nav><a href="app.html">Family</a><a href="healthbot.html" class="on" id="nhb">Health Bot</a><a href="healthbot-summary.html" id="nsum">Visit summary</a><a href="privacy.html">Privacy</a><a href="#" onclick="HB.lock();return false">Lock</a></nav></div></div>
+<main>
+<div id="gatebox"></div>
+<div id="hb" class="hidden">
+ <div class="hero"><div class="bot-ic" id="boticon"></div><div style="flex:1;min-width:220px"><span class="tag ac">Daily health notes</span><h1>Health Bot</h1><p class="mut" style="margin:0;max-width:640px">A minute a day. Tell Health Bot how you feel, and when it's time for an appointment it turns your notes into a short summary you can show your doctor.</p></div></div>
+ <div class="mem" id="mem" aria-label="Choose a family member"></div>
+ <div class="priv"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><div><b>Private to this device.</b> Your notes are saved only in this browser on this phone or computer. They are not sent to CollectCare, your insurer or anyone else. You decide when to show the summary. <a href="#privacy" style="color:#7dd3fc">Lock or delete</a></div></div>
+
+ <div class="grid g2" style="margin-top:2px;align-items:start">
+  <div class="card" id="ccard" style="grid-column:1/-1"><div class="row"><h2 style="margin:0" id="ctitle">Today's check-in</h2><span class="sp"></span><span class="tag" id="cstat"></span></div>
+   <div class="chat" id="chat" aria-live="polite"></div></div>
+ </div>
+
+ <div class="grid g2" style="align-items:start">
+  <div class="card"><div class="row"><h2 style="margin:0">Last 14 days</h2><span class="sp"></span><span class="mut" style="font-size:13px" id="streak"></span></div>
+   <div class="strip" id="strip" aria-label="How you felt over the last 14 days"></div>
+   <div class="row mut" style="font-size:12px;margin-top:24px;gap:10px" id="legend"></div></div>
+  <div class="card"><h2>Getting ready for a visit?</h2><p class="mut" style="font-size:14px;margin:0 0 12px">Health Bot puts your notes into one page: how you have felt, your symptoms, pain, sleep and the questions you want to ask.</p>
+   <div class="row"><a class="btn" id="tosum" href="healthbot-summary.html">See my visit summary</a><a class="btn ghost" href="app.html">Back to my benefits</a></div></div>
+ </div>
+
+ <div class="card"><div class="row"><h2 style="margin:0">My notes</h2><span class="sp"></span><div class="chips" id="hf" style="margin:0"><button class="chip on" data-f="all">All</button><button class="chip" data-f="star">Flagged for doctor</button></div></div>
+  <div id="hist"></div></div>
+
+ <div class="card" id="privacy"><h2>Privacy and lock</h2>
+  <p class="mut" style="font-size:14px;margin:0 0 10px">Health Bot has its own password, separate from the family code. It stays open only until you close this browser tab. Lock it when you hand your phone to someone else.</p>
+  <div class="row"><span class="tag lock">Password protected</span><button class="btn ghost sm" id="lk">Lock Health Bot now</button></div>
+  <div class="row" style="margin-top:12px"><button class="btn ghost sm" id="exp">Download my notes</button><button class="btn red sm" id="del">Delete all notes for <span class="who"></span></button></div>
+  <h3>Demo</h3><p class="mut" style="font-size:13px;margin:0 0 8px">Fill in three weeks of sample check-ins to see how the visit summary looks. Sample notes are labeled and can be removed.</p>
+  <div class="row"><button class="btn ghost sm" id="smp">Add sample check-ins</button><button class="btn ghost sm" id="smpx">Remove sample check-ins</button></div>
+  <p class="mut" style="font-size:12px;margin:14px 0 0">Health Bot is a personal notebook, not a medical service. No one watches these notes. For an emergency call 911. For a mental health crisis call or text 988.</p></div>
+</div>
+</main>
+<footer>CollectCare demo. Not a real medical, insurance or legal service. <a href="privacy.html">Privacy policy</a></footer>
+<script src="healthbot.js"></script>
+<script>
+const $=HB.$,esc=HB.esc;let M,D,A,STEP=0,EDIT=null,HF='all';
+$('boticon').innerHTML=HB.botSVG;
+const blank=()=>({feel:0,symptoms:[],other:'',pain:0,areas:[],sleep:7,sq:'',energy:0,mood:[],meds:'',vitals:{bp:'',temp:'',weight:'',glucose:''},note:'',star:false});
+const chipH=(arr,sel,attr)=>`<div class="chips">${arr.map(s=>`<button type="button" class="chip${sel.includes(s)?' on':''}" data-${attr}="${esc(s)}" aria-pressed="${sel.includes(s)}">${esc(s)}</button>`).join('')}</div>`;
+const togg=(list,v)=>{const i=list.indexOf(v);i<0?list.push(v):list.splice(i,1)};
+const S=[
+ {q:()=>`Hi ${esc(M.first)}. How are you feeling today, overall?`,
+  ui:()=>`<div class="opts">${[5,4,3,2,1].map(v=>`<button type="button" class="opt${A.feel==v?' on':''}" data-feel="${v}"><i style="background:${HB.FEEL[v].c}"></i>${HB.FEEL[v].w}</button>`).join('')}</div>`,
+  ok:()=>A.feel>0,ans:()=>HB.FEEL[A.feel].w,auto:1},
+ {q:()=>`Any symptoms today? Tap all that fit.`,
+  ui:()=>chipH(HB.SYM,A.symptoms,'sym')+`<input type="text" id="oth" placeholder="Something else (optional)" value="${esc(A.other)}" aria-label="Other symptom">`,
+  ok:()=>1,ans:()=>{const s=A.symptoms.concat(A.other?[A.other]:[]);return s.length?s.join(', '):'No symptoms'},skip:'No symptoms'},
+ {q:()=>`Any pain? 0 means none, 10 is the worst you can imagine.`,
+  ui:()=>`<div class="rng"><input type="range" min="0" max="10" step="1" id="pain" value="${A.pain}" aria-label="Pain level 0 to 10"><b id="painv">${A.pain}/10</b></div><div id="areas" class="${A.pain?'':'hidden'}"><label class="f" style="margin-top:8px">Where?</label>${chipH(HB.AREA,A.areas,'area')}</div>`,
+  ok:()=>1,ans:()=>A.pain?`Pain ${A.pain}/10${A.areas.length?' · '+A.areas.join(', '):''}`:'No pain'},
+ {q:()=>`How did you sleep last night?`,
+  ui:()=>`<div class="rng"><input type="range" min="0" max="12" step=".5" id="sleep" value="${A.sleep}" aria-label="Hours of sleep"><b id="sleepv">${A.sleep} h</b></div>${chipH(['Well','Restless','Poorly'],[A.sq],'sq')}`,
+  ok:()=>1,ans:()=>`${A.sleep} hours${A.sq?', '+A.sq.toLowerCase():''}`},
+ {q:()=>`How is your energy, and how is your mood?`,
+  ui:()=>`<label class="f">Energy</label><div class="chips">${[['1','Very low'],['2','Low'],['3','Okay'],['4','Good'],['5','High']].map(([v,w])=>`<button type="button" class="chip${A.energy==v?' on':''}" data-en="${v}">${w}</button>`).join('')}</div><label class="f">Mood</label>${chipH(HB.MOOD,A.mood,'mood')}`,
+  ok:()=>1,ans:()=>{const w=['','Very low','Low','Okay','Good','High'][A.energy];return [w?'Energy '+w.toLowerCase():'',A.mood.join(', ')].filter(Boolean).join(' · ')||'Skipped'}},
+ {q:()=>`Did you take your medicines as prescribed today?`,
+  ui:()=>`<div class="chips">${[['yes','Yes, all of them'],['missed','Missed a dose'],['none','I don\'t take any']].map(([v,w])=>`<button type="button" class="chip${A.meds==v?' on':''}" data-meds="${v}">${w}</button>`).join('')}</div>`,
+  ok:()=>1,ans:()=>({yes:'Took my medicines',missed:'Missed a dose',none:'No medicines'}[A.meds]||'Skipped'),auto:1},
+ {q:()=>`Want to add any readings? Only if you checked them today.`,
+  ui:()=>`<div class="grid g4" style="gap:8px">${[['bp','Blood pressure','120/80','text'],['temp','Temperature (F)','98.6','number'],['weight','Weight (lb)','','number'],['glucose','Blood sugar (mg/dL)','','number']].map(([k,l,p,t])=>`<div><label class="f" for="v_${k}">${l}</label><input type="${t}" ${t=='number'?'step="any" inputmode="decimal"':''} id="v_${k}" placeholder="${p}" value="${esc(A.vitals[k])}"></div>`).join('')}</div>`,
+  ok:()=>1,ans:()=>{const v=A.vitals,o=[];if(v.bp)o.push('BP '+v.bp);if(v.temp)o.push(v.temp+' F');if(v.weight)o.push(v.weight+' lb');if(v.glucose)o.push('Sugar '+v.glucose);return o.join(' · ')||'No readings'},skip:'No readings'},
+ {q:()=>`Anything else you want to remember or tell your doctor? Write it the way you'd say it.`,
+  ui:()=>`<textarea id="note" placeholder="For example: headache came back after lunch, better after resting">${esc(A.note)}</textarea><label class="row" style="margin-top:8px;font-size:14px;cursor:pointer"><input type="checkbox" id="star" ${A.star?'checked':''} style="width:20px;height:20px"> Flag this note for my doctor</label>`,
+  ok:()=>1,ans:()=>A.note?(A.star?'[For my doctor] ':'')+A.note:'Nothing else',last:1}
+];
+function readStep(){const s=STEP;if(s==1&&$('oth'))A.other=$('oth').value.trim();if(s==6)['bp','temp','weight','glucose'].forEach(k=>A.vitals[k]=$('v_'+k).value.trim());if(s==7){A.note=$('note').value.trim();A.star=$('star').checked}}
+function drawChat(){
+ const today=HB.ymd(),done=D.entries.filter(e=>e.date==today);
+ $('ctitle').textContent=EDIT?'Edit check-in':"Today's check-in";
+ $('cstat').textContent=done.length?(done.length==1?'Checked in today':done.length+' check-ins today'):'Not yet today';$('cstat').className='tag'+(done.length?' ok':'');
+ if(STEP<0){const e=D.entries.find(x=>x.id==LAST)||done[done.length-1];const f=e?HB.flags(e):[];
+  $('chat').innerHTML=`<div class="bub b">${LAST?'Saved. ':'You already checked in today. '}${streakTxt()} I'll keep this for your next visit summary.</div>${f.length?HB.alertHTML(f):''}<div class="row" style="margin-top:4px"><button class="btn ghost sm" id="again">Add another note today</button><a class="btn sm" href="healthbot-summary.html?m=${encodeURIComponent(M.mid)}">See my visit summary</a></div>`;
+  $('again').onclick=()=>{A=blank();STEP=0;EDIT=null;drawChat()};return}
+ let h='';for(let i=0;i<STEP;i++)h+=`<div class="bub b">${S[i].q()}</div><div class="bub u">${esc(S[i].ans())}</div>`;
+ const s=S[STEP];
+ h+=`<div class="bub b">${s.q()}</div><div class="ask">${s.ui()}<div id="live"></div><div class="row" style="margin-top:12px">${STEP?'<button type="button" class="btn ghost sm" id="bk">Back</button>':''}<span class="sp"></span>${s.skip?`<button type="button" class="btn ghost sm" id="sk">${s.skip}</button>`:''}<button type="button" class="btn sm" id="nx" ${s.ok()?'':'disabled style="opacity:.5"'}>${s.last?'Save check-in':'Next'}</button></div></div>`;
+ h+=`<p class="mut" style="font-size:12px;margin:2px 0 0">Step ${STEP+1} of ${S.length}. Stays on this device.</p>`;
+ $('chat').innerHTML=h;liveFlags();
+ const ask=$('chat').querySelector('.ask');
+ ask.onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.feel){A.feel=+d.feel;drawChat();if(S[STEP].auto)setTimeout(next,220);return}
+  if(d.sym){readStep();togg(A.symptoms,d.sym);drawChat();return}
+  if(d.area){togg(A.areas,d.area);b.classList.toggle('on');return}
+  if(d.sq){A.sq=A.sq==d.sq?'':d.sq;drawChat();return}
+  if(d.en){A.energy=+d.en;drawChat();return}
+  if(d.mood){togg(A.mood,d.mood);b.classList.toggle('on');return}
+  if(d.meds){A.meds=d.meds;drawChat();setTimeout(next,220);return}};
+ if($('pain'))$('pain').oninput=e=>{A.pain=+e.target.value;$('painv').textContent=A.pain+'/10';$('areas').classList.toggle('hidden',!A.pain);liveFlags()};
+ if($('sleep'))$('sleep').oninput=e=>{A.sleep=+e.target.value;$('sleepv').textContent=A.sleep+' h'};
+ ['v_bp','v_temp'].forEach(i=>{if($(i))$(i).oninput=()=>{readStep();liveFlags()}});
+ if($('bk'))$('bk').onclick=()=>{readStep();STEP--;drawChat()};
+ if($('sk'))$('sk').onclick=()=>{if(STEP==1){A.symptoms=[];A.other=''}if(STEP==6)A.vitals={bp:'',temp:'',weight:'',glucose:''};STEP++;drawChat()};
+ $('nx').onclick=next;
+}
+function liveFlags(){const f=HB.flags(A);$('live').innerHTML=f.length?HB.alertHTML(f):''}
+let LAST=null;
+function next(){readStep();if(!S[STEP].ok())return;if(S[STEP].last){saveEntry();return}STEP++;drawChat();const c=$('chat').querySelector('.ask');if(c)c.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function saveEntry(){const now=new Date();const sy=A.symptoms.concat(A.other?[A.other]:[]);
+ const e={id:EDIT||('e'+now.getTime()),date:EDIT?(D.entries.find(x=>x.id==EDIT)||{}).date||HB.ymd():HB.ymd(),t:EDIT?(D.entries.find(x=>x.id==EDIT)||{}).t:now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),feel:A.feel,pain:A.pain,areas:A.pain?A.areas:[],sleep:A.sleep,sq:A.sq,energy:A.energy,mood:A.mood,symptoms:sy,meds:A.meds,vitals:A.vitals,note:A.note,star:A.star};
+ if(EDIT)D.entries=D.entries.map(x=>x.id==EDIT?e:x);else D.entries.push(e);D.entries.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);HB.save(M.mid,D);LAST=e.id;EDIT=null;STEP=-1;A=blank();drawAll();$('ccard').scrollIntoView({block:'start',behavior:'smooth'})}
+function days(){return [...new Set(D.entries.map(e=>e.date))]}
+function streakTxt(){const s=new Set(days());let n=0;const d=new Date();while(s.has(HB.ymd(d))){n++;d.setDate(d.getDate()-1)}const w=[...s].filter(x=>(Date.now()-HB.pd(x))/864e5<7).length;return n>1?`That's ${n} days in a row.`:`You've checked in ${w} day${w==1?'':'s'} this week.`}
+function drawStrip(){let h='';const by={};D.entries.forEach(e=>{(by[e.date]=by[e.date]||[]).push(e.feel)});
+ for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=HB.ymd(d),v=by[k];const a=v?Math.round(v.reduce((x,y)=>x+y,0)/v.length):0;
+  h+=`<div title="${HB.fmt(k)}${a?': '+HB.FEEL[a].w:': no note'}" style="${a?`background:${HB.FEEL[a].c};border-color:${HB.FEEL[a].c}`:''}"><span>${i%2?'':d.getDate()}</span></div>`}
+ $('strip').innerHTML=h;$('legend').innerHTML=[5,4,3,2,1].map(v=>`<span class="row" style="gap:4px"><i class="dot" style="margin:0;background:${HB.FEEL[v].c}"></i>${HB.FEEL[v].w}</span>`).join('');
+ const s=new Set(days());let n=0;const d=new Date();while(s.has(HB.ymd(d))){n++;d.setDate(d.getDate()-1)}$('streak').textContent=n?n+' day streak':''}
+function drawHist(){const L=D.entries.slice().reverse().filter(e=>HF=='all'||e.star);
+ $('hist').innerHTML=L.length?L.slice(0,60).map(e=>{const f=HB.flags(e);const v=e.vitals||{};const vit=[v.bp&&'BP '+v.bp,v.temp&&v.temp+' F',v.weight&&v.weight+' lb',v.glucose&&'Sugar '+v.glucose].filter(Boolean).join(' · ');
+  return `<div class="ent"><i class="dot" style="background:${HB.FEEL[e.feel]?HB.FEEL[e.feel].c:'#ccc'}"></i><div class="bd"><div class="row" style="gap:6px"><b>${HB.fmt(e.date)}</b><span class="mut" style="font-size:13px">${esc(e.t||'')}</span>${e.star?'<span class="tag ac">For my doctor</span>':''}${e.sample?'<span class="tag">Sample</span>':''}${f.length?'<span class="tag" style="background:#fff1f0;color:#b42318">Needs attention</span>':''}</div>
+  <div class="mut" style="font-size:13.5px">${HB.FEEL[e.feel]?HB.FEEL[e.feel].w:''} · ${e.pain?'Pain '+e.pain+'/10'+(e.areas&&e.areas.length?' ('+esc(e.areas.join(', '))+')':''):'No pain'} · Slept ${e.sleep} h${e.symptoms.length?' · '+esc(e.symptoms.join(', ')):''}${e.meds=='missed'?' · Missed a dose':''}${vit?' · '+esc(vit):''}</div>${e.note?`<p>${esc(e.note)}</p>`:''}
+  <div class="row" style="gap:2px"><button class="x" data-ed="${e.id}">Edit</button><button class="x" data-st="${e.id}">${e.star?'Unflag':'Flag for doctor'}</button><button class="x" data-dl="${e.id}">Delete</button></div></div></div>`}).join(''):`<p class="mut" style="margin:6px 0 0">${HF=='star'?'No notes flagged for your doctor yet.':'No notes yet. Your first check-in takes about a minute.'}</p>`}
+$('hist').onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.dl){if(confirm('Delete this note?')){D.entries=D.entries.filter(x=>x.id!=d.dl);HB.save(M.mid,D);drawAll()}}
+ if(d.st){const x=D.entries.find(x=>x.id==d.st);x.star=!x.star;HB.save(M.mid,D);drawHist()}
+ if(d.ed){const x=D.entries.find(x=>x.id==d.ed);A=Object.assign(blank(),JSON.parse(JSON.stringify(x)));A.other='';A.symptoms=x.symptoms.filter(s=>HB.SYM.includes(s));A.other=x.symptoms.filter(s=>!HB.SYM.includes(s)).join(', ');A.vitals=Object.assign({bp:'',temp:'',weight:'',glucose:''},x.vitals||{});EDIT=x.id;STEP=0;drawChat();$('ccard').scrollIntoView({behavior:'smooth'})}};
+$('hf').onclick=e=>{const b=e.target.closest('button');if(!b)return;HF=b.dataset.f;[...$('hf').children].forEach(c=>c.classList.toggle('on',c==b));drawHist()};
+$('lk').onclick=HB.lock;
+$('exp').onclick=()=>HB.download('health-bot-'+M.first.toLowerCase()+'-'+HB.ymd()+'.json',JSON.stringify({member:M.name,exported:new Date().toISOString(),...D},null,2));
+$('del').onclick=()=>{if(confirm('Delete every Health Bot note for '+M.first+' on this device? This cannot be undone.')){ocLS.removeItem(HB.key(M.mid));D=HB.load(M.mid);STEP=0;A=blank();drawAll()}};
+$('smp').onclick=()=>{HB.sample(M.mid);D=HB.load(M.mid);drawAll()};
+$('smpx').onclick=()=>{HB.clearSample(M.mid);D=HB.load(M.mid);drawAll()};
+function drawAll(){HB.memBar($('mem'),M,'healthbot.html');drawChat();drawStrip();drawHist();document.querySelectorAll('.who').forEach(x=>x.textContent=M.first)}
+HB.guard($('hb'),()=>{M=HB.member();D=HB.load(M.mid);A=blank();
+ const q='?m='+encodeURIComponent(M.mid);$('nsum').href='healthbot-summary.html'+q;$('tosum').href='healthbot-summary.html'+q;
+ if(D.entries.some(e=>e.date==HB.ymd()))STEP=-1;drawAll()});
+</script>
+</body></html>

@@ -1,0 +1,123 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>CollectCare · Visit summary</title><link rel="icon" href="logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="healthbot.css">
+</head><body>
+<div class="top"><div class="in"><a class="brand" href="app.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span style="color:var(--ac)">Care</span></span></a>
+<nav><a href="app.html">Family</a><a href="healthbot.html" id="nhb">Health Bot</a><a href="healthbot-summary.html" class="on">Visit summary</a><a href="privacy.html">Privacy</a><a href="#" onclick="HB.lock();return false">Lock</a></nav></div></div>
+<main>
+<div id="gatebox"></div>
+<div id="sm" class="hidden">
+ <div class="noprint">
+  <div class="hero"><div class="bot-ic" id="boticon"></div><div style="flex:1;min-width:220px"><span class="tag ac">Health Bot</span><h1>Visit summary</h1><p class="mut" style="margin:0;max-width:640px">Your own notes, put together for your appointment. Show it on your phone, print it, or copy it into the check-in form.</p></div></div>
+  <div class="mem" id="mem" aria-label="Choose a family member"></div>
+  <div class="card"><div class="grid g4" style="gap:10px;align-items:end">
+   <div><label class="f" for="vd">Appointment date</label><input type="date" id="vd"></div>
+   <div><label class="f" for="vw">Seeing</label><input type="text" id="vw" placeholder="Doctor or clinic"></div>
+   <div style="grid-column:span 2"><label class="f" for="vr">Main reason for the visit</label><input type="text" id="vr" placeholder="For example: headaches"></div></div>
+   <label class="f" style="margin-top:12px">Include notes from</label>
+   <div class="chips" id="per" style="margin-top:0"><button class="chip" data-p="7">Last 7 days</button><button class="chip on" data-p="14">Last 14 days</button><button class="chip" data-p="30">Last 30 days</button><button class="chip" data-p="90">Last 90 days</button></div>
+   <div class="row" style="margin-top:6px"><button class="btn" id="pr">Print or save as PDF</button><button class="btn ghost" id="cp">Copy summary text</button><a class="btn ghost" id="toc" href="healthbot.html">Add today's check-in</a><span class="mut" id="cpm" style="font-size:13px" role="status"></span></div></div>
+ </div>
+ <div id="out"></div>
+ <div class="card noprint"><h2>Questions for my doctor</h2><p class="mut" style="font-size:13.5px;margin:0 0 8px">Write them down now so you don't forget in the exam room. They print with your summary.</p>
+  <form id="qf" class="row"><input type="text" id="qi" placeholder="Type a question" style="flex:1;min-width:200px" aria-label="New question"><button class="btn sm">Add</button></form>
+  <div id="ql" style="margin-top:6px"></div></div>
+ <p class="mut noprint" style="font-size:12px;margin-top:14px">This summary is built in your browser from notes saved on this device. Nothing is sent to your doctor unless you show, print or share it yourself. It is what you reported, not a diagnosis. For an emergency call 911. For a mental health crisis call or text 988.</p>
+</div>
+</main>
+<footer>CollectCare demo. Not a real medical, insurance or legal service. <a href="privacy.html">Privacy policy</a></footer>
+<script src="healthbot.js"></script>
+<script>
+const $=HB.$,esc=HB.esc;let M,D,PER=14;
+$('boticon').innerHTML=HB.botSVG;
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const r1=x=>x==null?'–':(Math.round(x*10)/10).toString();
+const feelW=x=>x==null?'–':HB.FEEL[Math.max(1,Math.min(5,Math.round(x)))].w;
+function range(){const end=new Date();end.setHours(0,0,0,0);const st=new Date(end);st.setDate(st.getDate()-(PER-1));return{st:HB.ymd(st),en:HB.ymd(end)}}
+function build(){
+ const R=range(),E=D.entries.filter(e=>e.date>=R.st&&e.date<=R.en),v=D.visit||{};
+ const byDay={};E.forEach(e=>{(byDay[e.date]=byDay[e.date]||[]).push(e)});const dayKeys=Object.keys(byDay).sort();
+ const dayAvg=k=>({feel:avg(byDay[k].map(e=>e.feel)),pain:Math.max(...byDay[k].map(e=>e.pain||0)),sleep:avg(byDay[k].map(e=>e.sleep))});
+ const DA=dayKeys.map(k=>Object.assign({k},dayAvg(k)));
+ const half=Math.floor(DA.length/2),f1=avg(DA.slice(0,half).map(d=>d.feel)),f2=avg(DA.slice(half).map(d=>d.feel));
+ const p1=avg(DA.slice(0,half).map(d=>d.pain)),p2=avg(DA.slice(half).map(d=>d.pain));
+ const aF=avg(DA.map(d=>d.feel)),aP=avg(DA.map(d=>d.pain)),aS=avg(DA.map(d=>d.sleep));
+ const maxP=DA.reduce((m,d)=>d.pain>(m?m.pain:-1)?d:m,null);
+ const sym={};E.forEach(e=>new Set(e.symptoms).forEach(s=>{const o=sym[s]=sym[s]||{n:0,days:new Set(),first:e.date,last:e.date};o.days.add(e.date);o.last=e.date}));
+ const midK=dayKeys[half]||R.en;
+ const SY=Object.entries(sym).map(([s,o])=>{const a=[...o.days].filter(d=>d<midK).length,b=[...o.days].filter(d=>d>=midK).length;return{s,n:o.days.size,first:o.first,last:o.last,tr:b>a?'More often lately':b<a?'Less often lately':'About the same'}}).sort((a,b)=>b.n-a.n);
+ const areas={};E.forEach(e=>(e.areas||[]).forEach(a=>areas[a]=(areas[a]||0)+1));
+ const missed=E.filter(e=>e.meds=='missed').length,medDays=E.filter(e=>e.meds=='yes'||e.meds=='missed').length;
+ const moods={};E.forEach(e=>(e.mood||[]).forEach(m=>moods[m]=(moods[m]||0)+1));
+ const flags=E.map(e=>({e,f:HB.flags(e)})).filter(x=>x.f.length);
+ const vit=k=>E.filter(e=>e.vitals&&e.vitals[k]).map(e=>({d:e.date,v:e.vitals[k]}));
+ const BP=vit('bp'),TP=vit('temp'),WT=vit('weight'),GL=vit('glucose');
+ const notes=E.filter(e=>e.note).slice().reverse();const starred=notes.filter(e=>e.star),other=notes.filter(e=>!e.star).slice(0,Math.max(0,6-starred.length));
+ // plain-language synopsis
+ const fn=M.first,trend=(a,b,up,dn)=>a==null||b==null||Math.abs(b-a)<.4?'':(b>a?up:dn);
+ let syn='';
+ if(!E.length)syn=`${fn} has no Health Bot notes in the last ${PER} days. Add a daily check-in and this summary fills in on its own.`;
+ else{syn=`Over the last ${PER} days, ${fn} checked in on ${dayKeys.length} day${dayKeys.length==1?'':'s'}. Overall ${fn} felt mostly "${feelW(aF).toLowerCase()}" (${r1(aF)} out of 5)`;
+  const t=trend(f1,f2,'and has been feeling better lately','and has been feeling worse lately');syn+=(t?', '+t:'')+'. ';
+  if(SY.length)syn+=`Most common symptom${SY.length>1?'s':''}: ${SY.slice(0,3).map(s=>s.s.toLowerCase()+' ('+s.n+' day'+(s.n==1?'':'s')+')').join(', ')}. `;else syn+='No symptoms were reported. ';
+  if(aP&&aP>0)syn+=`Pain averaged ${r1(aP)} out of 10${maxP&&maxP.pain?`, highest ${maxP.pain} on ${HB.fmt(maxP.k,{month:'short',day:'numeric'})}`:''}${Object.keys(areas).length?` (mostly ${Object.entries(areas).sort((a,b)=>b[1]-a[1])[0][0].toLowerCase()})`:''}${trend(p1,p2,', getting worse',', easing')}. `;else syn+='No pain was reported. ';
+  if(aS!=null)syn+=`Sleep averaged ${r1(aS)} hours a night. `;
+  if(medDays)syn+=missed?`Missed a medicine dose on ${missed} day${missed==1?'':'s'}. `:'Took medicines as prescribed on every day logged. ';
+  if(flags.length)syn+=`${flags.length} note${flags.length==1?'':'s'} included a warning sign (see below).`}
+ // chart
+ const W=640,H=190,pl=34,pr=34,pt=14,pb=26,days=[];for(let i=PER-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(HB.ymd(d))}
+ const X=i=>pl+(W-pl-pr)*(days.length==1?.5:i/(days.length-1)),YF=v=>pt+(H-pt-pb)*(1-(v-1)/4),YP=v=>pt+(H-pt-pb)*(1-v/10);
+ const pts=(fn2,yf)=>days.map((k,i)=>{const d=DA.find(x=>x.k==k);return d&&d[fn2]!=null?[X(i),yf(d[fn2])]:null}).filter(Boolean);
+ const path=p=>p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+ const PF=pts('feel',YF),PP=pts('pain',YP);const step=Math.ceil(days.length/7);
+ const chart=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chart of how ${esc(fn)} felt and pain level by day">
+ ${[1,2,3,4,5].map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${YF(v)}" y2="${YF(v)}" stroke="#e3ebf5"/><text x="${pl-6}" y="${YF(v)+4}" font-size="10" text-anchor="end" fill="#1f6fd1">${v}</text>`).join('')}
+ ${[0,5,10].map(v=>`<text x="${W-pr+6}" y="${YP(v)+4}" font-size="10" fill="#c2410c">${v}</text>`).join('')}
+ ${days.map((k,i)=>i%step==0||i==days.length-1?`<text x="${X(i)}" y="${H-8}" font-size="10" text-anchor="middle" fill="#4d6180">${HB.fmt(k,{month:'numeric',day:'numeric'})}</text>`:'').join('')}
+ ${PP.length>1?`<path d="${path(PP)}" fill="none" stroke="#ea7a2e" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round"/>`:''}${PP.map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="3" fill="#ea7a2e"/>`).join('')}
+ ${PF.length>1?`<path d="${path(PF)}" fill="none" stroke="#1f6fd1" stroke-width="3" stroke-linejoin="round"/>`:''}${PF.map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="4" fill="#1f6fd1"/>`).join('')}</svg>
+ <div class="row mut" style="font-size:12.5px;gap:14px;margin-top:4px"><span class="row" style="gap:5px"><i style="width:16px;height:3px;background:#1f6fd1;display:block"></i>How I felt (1 bad to 5 great, left scale)</span><span class="row" style="gap:5px"><i style="width:16px;height:0;border-top:3px dashed #ea7a2e;display:block"></i>Highest pain that day (0 to 10, right scale)</span></div>`;
+ const vrow=(l,a,u)=>a.length?`<tr><td>${l}</td><td>${a.length}</td><td>${esc(a[a.length-1].v)}${u} <span class="mut">(${HB.fmt(a[a.length-1].d,{month:'short',day:'numeric'})})</span></td><td>${a.length>1?esc(a.map(x=>x.v).join(', '))+u:'–'}</td></tr>`:'';
+ const vt=vrow('Blood pressure',BP,'')+vrow('Temperature',TP,' F')+vrow('Weight',WT,' lb')+vrow('Blood sugar',GL,' mg/dL');
+ const sample=E.some(e=>e.sample);
+ $('out').innerHTML=`
+ <div class="printhead"><b style="font-size:18px">CollectCare · Health Bot visit summary</b><br>${esc(M.name)} · ${esc(M.rel)}, age ${M.age} · Member ID ${esc(M.mid)}<br>${v.date?'Appointment '+HB.fmt(v.date,{weekday:'long',month:'long',day:'numeric',year:'numeric'}):''}${v.with?' · '+esc(v.with):''}</div>
+ <div class="card"><div class="row"><h2 style="margin:0">${esc(M.first)}'s summary</h2>${sample?'<span class="tag">Includes sample notes</span>':''}<span class="sp"></span><span class="mut" style="font-size:13px">${HB.fmt(R.st,{month:'short',day:'numeric'})} to ${HB.fmt(R.en,{month:'short',day:'numeric',year:'numeric'})}</span></div>
+  ${v.reason?`<p style="margin:6px 0 10px"><b>Reason for visit:</b> ${esc(v.reason)}${v.date?` · <span class="mut">${HB.fmt(v.date,{weekday:'short',month:'short',day:'numeric'})}${v.with?', '+esc(v.with):''}</span>`:''}</p>`:''}
+  <p class="syn">${esc(syn)}</p>
+  ${E.length?`<div class="grid g4" style="gap:10px;margin-top:12px"><div class="kp"><b>${dayKeys.length}/${PER}</b><span>days with a note</span></div><div class="kp"><b>${feelW(aF)}</b><span>usual feeling (${r1(aF)} of 5)</span></div><div class="kp"><b>${r1(aP)}<small style="font-size:14px">/10</small></b><span>average pain${maxP&&maxP.pain?', top '+maxP.pain:''}</span></div><div class="kp"><b>${r1(aS)} h</b><span>average sleep</span></div></div>`:''}
+ </div>
+ ${flags.length?`<div class="card" style="border-color:#f1c7c2"><h2 style="color:#b42318">Warning signs I noted</h2><table><tr><th>Date</th><th>What I noted</th></tr>${flags.map(x=>`<tr><td>${HB.fmt(x.e.date)}</td><td>${esc(x.f.join(', '))}</td></tr>`).join('')}</table></div>`:''}
+ ${E.length?`<div class="card chart"><h2>How I felt each day</h2>${chart}</div>`:''}
+ ${SY.length?`<div class="card"><h2>Symptoms</h2><div class="tw"><table><tr><th>Symptom</th><th>Days</th><th>First</th><th>Last</th><th>Pattern</th></tr>${SY.map(s=>`<tr><td><b>${esc(s.s)}</b></td><td>${s.n}</td><td>${HB.fmt(s.first,{month:'short',day:'numeric'})}</td><td>${HB.fmt(s.last,{month:'short',day:'numeric'})}</td><td>${s.tr}</td></tr>`).join('')}</table></div>
+  ${Object.keys(areas).length?`<p class="mut" style="font-size:13.5px;margin:10px 0 0"><b style="color:var(--tx)">Where it hurt:</b> ${Object.entries(areas).sort((a,b)=>b[1]-a[1]).map(([a,n])=>esc(a)+' ('+n+')').join(', ')}</p>`:''}
+  ${Object.keys(moods).length?`<p class="mut" style="font-size:13.5px;margin:6px 0 0"><b style="color:var(--tx)">Mood:</b> ${Object.entries(moods).sort((a,b)=>b[1]-a[1]).map(([a,n])=>esc(a)+' ('+n+')').join(', ')}</p>`:''}</div>`:''}
+ ${E.length?`<div class="card"><h2>Medicines and readings</h2><p style="margin:0 0 8px">${medDays?(missed?`Missed a dose on <b>${missed}</b> of ${medDays} days logged.`:`Took medicines as prescribed on all ${medDays} days logged.`):'<span class="mut">No medicine answers logged.</span>'}</p>
+  ${vt?`<div class="tw"><table><tr><th>Reading</th><th>Times</th><th>Latest</th><th>All readings</th></tr>${vt}</table></div>`:'<p class="mut" style="font-size:13.5px;margin:0">No home readings logged.</p>'}</div>`:''}
+ ${notes.length?`<div class="card"><h2>In my own words</h2>${starred.concat(other).map(e=>`<div class="ent"><i class="dot" style="background:${HB.FEEL[e.feel]?HB.FEEL[e.feel].c:'#ccc'}"></i><div class="bd"><div class="row" style="gap:6px"><b>${HB.fmt(e.date)}</b>${e.star?'<span class="tag ac">For my doctor</span>':''}</div><p>${esc(e.note)}</p></div></div>`).join('')}${notes.length>starred.length+other.length?`<p class="mut" style="font-size:12.5px;margin:6px 0 0">${notes.length-starred.length-other.length} more notes in Health Bot.</p>`:''}</div>`:''}
+ ${D.questions.length?`<div class="card printonly-q"><h2>My questions</h2><ol style="margin:0;padding-left:20px">${D.questions.map(q=>`<li style="margin:4px 0">${esc(q.text)}</li>`).join('')}</ol></div>`:''}
+ <p class="mut printhead" style="font-size:11px">Patient-reported notes from the CollectCare Health Bot. Not a diagnosis or medical record.</p>`;
+ // text version
+ TXT=[`CollectCare Health Bot visit summary`,`${M.name} (${M.rel}, ${M.age})`,v.date?`Appointment: ${HB.fmt(v.date,{weekday:'long',month:'long',day:'numeric'})}${v.with?' with '+v.with:''}`:'',v.reason?`Reason: ${v.reason}`:'',`Notes from ${HB.fmt(R.st,{month:'short',day:'numeric'})} to ${HB.fmt(R.en,{month:'short',day:'numeric'})}`,'',syn,
+  flags.length?'\nWarning signs: '+flags.map(x=>HB.fmt(x.e.date,{month:'short',day:'numeric'})+' '+x.f.join(', ')).join('; '):'',
+  SY.length?'\nSymptoms: '+SY.map(s=>`${s.s} ${s.n} day${s.n==1?'':'s'} (${s.tr.toLowerCase()})`).join('; '):'',
+  BP.length?'Blood pressure: '+BP.map(x=>x.v).join(', '):'',
+  starred.length?'\nFor my doctor:\n'+starred.map(e=>'- '+HB.fmt(e.date,{month:'short',day:'numeric'})+': '+e.note).join('\n'):'',
+  D.questions.length?'\nMy questions:\n'+D.questions.map((q,i)=>(i+1)+'. '+q.text).join('\n'):''].filter(Boolean).join('\n');
+}
+let TXT='';
+function drawQ(){$('ql').innerHTML=D.questions.length?D.questions.map(q=>`<div class="q"><span>${esc(q.text)}</span><button class="x" data-qx="${q.id}">Remove</button></div>`).join(''):'<p class="mut" style="margin:0;font-size:13.5px">No questions yet.</p>'}
+$('qf').onsubmit=e=>{e.preventDefault();const t=$('qi').value.trim();if(!t)return;D.questions.push({id:'q'+Date.now(),text:t});HB.save(M.mid,D);$('qi').value='';drawQ();build()};
+$('ql').onclick=e=>{const b=e.target.closest('[data-qx]');if(!b)return;D.questions=D.questions.filter(q=>q.id!=b.dataset.qx);HB.save(M.mid,D);drawQ();build()};
+$('per').onclick=e=>{const b=e.target.closest('button');if(!b)return;PER=+b.dataset.p;[...$('per').children].forEach(c=>c.classList.toggle('on',c==b));build()};
+['vd','vw','vr'].forEach(id=>$(id).oninput=()=>{D.visit={date:$('vd').value,with:$('vw').value.trim(),reason:$('vr').value.trim()};HB.save(M.mid,D);build()});
+$('pr').onclick=()=>window.print();
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText(TXT);$('cpm').textContent='Copied. Paste it into your check-in form or a message to the office.'}catch(e){const t=document.createElement('textarea');t.value=TXT;document.body.appendChild(t);t.select();try{document.execCommand('copy');$('cpm').textContent='Copied.'}catch(_){$('cpm').textContent='Copy is blocked here. Use Print instead.'}t.remove()}};
+HB.guard($('sm'),()=>{M=HB.member();D=HB.load(M.mid);HB.memBar($('mem'),M,'healthbot-summary.html');
+ const q='?m='+encodeURIComponent(M.mid);$('nhb').href='healthbot.html'+q;$('toc').href='healthbot.html'+q;
+ const v=D.visit||{};$('vd').value=v.date||'';$('vw').value=v.with||'';$('vr').value=v.reason||'';
+ const p=new URLSearchParams(location.search).get('p');if(['7','14','30','90'].includes(p)){PER=+p;[...$('per').children].forEach(c=>c.classList.toggle('on',c.dataset.p==p))}
+ drawQ();build()});
+</script>
+</body></html>
