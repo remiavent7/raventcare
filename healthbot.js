@@ -29,8 +29,8 @@ HB.load=mid=>{try{const d=JSON.parse(ocLS.getItem(HB.key(mid))||'null');if(d&&d.
 HB.save=(mid,d)=>{try{ocLS.setItem(HB.key(mid),JSON.stringify(d))}catch(e){alert('This browser could not save your note. Private browsing may block saving.')}};
 HB.member=()=>{const q=new URLSearchParams(location.search).get('m');let m=HB.MEM.find(x=>x.mid==q);if(!m){const last=ocLS.getItem('ccHB:last');m=HB.MEM.find(x=>x.mid==last)||HB.MEM[0]}ocLS.setItem('ccHB:last',m.mid);return m};
 HB.sha=async t=>{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))|0;return 'x'+h};
-HB.flags=e=>{const f=[];(e.symptoms||[]).forEach(s=>{if(HB.RED.includes(s))f.push(s)});if(e.pain>=8)f.push('Pain '+e.pain+' of 10');const t=parseFloat(e.vitals&&e.vitals.temp);if(t>=103)f.push('Temperature '+t+' F');const bp=(e.vitals&&e.vitals.bp||'').match(/(\d{2,3})\s*\/\s*(\d{2,3})/);if(bp&&(+bp[1]>=180||+bp[2]>=120))f.push('Blood pressure '+bp[1]+'/'+bp[2]);return f};
-HB.alertHTML=f=>`<div class="alert" role="alert"><b>Please don't wait on this.</b> You noted: ${f.map(HB.esc).join(', ')}. Health Bot notes are not watched by a doctor or nurse.
+HB.flags=e=>{const f=[];(e.symptoms||[]).forEach(s=>{if(HB.RED.includes(s))f.push(s)});if(e.pain>=8)f.push('Pain '+e.pain+' of 10');const t=parseFloat(e.vitals&&e.vitals.temp);if(t>=103)f.push('Temperature '+t+' F');const bp=(e.vitals&&e.vitals.bp||'').match(/(\d{2,3})\s*\/\s*(\d{2,3})/);if(bp&&(+bp[1]>=180||+bp[2]>=120))f.push('Blood pressure '+bp[1]+'/'+bp[2]);(e.pq||[]).concat(e.mh||[]).forEach(x=>{if(!x.al)return;if(x.crisis){if(!f.includes('Thoughts of self-harm'))f.push('Thoughts of self-harm')}else f.push(x.text.replace(/\?$/,'')+': '+x.a)});return f};
+HB.alertHTML=f=>`<div class="alert" role="alert"><b>Please don't wait on this.</b> You noted: ${f.map(HB.esc).join(', ')}. Health Bot notes are not watched by a doctor or nurse in real time, and this demo does not contact your doctor. If your doctor asked about this, call their office today.
 <div class="row"><a class="btn red sm" href="tel:911">Call 911 for an emergency</a>${f.includes('Thoughts of self-harm')?'<a class="btn red sm" href="tel:988">Call or text 988 (crisis line)</a>':''}<a class="btn ghost sm" href="app.html?urgent=1">Nearest urgent care</a></div></div>`;
 HB.botSVG='<img src="bot.svg" alt="">';
 HB.lockSVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
@@ -69,3 +69,65 @@ HB.sample=mid=>{const d=HB.load(mid);let seed=7;const r=()=>{seed=(seed*16807)%2
  HB.save(mid,d)};
 HB.clearSample=mid=>{const d=HB.load(mid);d.entries=d.entries.filter(e=>!e.sample);d.questions=d.questions.filter(q=>!q.sample);if(d.visit.sample)d.visit={};HB.save(mid,d)};
 HB.download=(name,text,type)=>{const b=new Blob([text],{type:type||'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},500)};
+/* ---------- Doctor-programmed daily questions ("care plan") ----------
+   A physician picks the questions; the patient's Health Bot asks them in every
+   daily check-in until the end date. Demo: saved in this browser only. */
+HB.planKey=mid=>'ccHB:plan:'+mid;
+HB.getPlan=mid=>{try{return JSON.parse(ocLS.getItem(HB.planKey(mid))||'null')}catch(e){return null}};
+HB.setPlan=(mid,p)=>{p?ocLS.setItem(HB.planKey(mid),JSON.stringify(p)):ocLS.removeItem(HB.planKey(mid))};
+HB.plan=mid=>{const p=HB.getPlan(mid),t=HB.ymd();return p&&!p.stopped&&p.start<=t&&p.end>=t&&p.q&&p.q.length?p:null};
+HB.QTYPES={scale:'0 to 10 scale',yesno:'Yes or no',choice:'Pick one',number:'Number',text:'Short answer'};
+HB.TPL={
+ knee:{name:'Knee replacement recovery',days:42,msg:'Please answer these each evening until your 6-week visit. They help us see how your new knee is healing between visits.',q:[
+  {text:'How much does your knee hurt when you walk?',type:'scale',alert:{op:'>=',v:8}},
+  {text:'How far can you bend your knee today?',type:'choice',opts:['Less than 90°','About 90°','About 100°','110° or more']},
+  {text:'Is your incision red, warm, or draining?',type:'yesno',alert:{v:'Yes'}},
+  {text:'Any new pain, tightness, or swelling in your calf?',type:'yesno',alert:{v:'Yes'}},
+  {text:'Did you do your home exercises today?',type:'yesno'},
+  {text:'What are you walking with?',type:'choice',opts:['Walker','Cane','Nothing']},
+  {text:'Highest temperature today',type:'number',unit:'F',alert:{op:'>=',v:101}}]},
+ postop:{name:'After surgery (general)',days:14,msg:'Please check in each evening for the next two weeks while you heal.',q:[
+  {text:'How bad is your pain right now?',type:'scale',alert:{op:'>=',v:8}},
+  {text:'Is your incision red, warm, or draining?',type:'yesno',alert:{v:'Yes'}},
+  {text:'Highest temperature today',type:'number',unit:'F',alert:{op:'>=',v:101}},
+  {text:'Are you eating and drinking normally?',type:'yesno',alert:{v:'No'}},
+  {text:'How many pain pills did you take today?',type:'number',unit:'pills'}]},
+ bp:{name:'High blood pressure',days:30,msg:'Please take your blood pressure each morning, sitting quietly for 5 minutes first.',q:[
+  {text:'Morning blood pressure, top number',type:'number',unit:'mmHg',alert:{op:'>=',v:160}},
+  {text:'Morning blood pressure, bottom number',type:'number',unit:'mmHg',alert:{op:'>=',v:100}},
+  {text:'Did you take your blood pressure medicine today?',type:'yesno',alert:{v:'No'}},
+  {text:'Any headache, blurry vision, or dizziness?',type:'yesno',alert:{v:'Yes'}}]},
+ dm:{name:'Diabetes',days:30,msg:'Please check your sugar before breakfast and answer these each day.',q:[
+  {text:'Blood sugar before breakfast',type:'number',unit:'mg/dL',alert:{op:'>=',v:250}},
+  {text:'Any low sugar today (shaky, sweaty, confused)?',type:'yesno',alert:{v:'Yes'}},
+  {text:'Did you take your diabetes medicine today?',type:'yesno',alert:{v:'No'}},
+  {text:'Did you check your feet for sores?',type:'yesno'}]},
+ hf:{name:'Heart failure',days:30,msg:'Please weigh yourself each morning after using the bathroom, before eating.',q:[
+  {text:'Morning weight',type:'number',unit:'lb'},
+  {text:'Is your weight up 3 lb or more since yesterday?',type:'yesno',alert:{v:'Yes'}},
+  {text:'Short of breath lying flat or waking up breathless?',type:'yesno',alert:{v:'Yes'}},
+  {text:'Ankle or leg swelling',type:'choice',opts:['None','Same as usual','Worse than usual'],alert:{v:'Worse than usual'}}]},
+ mh:{name:'Mental health check-in',days:28,msg:'A short daily check-in on how you are doing emotionally. If you are ever in crisis, call or text 988 any time.',q:'MH'}
+};
+HB.MHC=['Not at all','A little','Quite a bit','Nearly all day'];
+HB.MH=[
+ {id:'mh1',text:'Today, how much have you felt down, sad, or hopeless?',type:'choice',opts:HB.MHC,alert:{v:'Nearly all day'}},
+ {id:'mh2',text:'Today, how much have you had little interest or pleasure in doing things?',type:'choice',opts:HB.MHC,alert:{v:'Nearly all day'}},
+ {id:'mh3',text:'Today, how much have you felt nervous, anxious, or on edge?',type:'choice',opts:HB.MHC,alert:{v:'Nearly all day'}},
+ {id:'mh4',text:'Have you been able to stop or control your worrying?',type:'choice',opts:['Yes','Mostly','Not really']},
+ {id:'mh5',text:'How well are you coping today? (0 is not at all, 10 is very well)',type:'scale',alert:{op:'<=',v:2}},
+ {id:'mh6',text:'Did you connect with someone you trust today?',type:'yesno'},
+ {id:'mh7',text:'Any thoughts that you would be better off dead, or of hurting yourself?',type:'yesno',alert:{v:'Yes'},crisis:true}];
+HB.TPL.mh.q=HB.MH;
+HB.mhOn=mid=>ocLS.getItem('ccHB:mh:'+mid)=='1';
+HB.setMH=(mid,on)=>on?ocLS.setItem('ccHB:mh:'+mid,'1'):ocLS.removeItem('ccHB:mh:'+mid);
+HB.qid=()=>'pq'+Math.random().toString(36).slice(2,8);
+HB.qAlert=(q,v)=>{const a=q.alert;if(!a||v===''||v==null)return false;if(q.type=='scale'||q.type=='number'){const n=parseFloat(v);if(isNaN(n)||a.v===''||a.v==null)return false;return a.op=='<='?n<=+a.v:n>=+a.v}return String(v)==String(a.v)};
+HB.ansTxt=(q,v)=>{if(v===''||v==null)return 'Skipped';if(q.type=='scale')return v+'/10';if(q.type=='number')return v+(q.unit?' '+q.unit:'');return String(v)};
+HB.alertRule=q=>{const a=q.alert;if(!a||a.v===''||a.v==null)return '';if(q.type=='scale')return (a.op=='<='?a.v+' or lower':a.v+' or higher');if(q.type=='number')return (a.op=='<='?'at or below ':'at or above ')+a.v+(q.unit?' '+q.unit:'');return 'answer is '+a.v};
+/* Patient-side input for one doctor question. v = current value. */
+HB.pqUI=(q,v)=>{const e=HB.esc;v=v==null?'':v;
+ if(q.type=='scale'){const d=q.alert&&q.alert.op=='<='?5:0;return `<div class="rng"><input type="range" min="0" max="10" step="1" id="pq_r" value="${v===''?d:v}" aria-label="${e(q.text)}, 0 to 10"><b id="pq_rv">${v===''?d:v}/10</b></div>`}
+ if(q.type=='yesno'||q.type=='choice'){const o=q.type=='yesno'?['Yes','No']:(q.opts||[]);return `<div class="chips">${o.map(x=>`<button type="button" class="chip${String(v)==x?' on':''}" data-pqv="${e(x)}" aria-pressed="${String(v)==x}">${e(x)}</button>`).join('')}</div>`}
+ if(q.type=='number')return `<div class="row" style="flex-wrap:nowrap"><input type="number" step="any" inputmode="decimal" id="pq_n" value="${e(v)}" aria-label="${e(q.text)}" style="max-width:180px">${q.unit?`<b class="mut">${e(q.unit)}</b>`:''}</div>`;
+ return `<input type="text" id="pq_t" value="${e(v)}" aria-label="${e(q.text)}" placeholder="Type a short answer">`};

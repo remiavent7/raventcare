@@ -1,0 +1,149 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>CollectCare Provider View · Daily check-in builder (sample)</title><link rel="icon" href="logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="healthbot.css">
+<style>
+main{max-width:1180px}.top .in{max-width:1180px}
+.lay{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+@media(max-width:980px){.lay{grid-template-columns:minmax(0,1fr)}}.lay>div,.f2>div,.qe>div{min-width:0}.f2 select{width:100%}
+.side{position:sticky;top:14px}@media(max-width:980px){.side{position:static}}
+.qe{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;padding:12px 0;border-top:1px solid var(--line)}.qe:first-child{border-top:0}
+.qn{width:28px;height:28px;border-radius:50%;background:#e3eefc;color:var(--ac);font-weight:900;display:grid;place-items:center;font-size:13px;margin-top:8px}
+.qe .row{margin-top:8px;gap:8px}.qe select{width:auto;min-width:0;max-width:100%}.qe .sm{max-width:120px}.qe .opts-in{flex:1;min-width:200px}
+.alrow{background:#fff7f5;border:1px solid #f6d5cf;border-radius:12px;padding:6px 10px;font-size:13.5px}.alrow.off{background:var(--s2);border-color:var(--line)}
+.alrow label{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}.alrow input[type=checkbox]{width:18px;height:18px}.alrow select,.alrow input[type=number]{padding:6px 8px;min-width:0}
+.qa{display:flex;flex-direction:column;gap:4px}.ib{border:1px solid var(--line);background:#fff;border-radius:10px;width:36px;height:34px;cursor:pointer;color:var(--mut);display:grid;place-items:center}.ib:hover{color:var(--ac);border-color:var(--ac)}.ib.del:hover{color:var(--red);border-color:#f1c7c2}.ib:disabled{opacity:.35;cursor:default}
+.phone{background:#0f1b2d;border-radius:34px;padding:12px;box-shadow:0 18px 40px #0f1b2d33}.scr{background:var(--bg);border-radius:24px;padding:12px;max-height:620px;overflow:auto}
+.scr .bub{font-size:13.5px;max-width:94%}.scr .ask{padding:10px;pointer-events:none}.scr .chip{min-height:32px;padding:5px 11px;font-size:13px}.scr .planban{margin:0 0 6px}.scr .planban img{width:40px;height:40px}
+.scr .rng b{font-size:15px}
+.tplc .chip{font-weight:700}
+.ok-box{border-radius:14px;padding:12px 14px;background:#e1f5ec;border:1px solid #b6e3cd;color:#0b4f37;font-size:14px;margin-top:12px}
+.rt td,.rt th{font-size:13px;white-space:nowrap}.rt td.al{color:#b42318;font-weight:800;background:#fff4f2}.rt th span{display:block;font-weight:500;white-space:normal;min-width:110px;max-width:170px;color:var(--mut)}
+.stat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:6px 0 12px}.stat div{background:var(--s2);border-radius:12px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--mut)}
+.f2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}@media(max-width:700px){.f2{grid-template-columns:1fr 1fr}}
+</style>
+</head><body>
+<div class="top"><div class="in"><a class="brand" href="practice.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span style="color:var(--ac)">Care</span></span></a>
+<span class="tag ac">Provider view</span><span class="mut" style="font-size:13px">Harbor Orthopedics &amp; Joint Center (sample practice)</span>
+<nav><a href="practice.html">Practice view</a><a href="provider-recovery.html">Post-op summary</a><a href="#" class="on">Daily check-in builder</a><a href="#" onclick="HB.lock();return false">Lock</a></nav></div></div>
+
+<main>
+<div id="gatebox"></div>
+<div id="pv" class="hidden">
+ <div class="card"><div class="hero"><div class="bot-ic"><img src="bot.svg" alt=""></div><div style="flex:1;min-width:240px"><span class="tag ac">Provider view</span><h1 style="margin-top:6px">Daily check-in builder</h1><p class="mut" style="margin:0;max-width:700px">Choose what you want to hear from your patient every day. Their Health Bot asks your questions in each daily check-in, flags answers you set as warning signs, and puts everything in their visit summary.</p></div></div></div>
+
+ <div class="lay">
+ <div>
+  <div class="card"><h2>1. Patient</h2>
+   <div class="f2"><div style="grid-column:span 2"><label class="f" for="pt">Patient</label><select id="pt"></select></div>
+   <div><label class="f" for="by">Requested by</label><input type="text" id="by"></div>
+   <div><label class="f" for="prac">Practice</label><input type="text" id="prac"></div></div>
+   <p id="pstat" style="margin:10px 0 0;font-size:13.5px"></p>
+  </div>
+
+  <div class="card"><h2>2. Start from a template</h2><p class="mut" style="font-size:13.5px;margin:0">Pick one, then change any question below. You can also start blank.</p><div class="chips tplc" id="tpl"></div></div>
+
+  <div class="card"><div class="row"><h2 style="margin:0">3. Daily questions</h2><span class="sp"></span><span class="mut" style="font-size:13px" id="qcount"></span></div>
+   <div id="qs" style="margin-top:6px"></div>
+   <button class="btn ghost sm" id="addq" style="margin-top:8px">+ Add a question</button>
+  </div>
+
+  <div class="card"><h2>4. Schedule and message</h2>
+   <div class="f2"><div><label class="f" for="st">Start</label><input type="date" id="st"></div><div><label class="f" for="en">End</label><input type="date" id="en"></div><div><label class="f" for="tm">Daily reminder</label><input type="time" id="tm" style="background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%"></div><div><label class="f">Length</label><p style="margin:10px 0 0;font-weight:700" id="len"></p></div></div>
+   <label class="f" for="msg" style="margin-top:12px">Message to the patient</label><textarea id="msg" style="min-height:70px"></textarea>
+   <div class="row" style="margin-top:12px"><button class="btn" id="send">Send to patient's Health Bot</button><button class="btn ghost" id="stop">Stop this plan</button><span class="sp"></span></div>
+   <div id="sent"></div>
+   <p class="mut" style="font-size:12px;margin:10px 0 0">Demo: the plan is saved in this browser and shows up in the patient's Health Bot on this same device. A real launch sends it securely through CollectCare to the patient's phone and routes warning-sign answers to a monitored practice inbox.</p>
+  </div>
+
+  <div class="card"><h2>5. Answers so far</h2><div id="resp"></div></div>
+ </div>
+
+ <div class="side"><div class="card" style="margin-top:14px"><div class="row"><h2 style="margin:0">Patient's phone</h2><span class="sp"></span><span class="tag">Live preview</span></div><p class="mut" style="font-size:12.5px;margin:2px 0 10px">What the patient sees in tonight's check-in.</p><div class="phone"><div class="scr" id="pre"></div></div></div></div>
+ </div>
+</div>
+</main>
+<script src="healthbot.js"></script>
+<script>
+const $=HB.$,esc=HB.esc;
+const DEF={mid:'4TQ7-RM2-KX58',by:'Dr. Alana Reyes',practice:'Harbor Orthopedics & Joint Center'};
+let P,TPLK='';
+const addDays=(s,n)=>{const d=HB.pd(s);d.setDate(d.getDate()+n);return HB.ymd(d)};
+const t12=t=>{if(!t)return '';const[h,m]=t.split(':').map(Number);return ((h%12)||12)+':'+String(m).padStart(2,'0')+(h<12?' AM':' PM')};
+const t24=t=>{const m=(t||'').match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return '19:00';let h=+m[1]%12;if(/pm/i.test(m[3]))h+=12;return String(h).padStart(2,'0')+':'+m[2]};
+const fromTpl=k=>{const T=HB.TPL[k];return T?T.q.map(q=>Object.assign({id:HB.qid(),unit:'',opts:[],alert:null},JSON.parse(JSON.stringify(q)))):[]};
+function fresh(mid,k){const t=HB.ymd(),T=HB.TPL[k];return{mid,by:$('by')?$('by').value||DEF.by:DEF.by,practice:$('prac')?$('prac').value||DEF.practice:DEF.practice,tpl:k||'',title:T?T.name:'Custom check-in',start:t,end:addDays(t,T?T.days:14),time:'7:00 PM',msg:T?T.msg:'',q:fromTpl(k)}}
+function loadFor(mid){const ex=HB.getPlan(mid);if(ex&&!ex.stopped){P=JSON.parse(JSON.stringify(ex));TPLK=P.tpl||''}else{TPLK=mid==DEF.mid?'knee':'';P=fresh(mid,TPLK)}
+ $('by').value=P.by;$('prac').value=P.practice;fillSched();drawAll()}
+function fillSched(){$('st').value=P.start;$('en').value=P.end;$('tm').value=t24(P.time);$('msg').value=P.msg||''}
+function mem(){return HB.MEM.find(m=>m.mid==P.mid)}
+function drawStatus(){const ex=HB.getPlan(P.mid),m=mem(),act=HB.plan(P.mid);
+ $('pstat').innerHTML=act?`<span class="tag ok">Active</span> ${esc(m.first)}'s Health Bot is asking ${act.q.length} question${act.q.length==1?'':'s'} from ${esc(act.by)} through ${HB.fmt(act.end,{month:'short',day:'numeric'})}.`:ex&&ex.stopped?`<span class="tag">Stopped</span> The last plan was stopped. Edit and send to start a new one.`:`<span class="tag">Not sent yet</span> ${esc(m.first)} has no daily questions from the practice yet.`}
+function drawTpl(){$('tpl').innerHTML=Object.entries(HB.TPL).map(([k,t])=>`<button class="chip${TPLK==k?' on':''}" data-t="${k}">${esc(t.name)}</button>`).join('')+`<button class="chip${TPLK=='blank'?' on':''}" data-t="blank">Start blank</button>`}
+const IC={up:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg>',dn:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>',x:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
+function alertCtl(q,i){const a=q.alert,on=!!a;let c='';
+ if(q.type=='scale'||q.type=='number')c=`<select data-i="${i}" data-f="op" aria-label="Alert direction"><option value=">="${on&&a.op!='<='?' selected':''}>at or above</option><option value="<="${on&&a.op=='<='?' selected':''}>at or below</option></select><input type="number" step="any" data-i="${i}" data-f="av" value="${on?esc(a.v):''}" placeholder="${q.type=='scale'?'8':'value'}" style="width:90px" aria-label="Alert value">${q.type=='number'&&q.unit?`<span class="mut">${esc(q.unit)}</span>`:''}`;
+ else if(q.type=='yesno'||q.type=='choice'){const o=q.type=='yesno'?['Yes','No']:q.opts;c=`<span class="mut">the answer is</span><select data-i="${i}" data-f="av" aria-label="Alert answer">${o.map(x=>`<option${on&&a.v==x?' selected':''}>${esc(x)}</option>`).join('')}</select>`}
+ else return `<div class="alrow off row"><span class="mut">Short answers show up in the summary. No automatic warning.</span></div>`;
+ return `<div class="alrow row${on?'':' off'}"><label><input type="checkbox" data-i="${i}" data-f="alon"${on?' checked':''}> Warning sign when</label>${on?c:'<span class="mut">Off</span>'}</div>`}
+function drawQs(){const n=P.q.length;$('qcount').textContent=n+' question'+(n==1?'':'s')+' · about '+Math.max(1,Math.round(n*10/60+1))+' min a day';
+ $('qs').innerHTML=n?P.q.map((q,i)=>`<div class="qe"><div class="qn">${i+1}</div><div>
+  <input type="text" data-i="${i}" data-f="text" value="${esc(q.text)}" placeholder="Type the question the patient will see" aria-label="Question ${i+1}">
+  <div class="row"><select data-i="${i}" data-f="type" aria-label="Answer type">${Object.entries(HB.QTYPES).map(([k,w])=>`<option value="${k}"${q.type==k?' selected':''}>${w}</option>`).join('')}</select>
+  ${q.type=='choice'?`<input type="text" class="opts-in" data-i="${i}" data-f="opts" value="${esc((q.opts||[]).join(', '))}" placeholder="Choices, separated by commas" aria-label="Choices">`:''}
+  ${q.type=='number'?`<input type="text" class="sm" data-i="${i}" data-f="unit" value="${esc(q.unit||'')}" placeholder="Unit (lb, F)" aria-label="Unit">`:''}</div>
+  <div class="row">${alertCtl(q,i)}</div></div>
+  <div class="qa"><button class="ib" data-mv="${i}" data-d="-1" aria-label="Move up"${i?'':' disabled'}>${IC.up}</button><button class="ib" data-mv="${i}" data-d="1" aria-label="Move down"${i<n-1?'':' disabled'}>${IC.dn}</button><button class="ib del" data-rm="${i}" aria-label="Remove question">${IC.x}</button></div></div>`).join(''):'<p class="mut" style="margin:6px 0">No questions yet. Pick a template or add one.</p>';
+ $('addq').disabled=n>=12}
+function drawPre(){const m=mem(),qs=P.q.filter(q=>q.text.trim());
+ let h=`<div class="planban"><img src="bot.svg" alt=""><div><b style="font-size:13.5px">${esc(P.by)} added ${qs.length} question${qs.length==1?'':'s'} to your daily check-in</b><div class="mut" style="font-size:12px">through ${P.end?HB.fmt(P.end,{month:'short',day:'numeric'}):'–'}${P.time?' · reminder at '+esc(P.time):''}</div>${P.msg?`<p style="font-size:12.5px">"${esc(P.msg)}"</p>`:''}</div></div><div class="chat">`;
+ h+=`<div class="bub b">Hi ${esc(m.first)}. How are you feeling today, overall?</div><div class="bub u">Okay</div>`;
+ qs.forEach(q=>{h+=`<div class="bub b"><span class="tag ac" style="margin-bottom:4px">${esc(P.by)} asked</span><br>${esc(q.text)}</div><div class="ask">${HB.pqUI(q,'')}</div>`});
+ h+=`<div class="bub b mut" style="font-size:12.5px">Then the usual Health Bot questions: symptoms, pain, sleep, mood, medicines, readings and a note.</div></div>`;
+ $('pre').innerHTML=h;$('pre').querySelectorAll('input,button').forEach(x=>x.tabIndex=-1)}
+function drawLen(){const d=P.start&&P.end?Math.round((HB.pd(P.end)-HB.pd(P.start))/864e5)+1:0;$('len').textContent=d>0?d+' days':'Check dates'}
+function drawResp(){const m=mem(),pl=HB.getPlan(P.mid),D=HB.load(P.mid);
+ if(!pl){$('resp').innerHTML=`<p class="mut" style="margin:0">Answers appear here after you send the plan and ${esc(m.first)} checks in.</p>`;return}
+ const E=D.entries.filter(e=>e.planId==pl.id);
+ if(!E.length){$('resp').innerHTML=`<p class="mut" style="margin:0">No answers yet. ${esc(m.first)} will see your questions in the next Health Bot check-in${pl.time?' (reminder at '+esc(pl.time)+')':''}.</p><p style="margin:10px 0 0"><a class="btn ghost sm" href="healthbot.html?m=${encodeURIComponent(P.mid)}">Open ${esc(m.first)}'s Health Bot to test it</a> <span class="mut" style="font-size:12.5px">Family code REMY on the patient side.</span></p>`;return}
+ const days=new Set(E.map(e=>e.date)).size,span=Math.max(1,Math.round((Math.min(Date.now(),HB.pd(pl.end))-HB.pd(pl.start))/864e5)+1),al=E.filter(e=>(e.pq||[]).some(x=>x.al));
+ let h=`<div class="stat"><div><b>${days} of ${span}</b><span>days answered</span></div><div><b style="color:${al.length?'#b42318':'inherit'}">${al.length}</b><span>check-ins with a warning sign</span></div><div><b>${HB.fmt(E[E.length-1].date,{month:'short',day:'numeric'})}</b><span>last check-in</span></div></div>`;
+ if(al.length)h+=`<div class="alert" style="margin:0 0 12px"><b>Warning-sign answers</b><ul style="margin:6px 0 0;padding-left:18px">${al.slice().reverse().map(e=>`<li>${HB.fmt(e.date)}: ${e.pq.filter(x=>x.al).map(x=>esc(x.text.replace(/\?$/,''))+' <b>'+esc(x.a)+'</b>').join('; ')}</li>`).join('')}</ul></div>`;
+ h+=`<div class="tw"><table class="rt"><tr><th>Date</th>${pl.q.map((q,i)=>`<th>Q${i+1}<span>${esc(q.text)}</span></th>`).join('')}<th>Overall</th></tr>${E.slice().reverse().map(e=>`<tr><td><b>${HB.fmt(e.date,{month:'short',day:'numeric'})}</b></td>${pl.q.map(q=>{const x=(e.pq||[]).find(y=>y.id==q.id);return `<td class="${x&&x.al?'al':''}">${x?esc(x.a):'–'}</td>`}).join('')}<td>${HB.FEEL[e.feel]?HB.FEEL[e.feel].w:'–'}</td></tr>`).join('')}</table></div>`;
+ h+=`<p style="margin:12px 0 0"><a class="btn ghost sm" href="healthbot.html?m=${encodeURIComponent(P.mid)}">Open ${esc(m.first)}'s Health Bot</a></p>`;
+ $('resp').innerHTML=h}
+function drawAll(){drawStatus();drawTpl();drawQs();drawPre();drawLen();drawResp()}
+$('pt').innerHTML=HB.MEM.map(m=>`<option value="${m.mid}">${esc(m.name)} · ${m.age} · ID ${esc(m.mid)}</option>`).join('');
+$('pt').onchange=()=>{$('sent').innerHTML='';loadFor($('pt').value)};
+$('by').oninput=()=>{P.by=$('by').value.trim()||DEF.by;drawPre()};$('prac').oninput=()=>{P.practice=$('prac').value.trim()};
+$('tpl').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const k=b.dataset.t;
+ if(P.q.length&&!confirm('Replace the current questions with this template?'))return;TPLK=k;const f=fresh(P.mid,k=='blank'?'':k);P.q=f.q;P.title=f.title;P.tpl=k=='blank'?'':k;P.msg=f.msg;P.end=f.end;P.start=f.start;if(k=='blank')P.q=[{id:HB.qid(),text:'',type:'yesno',unit:'',opts:[],alert:null}];fillSched();$('sent').innerHTML='';drawAll()};
+$('qs').addEventListener('input',e=>{const t=e.target,i=+t.dataset.i,f=t.dataset.f;if(isNaN(i)||!f)return;const q=P.q[i];
+ if(f=='text')q.text=t.value;if(f=='unit'){q.unit=t.value.trim();}if(f=='opts'){q.opts=t.value.split(',').map(x=>x.trim()).filter(Boolean)}if(f=='av'&&q.alert)q.alert.v=t.type=='number'?t.value:t.value;if(f=='op'&&q.alert)q.alert.op=t.value;
+ if(f=='opts'&&q.alert&&!q.opts.includes(q.alert.v))q.alert.v=q.opts[0]||'';drawPre()});
+$('qs').addEventListener('change',e=>{const t=e.target,i=+t.dataset.i,f=t.dataset.f;if(isNaN(i)||!f)return;const q=P.q[i];
+ if(f=='type'){q.type=t.value;if(q.type=='choice'&&!(q.opts||[]).length)q.opts=['Better','Same','Worse'];q.alert=null;drawQs();drawPre()}
+ if(f=='alon'){q.alert=t.checked?(q.type=='scale'?{op:'>=',v:8}:q.type=='number'?{op:'>=',v:''}:q.type=='yesno'?{v:'Yes'}:{v:(q.opts||[])[0]||''}):null;drawQs()}
+ if(f=='opts'||f=='unit')drawQs()});
+$('qs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.rm!=null){P.q.splice(+b.dataset.rm,1);drawQs();drawPre()}
+ if(b.dataset.mv!=null){const i=+b.dataset.mv,j=i+ +b.dataset.d;if(j<0||j>=P.q.length)return;[P.q[i],P.q[j]]=[P.q[j],P.q[i]];drawQs();drawPre()}});
+$('addq').onclick=()=>{P.q.push({id:HB.qid(),text:'',type:'yesno',unit:'',opts:[],alert:null});drawQs();drawPre();const ins=$('qs').querySelectorAll('input[data-f=text]');ins[ins.length-1].focus()};
+$('st').onchange=()=>{P.start=$('st').value;drawLen();drawPre()};$('en').onchange=()=>{P.end=$('en').value;drawLen();drawPre()};
+$('tm').onchange=()=>{P.time=t12($('tm').value);drawPre()};$('msg').oninput=()=>{P.msg=$('msg').value;drawPre()};
+$('send').onclick=()=>{const m=mem();const qs=P.q.filter(q=>q.text.trim());
+ const bad=qs.find(q=>q.type=='choice'&&(q.opts||[]).length<2)||qs.find(q=>q.alert&&(q.type=='number'||q.type=='scale')&&(q.alert.v===''||isNaN(parseFloat(q.alert.v))));
+ if(!qs.length){$('sent').innerHTML='<div class="alert">Add at least one question.</div>';return}
+ if(bad){$('sent').innerHTML=`<div class="alert">Check "${esc(bad.text)}": ${bad.type=='choice'&&(bad.opts||[]).length<2?'a "Pick one" question needs at least two choices.':'enter a number for the warning sign.'}</div>`;return}
+ if(!P.start||!P.end||P.end<P.start){$('sent').innerHTML='<div class="alert">Check the start and end dates.</div>';return}
+ const old=HB.getPlan(P.mid);const same=old&&!old.stopped&&old.id&&JSON.stringify(old.q)==JSON.stringify(qs);
+ const plan={id:same?old.id:'pl'+Date.now(),mid:P.mid,by:P.by,practice:P.practice,tpl:P.tpl,title:P.title,start:P.start,end:P.end,time:P.time,msg:P.msg.trim(),q:qs.map(q=>({id:q.id,text:q.text.trim(),type:q.type,unit:q.unit||'',opts:q.opts||[],alert:q.alert,crisis:!!q.crisis})),sent:new Date().toISOString()};
+ HB.setPlan(P.mid,plan);P=JSON.parse(JSON.stringify(plan));
+ $('sent').innerHTML=`<div class="ok-box"><b>Sent.</b> Starting ${HB.fmt(plan.start,{month:'short',day:'numeric'})}, ${esc(m.first)}'s Health Bot asks these ${plan.q.length} questions in every daily check-in through ${HB.fmt(plan.end,{month:'short',day:'numeric'})}. <a href="healthbot.html?m=${encodeURIComponent(P.mid)}">Open ${esc(m.first)}'s Health Bot</a></div>`;drawAll()};
+$('stop').onclick=()=>{const ex=HB.getPlan(P.mid);if(!ex||ex.stopped){$('sent').innerHTML='<div class="alert">There is no active plan to stop.</div>';return}if(!confirm('Stop asking these questions? Answers already given are kept.'))return;ex.stopped=true;HB.setPlan(P.mid,ex);$('sent').innerHTML='<div class="ok-box">Stopped. The patient will no longer see these questions.</div>';drawAll()};
+(function(){const box=$('gatebox'),main=$('pv');const go=()=>{box.classList.add('hidden');main.classList.remove('hidden');const q=new URLSearchParams(location.search).get('m');const mid=HB.MEM.some(m=>m.mid==q)?q:DEF.mid;$('pt').value=mid;loadFor(mid)};
+ if(ocSS.getItem('ccHB:open')=='1')return go();
+ box.innerHTML=`<div class="card gate"><div class="bot-ic" style="margin:0 auto 10px">${HB.botSVG}</div><h2>Provider check-in builder</h2><p class="mut" style="font-size:13.5px">Set the daily questions a patient's Health Bot asks. Enter the Health Bot password to continue.</p><form id="pf"><input id="pc" type="password" placeholder="Password" autocomplete="off" autocapitalize="off" aria-label="Password"><button class="btn" style="width:100%;justify-content:center">Open builder</button><p id="pe" class="mut" style="font-size:13px" role="alert"></p></form></div>`;
+ $('pf').onsubmit=async e=>{e.preventDefault();if(await HB.sha($('pc').value.trim().toLowerCase())===HB.PW){ocSS.setItem('ccHB:open','1');go()}else $('pe').textContent='That password is not right.'};$('pc').focus()})();
+</script>
+</body></html>
