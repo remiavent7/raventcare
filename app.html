@@ -154,7 +154,7 @@ a{color:var(--ac)}
 <header><div class="brand"><svg class="ocmark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span style="color:var(--tx)">Collect<span style="color:var(--ac)">Care</span></span></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><a href="find.html" class="pill" style="color:var(--ac);font-weight:700;text-decoration:none;border-color:var(--ac)">Live doctor search</a><a href="benefits.html" class="pill" style="color:var(--ac);font-weight:700;text-decoration:none;border-color:var(--ac)">Check benefits</a><div class="pill">Demo · sample data</div></div></header>
 
 <section id="s1">
-<h1>Load your insurance card</h1><p class="mut" style="margin:8px 0 24px">Snap or upload your card, or type it in. We'll pull your plan and show everything you can use in 2026.</p>
+<h1>Load your insurance card and photo ID</h1><p class="mut" style="margin:8px 0 24px">Snap or upload your card and photo ID, or type them in. We'll pull your plan and show everything you can use in 2026.</p>
 <div class="grid g2">
  <div class="card">
   <h2>Scan your card</h2>
@@ -164,13 +164,28 @@ a{color:var(--ac)}
  </div>
  <form class="card" id="form">
   <h2>Or enter details</h2>
-  <label>Insurance carrier</label><select id="carrier"><option>Blue Shield of California</option><option>Aetna</option><option>UnitedHealthcare</option><option>Cigna</option><option>Kaiser Permanente</option><option>Humana Medicare Advantage</option><option>Anthem Blue Cross</option><option>Kaiser Permanente Senior Advantage</option><option>Health Net</option><option>L.A. Care Covered</option></select>
+  <label for="cst">State where your plan is from</label><select id="cst"></select>
+  <label for="carrier">Insurance carrier</label><input id="carrier" placeholder="Choose your state first" disabled>
   <label>Member name</label><input id="name" required placeholder="Jordan Rivera">
   <div class="grid g2" style="gap:12px"><div><label>Member ID</label><input id="mid" required placeholder="XEH123456789"></div><div><label>Group #</label><input id="grp" placeholder="W0051234"></div></div>
   <label>Plan type</label><select id="ptype"><option>PPO</option><option>HMO</option><option>HDHP / HSA</option><option>Medicare Advantage</option></select>
-  <button class="btn" type="submit">Load my benefits</button>
+  <button class="btn" type="submit">Load my benefits</button><p class="mut" style="font-size:12px;margin-top:8px">Your photo ID (below) is collected with your card.</p>
   <p class="mut" id="err" style="font-size:13px;margin-top:10px">Tip: your demo member ID is XEB71845203-01.</p>
  </form>
+</div>
+
+<div class="card" style="margin-top:16px" id="idcard"><div class="top" style="margin-bottom:6px"><h2 style="margin:0">Photo ID</h2><span class="tag">Required with your card</span></div>
+ <p class="mut" style="font-size:13px;margin:0 0 12px">Offices check that the person using the card is the member. Add a driver's license, state ID, passport or military ID. We keep only the ID type, last 4 digits and expiration date, never the photo.</p>
+ <div class="grid g2">
+  <div><div class="drop" id="drop2"><div style="font-size:15px;font-weight:700">Upload front of ID</div><div class="mut" style="font-size:13px;margin-top:6px">JPG or PNG · photo and name must be clear</div><input type="file" id="file2" accept="image/*" capture="environment" class="hidden"></div>
+  <div id="prev2" class="hidden" style="margin-top:14px"><div class="scan" style="border-radius:12px"><img id="img2" alt="Your uploaded ID" style="width:100%;border-radius:12px;display:block"></div><p class="mut" id="scanmsg2" style="font-size:13px;margin-top:8px">Reading ID…</p></div></div>
+  <div>
+   <label>ID type</label><select id="idt"><option>Driver's license</option><option>State ID card</option><option>U.S. passport</option><option>Passport card</option><option>Military ID</option><option>Tribal ID</option></select>
+   <label>Name on ID</label><input id="idn" form="form" placeholder="As shown on the ID">
+   <div class="grid g2" style="gap:12px"><div><label>Last 4 of ID number</label><input id="id4" form="form" maxlength="4" inputmode="numeric" placeholder="4821"></div><div><label>Expiration date</label><input id="idx" form="form" type="date"></div></div>
+  </div>
+ </div>
+ <p id="idw" role="alert" style="display:none;font-size:13px;margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#fff7ec;border:1px solid #f6d9b5;color:#6b3407"></p>
 </div>
 
 <div class="card" style="margin-top:16px"><div class="top" style="margin-bottom:10px"><h2 style="margin:0">Demo patients</h2><span class="mut" style="font-size:13px">Pick one to run their benefits</span></div><div class="grid g2" id="roster"></div></div>
@@ -214,6 +229,7 @@ a{color:var(--ac)}
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
 <p class="note">Demo prototype. Plan features are based on the published 2026 Blue Shield Bronze 60 HDHP PPO (HSA-eligible) benefit documents. Used and remaining amounts, member ID and birth date are sample data, not a live insurer connection. Providers are real local businesses. Always confirm with your insurer that a provider is in network before your visit.</p>
 </div>
+<script src="carriers-data.js"></script><script src="carriers.js"></script>
 <script>(function(){function mk(n){var m={},mem={getItem:function(k){return k in m?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]}};try{var s=window[n+'Storage'];var t='__oc';s.setItem(t,'1');s.removeItem(t);return s}catch(e){return mem}}window.ocLS=mk('local');window.ocSS=mk('session')})();</script><script>
 const GH="1b7dc74c7a440efc3582ecda14e933706a0f4a6e6ba4f1be055b12603c1949b0";
 function sha256js(s){const K=[],H=[];let n=2,c=0;const ip=x=>{for(let i=2;i*i<=x;i++)if(x%i==0)return false;return true};const fr=x=>(x-Math.floor(x))*4294967296|0;while(c<64){if(ip(n)){if(c<8)H[c]=fr(Math.pow(n,1/2));K[c]=fr(Math.pow(n,1/3));c++}n++}const m=[...new TextEncoder().encode(s)];const l=m.length*8;m.push(128);while(m.length%64!=56)m.push(0);for(let i=7;i>=0;i--)m.push(Math.floor(l/Math.pow(2,i*8))&255);const r=(x,k)=>(x>>>k)|(x<<(32-k));for(let o=0;o<m.length;o+=64){const w=[];for(let i=0;i<16;i++)w[i]=(m[o+i*4]<<24)|(m[o+i*4+1]<<16)|(m[o+i*4+2]<<8)|m[o+i*4+3];for(let i=16;i<64;i++){const a=w[i-15],b=w[i-2];w[i]=(w[i-16]+(r(a,7)^r(a,18)^(a>>>3))+w[i-7]+(r(b,17)^r(b,19)^(b>>>10)))|0}let[A,B,C,D,E,F,G,Hh]=H;for(let i=0;i<64;i++){const t1=(Hh+(r(E,6)^r(E,11)^r(E,25))+((E&F)^(~E&G))+K[i]+w[i])|0,t2=((r(A,2)^r(A,13)^r(A,22))+((A&B)^(A&C)^(B&C)))|0;Hh=G;G=F;F=E;E=(D+t1)|0;D=C;C=B;B=A;A=(t1+t2)|0}H[0]=(H[0]+A)|0;H[1]=(H[1]+B)|0;H[2]=(H[2]+C)|0;H[3]=(H[3]+D)|0;H[4]=(H[4]+E)|0;H[5]=(H[5]+F)|0;H[6]=(H[6]+G)|0;H[7]=(H[7]+Hh)|0}return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('')}
@@ -223,7 +239,17 @@ document.getElementById('gform').onsubmit=async e=>{e.preventDefault();const v=d
 
 const $=id=>document.getElementById(id);
 const mob=()=>innerWidth<800; const fixTop=()=>$('toprow').style.gridTemplateColumns=mob()?'1fr':'minmax(0,340px) 1fr';addEventListener('resize',fixTop);
-$('drop').onclick=()=>$('file').click();
+$('drop').onclick=()=>$('file').click();$('drop2').onclick=()=>$('file2').click();
+let IDIMG=false,PID=null;const PIDS={};
+const nrm=t=>String(t||'').toLowerCase().replace(/[^a-z ]/g,'').split(/\s+/).filter(Boolean);
+function idVals(){return{t:$('idt').value,n:$('idn').value.trim(),l4:$('id4').value.trim(),x:$('idx').value}}
+function idCheck(nm){const d=idVals(),m=[];if(d.x&&new Date(d.x+'T23:59:59')<new Date())m.push('This ID looks expired. Please add a current ID.');
+ const a=nrm(nm),b=nrm(d.n);if(a.length&&b.length&&!(a[0]==b[0]&&a[a.length-1]==b[b.length-1]))m.push('The name on the ID doesn\u2019t match the member name on the card. Add the ID of the person getting care.');
+ const w=$('idw');w.style.display=m.length?'block':'none';w.textContent=m.join(' ');return{d,m}}
+function demoId(p){const l4=String(p.mid.replace(/\D/g,'')).slice(-4).padStart(4,'0'),y=new Date().getFullYear()+3;return{t:p.age<16?'State ID card':"Driver's license",n:p.name,l4,x:y+(p.dob||'-01-01').slice(4),photo:false,demo:true}}
+$('file2').onchange=e=>{const f=e.target.files[0];if(!f)return;$('img2').src=URL.createObjectURL(f);$('prev2').classList.remove('hidden');$('img2').parentNode.classList.add('scan');$('scanmsg2').textContent='Reading ID…';IDIMG=true;
+ setTimeout(()=>{const nm=$('name').value.trim()||'Chris Yates',p=P.find(x=>x.name==nm)||{name:nm,mid:'0000004821',dob:'-09-27',age:40},d=demoId(p);$('idt').value=d.t;$('idn').value=d.n;$('id4').value=d.l4;$('idx').value=d.x;$('img2').parentNode.classList.remove('scan');$('scanmsg2').textContent='ID read (simulated). Check the details. The photo stays on your device.';idCheck($('name').value)},1600)};
+['idn','idx'].forEach(f=>$(f).addEventListener('change',()=>idCheck($('name').value)));
 
 // ---- 10 demo patients (sample data) ----
 const CAT={massage:['Wellness','Massage therapy','#be185d','M','visits'],gym:['Wellness','Gym & fitness','#1f6fd1','G','$'],acu:['Wellness','Acupuncture','#4f5fd6','A','visits'],chiro:['Wellness','Chiropractic','#b45309','C','visits'],otc:['Wellness','OTC health card','#1f6fd1','O','$'],
@@ -238,17 +264,24 @@ const money=v=>'$'+v.toLocaleString();
 const ben=p=>Object.entries(p.b).map(([k,[used,tot,d]])=>{const c=CAT[k];return{k,c:c[0],n:c[1],col:c[2],i:c[3],unit:c[4],used,tot,d,left:Math.max(0,tot-used),acct:k=='hsa'}});
 $('roster').innerHTML=P.map((p,i)=>{const B=ben(p),left=B.filter(b=>b.unit=='$'&&!b.acct).reduce((s,b)=>s+b.left,0);return `<button class="ben" data-i="${i}" style="border:1px solid var(--line);cursor:pointer;text-align:left;color:var(--tx);font:inherit;width:100%"><div class="emo" style="background:#7c8cff22;color:var(--ac2)">${p.name.split(' ').map(x=>x[0]).join('')}</div><div style="flex:1;min-width:0"><b>${p.name}</b><div class="mut" style="font-size:13px">${p.car} · ${p.plan}</div></div><span class="tag">${money(left)} left</span></button>`}).join('');
 $('roster').onclick=e=>{const b=e.target.closest('[data-i]');if(b)load(P[+b.dataset.i])};
-function fill(p){$('carrier').value=[...$('carrier').options].some(o=>o.text==p.car)?p.car:$('carrier').options[0].text;$('name').value=p.name;$('mid').value=p.mid;$('grp').value=p.grp;$('ptype').value=p.plan;}
+const PK=CC.mount({state:$('cst'),input:$('carrier')});
+function fill(p){PK.set(p.st||(/, ([A-Z]{2}) \d{5}/.exec(p.city||'')||[])[1]||'CA',p.car=='Medicare'?CC.carriers[0][0]:p.car);$('name').value=p.name;$('mid').value=p.mid;$('grp').value=p.grp;$('ptype').value=p.plan;const d=demoId(p);$('idt').value=d.t;$('idn').value=d.n;$('id4').value=d.l4;$('idx').value=d.x;idCheck(p.name)}
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;$('img').src=URL.createObjectURL(f);$('prev').classList.remove('hidden');$('img').parentNode.classList.add('scan');$('scanmsg').textContent='Reading card…';
  const p=P[Math.floor(Math.random()*P.length)];setTimeout(()=>{$('scanmsg').textContent='Card read: '+p.name+'. Confirm details on the right.';$('img').parentNode.classList.remove('scan');fill(p);},1800)};
 $('sample').onclick=e=>{e.preventDefault();load(P[Math.floor(Math.random()*P.length)])};
 $('form').onsubmit=e=>{e.preventDefault();const id=$('mid').value.trim().toUpperCase(),p=P.find(x=>x.mid.toUpperCase()==id);
- if(!p){$('err').style.color='var(--warn)';$('err').textContent='Member ID not found in the demo. Try one from the demo patient list.';return}load(p)};
-$('back').onclick=()=>{$('s2').classList.add('hidden');$('s1').classList.remove('hidden');scrollTo(0,0)};
+ if(!$('cst').value){$('err').style.color='var(--warn)';$('err').textContent='Choose the state where your plan is from first.';$('cst').focus();return}
+ if(!$('carrier').value.trim()){$('err').style.color='var(--warn)';$('err').textContent='Pick your insurance carrier, or type it as shown on your card.';$('carrier').focus();return}
+ if(!p){$('err').style.color='var(--warn)';$('err').textContent='Member ID not found in the demo. Try one from the demo patient list.';return}
+ const ic=idCheck($('name').value),q=ic.d;
+ if(!q.n||q.l4.length!=4||!q.x){$('err').style.color='var(--warn)';$('err').textContent='Add your photo ID: upload the front, or enter the name, last 4 digits and expiration date.';$('idcard').scrollIntoView({behavior:'smooth',block:'center'});(!q.n?$('idn'):q.l4.length!=4?$('id4'):$('idx')).focus({preventScroll:true});return}
+ if(ic.m.length){$('err').style.color='var(--warn)';$('err').textContent='Fix the photo ID issue below before continuing.';$('idcard').scrollIntoView({behavior:'smooth',block:'center'});return}
+ PIDS[p.mid]=Object.assign(q,{photo:IDIMG,demo:false});load(p)};
+$('back').onclick=()=>{$('err').style.color='';$('err').textContent='Tip: your demo member ID is XEB71845203-01.';$('s2').classList.add('hidden');$('s1').classList.remove('hidden');scrollTo(0,0)};
 let CUR=[],CURP=null,APPTS=[];const AP={};
 function load(p){CUR=ben(p);
  $('s1').classList.add('hidden');$('s2').classList.remove('hidden');scrollTo(0,0);fixTop();
- $('hello').textContent='Yates family · viewing '+p.name.split(' ')[0]+' ('+p.rel.toLowerCase()+', '+p.age+') · '+p.planName+' · '+p.city;drawFam(p);CURP=p;APPTS=AP[p.mid]||[];drawAppts();
+ $('hello').textContent='Yates family · viewing '+p.name.split(' ')[0]+' ('+p.rel.toLowerCase()+', '+p.age+') · '+p.planName+' · '+p.city;drawFam(p);CURP=p;PID=PIDS[p.mid]||(PIDS[p.mid]=demoId(p));$('hello').insertAdjacentHTML('beforeend',`<br><span class="tag" style="margin-top:6px;display:inline-block">Photo ID on file · ${hx(PID.t)} ending ${hx(PID.l4)} · expires ${hx(PID.x)}${PID.demo?' · sample':''}</span>`);APPTS=AP[p.mid]||[];drawAppts();
  $('icard').innerHTML=p.medicare?mcCard(p):`<div class="cb-top"><div class="cb-logo"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1l10 4v8c0 7-4.5 11.5-10 14C6.5 24.5 2 20 2 13V5z" fill="#1d4f91"/><path d="M10 7h4v4.5h4.5v4H14V20h-4v-4.5H5.5v-4H10z" fill="#fff"/></svg><span>Blue Shield<small>of California</small></span></div><div class="cb-net">Bronze 60 HDHP<small>Medical</small></div></div>
 <div class="cb-body"><div class="cb-l"><div class="cb-name">${p.name.toUpperCase()}</div><div class="cb-k">Member ID:</div><div class="cb-id">${p.mid}</div><hr>
 <dl><dt>Group No:</dt><dd>W0051843</dd><dt>Plan Code:</dt><dd>060</dd><dt>RxBIN:</dt><dd>004336</dd><dt>RxPCN:</dt><dd>ADV</dd><dt>RxGRP:</dt><dd>RX3906</dd><dt>Coverages:</dt><dd>Medical · Pharmacy</dd></dl></div>

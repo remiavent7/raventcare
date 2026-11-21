@@ -94,8 +94,13 @@ h2{font-size:clamp(28px,3.4vw,42px);line-height:1.08;letter-spacing:-.03em;font-
 @media(max-width:520px){.final{padding:28px}}
 footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}footer a{color:var(--mut)}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,120px);background:var(--tx);color:#fff;padding:12px 18px;border-radius:14px;font-size:14.5px;font-weight:700;z-index:50;transition:transform .3s;max-width:calc(100% - 30px)}.toast.on{transform:translate(-50%,0)}
+.idh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:26px 0 4px;padding-top:22px;border-top:1px solid var(--line)}.idh h3{margin:0;font-size:18px}.idh .tag{font-size:12px}
+.idsub{font-size:14px;color:var(--mut);margin:0 0 14px}
+.idwarn{font-size:13.5px;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff7ec;border:1px solid #f6d9b5;color:#6b3407;display:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style></head><body>
+<script src="carriers-data.js"></script>
+<script src="carriers.js"></script>
 <script>(function(){function mk(n){var m={},mem={getItem:function(k){return k in m?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]}};try{var s=window[n+'Storage'];var t='__oc';s.setItem(t,'1');s.removeItem(t);return s}catch(e){return mem}}window.ocLS=mk('local')})();</script>
 
 <header class="top" id="top"><div class="w">
@@ -127,8 +132,8 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
 
 <section id="card" style="padding-top:40px"><div class="w">
  <p class="kick">Step 1 · The card that unlocks everything</p>
- <h2>Collect your insurance card</h2>
- <p class="sub">Your card tells us your plan, your network and which accounts to look for next. Snap it or type it in. You'll see it build as you go.</p>
+ <h2>Collect your insurance card and photo ID</h2>
+ <p class="sub">Your card tells us your plan, your network and which accounts to look for next. Your photo ID confirms the card is yours. Snap them or type them in. You'll see it build as you go.</p>
  <div class="prog" aria-live="polite"><div><div class="n" id="pn">0 of 14</div><div class="mut" style="font-size:13px;font-weight:700">accounts collected</div></div><div class="bar" role="progressbar" aria-label="Accounts collected" aria-valuemin="0" aria-valuemax="14" aria-valuenow="0" id="pb"><i id="pbi"></i></div><a class="btn sm gh" href="#accounts">Collect the rest</a></div>
  <div class="s1">
   <div class="panel">
@@ -137,14 +142,29 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
    <div class="thumb" id="thumb"><img id="timg" alt="Your uploaded card"><span id="tmsg" class="mut">Reading your card…</span></div>
    <div class="or">or type it in</div>
    <form class="f" id="form" autocomplete="off">
-    <label class="full">Insurance carrier<select id="car"><option>Blue Shield of California</option><option>Aetna</option><option>UnitedHealthcare</option><option>Cigna</option><option>Kaiser Permanente</option><option>Humana Medicare Advantage</option><option>Anthem Blue Cross</option><option>Kaiser Permanente Senior Advantage</option><option>Health Net</option><option>L.A. Care Covered</option><option>Medicare (red, white and blue card)</option><option>Medi-Cal</option></select></label>
+    <label class="full">State where your plan is from<select id="cst"></select></label>
+    <label class="full">Insurance carrier<input id="car" placeholder="Choose your state first" disabled></label>
     <label class="full">Member name<input id="nm" placeholder="As shown on the card"></label>
     <label>Member ID<input id="mid" placeholder="e.g. XEB71845203"></label>
     <label>Group #<input id="grp" placeholder="Optional"></label>
-    <label>Plan type<select id="pt"><option>PPO</option><option>HMO</option><option>HDHP / HSA</option><option>EPO</option><option>Medicare</option><option>Medicare Advantage</option><option>Medi-Cal</option></select></label>
+    <label>Plan type<select id="pt"><option>PPO</option><option>HMO</option><option>HDHP / HSA</option><option>EPO</option><option>Medicare</option><option>Medicare Advantage</option><option>Medi-Cal</option><option>Medicaid</option><option>TRICARE</option><option>Dental</option><option>Vision</option></select></label>
     <label>Rx BIN<input id="bin" placeholder="Optional" inputmode="numeric"></label>
    </form>
-   <div class="acts"><button class="btn" id="save" type="button">Collect my card</button><button class="btn gh" id="demo" type="button">Use the demo card</button></div>
+   <div class="idh"><h3>Photo ID</h3><span class="tag ac">Required with your card</span></div>
+   <p class="idsub">Your doctor's office checks that the person using the card is the member. Add a driver's license, state ID, passport or military ID.</p>
+   <label class="drop" id="drop2" for="file2"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.5"/><path d="M13 10h5M13 14h4"/></svg></div><div><b>Snap or upload the front of your ID</b><span>JPG or PNG. Make sure your photo and name are clear.</span></div></label>
+   <input type="file" id="file2" accept="image/*" capture="environment" class="sr">
+   <div class="thumb" id="thumb2"><img id="timg2" alt="Your uploaded ID"><span id="tmsg2" class="mut">Reading your ID…</span></div>
+   <form class="f" id="idform" autocomplete="off" style="margin-top:14px">
+    <label class="full">ID type<select id="idt"><option>Driver's license</option><option>State ID card</option><option>U.S. passport</option><option>Passport card</option><option>Military ID</option><option>Tribal ID</option></select></label>
+    <label class="full">Name on ID<input id="idn" placeholder="As shown on the ID"></label>
+    <label>Last 4 of ID number<input id="id4" placeholder="e.g. 4821" maxlength="4" inputmode="numeric"></label>
+    <label>Expiration date<input id="idx" type="date"></label>
+    <label>Issuing state<input id="ids" placeholder="e.g. CA" maxlength="2"></label>
+    <label>Date of birth<input id="idb" type="date"></label>
+   </form>
+   <div class="idwarn" id="idw" role="alert"></div>
+   <div class="acts"><button class="btn" id="save" type="button">Collect my card and ID</button><button class="btn gh" id="demo" type="button">Use the demo card</button></div>
    <div class="status" id="st" role="status"></div>
   </div>
   <div class="prev">
@@ -155,7 +175,7 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
     <div><b>In-network doctors</b><span class="mut">Who takes your plan near you</span></div>
     <div><b>Use-it-or-lose-it benefits</b><span class="mut">What resets on January 1</span></div>
    </div>
-   <p class="note">Demo: card reading is simulated and nothing leaves your browser. Always confirm coverage with your insurer.</p>
+   <p class="note">Demo: card and ID reading is simulated and nothing leaves your browser. We keep only the ID type, last 4 digits and expiration date, never the ID photo. Always confirm coverage with your insurer.</p>
   </div>
  </div>
 </div></section>
@@ -171,7 +191,7 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
  <p class="kick">How it works</p>
  <h2>Three steps, then it stays up to date</h2>
  <div class="how">
-  <div><div class="num">1</div><h4>Snap your insurance card</h4><p>We read your plan, member ID and group, then pull this year's benefits.</p></div>
+  <div><div class="num">1</div><h4>Snap your insurance card and photo ID</h4><p>We read your plan, member ID and group, check the ID matches the member, then pull this year's benefits.</p></div>
   <div><div class="num">2</div><h4>Approve each account</h4><p>Sign in on each company's own page and allow read-only access. Health plans and Medicare must offer this by law.</p></div>
   <div><div class="num">3</div><h4>See it all together</h4><p>Benefits, records, labs, prescriptions and HSA in one place, synced daily, for you and your family.</p></div>
  </div>
@@ -219,11 +239,12 @@ const GROUPS=[
 ];
 const ALL=GROUPS.flatMap(g=>g[1]);const TOTAL=ALL.length+1;
 const CARCOL={'Blue Shield of California':['#0a5cc2','#0b3f86','bsc'],'Aetna':['#7d3f98','#4f2263',null],'UnitedHealthcare':['#002677','#0b1a4a','uhc'],'Cigna':['#0a7aa8','#065273',null],'Kaiser Permanente':['#0067a5','#004a78','kp'],'Humana Medicare Advantage':['#3f8a2e','#2a5f1f',null],'Anthem Blue Cross':['#1a5aa8','#0e3a72',null],'Kaiser Permanente Senior Advantage':['#0067a5','#004a78','kp'],'Health Net':['#0a7f6f','#065a4f',null],'L.A. Care Covered':['#00609c','#003f66','local'],'Medicare (red, white and blue card)':['#0b4a8b','#8a1f2b','cms'],'Medi-Cal':['#5b3fd6','#3a2696','local']};
+function carCol(n){n=String(n||'');if(CARCOL[n])return CARCOL[n];const R=[[/blue shield of california/i,'Blue Shield of California'],[/^aetna/i,'Aetna'],[/unitedhealthcare|^uhc/i,'UnitedHealthcare'],[/cigna/i,'Cigna'],[/kaiser/i,'Kaiser Permanente'],[/humana/i,'Humana Medicare Advantage'],[/anthem/i,'Anthem Blue Cross'],[/health net/i,'Health Net'],[/l\.a\. care/i,'L.A. Care Covered'],[/original medicare|^medicare \(/i,'Medicare (red, white and blue card)'],[/medi-cal|covered california/i,'Medi-Cal']];for(const[r,k]of R)if(r.test(n))return CARCOL[k];return ['#1f6fd1','#0b3f86',null]}
 const lock='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 function render(){
  const hasCard=!!ST.card;
- const match=hasCard?(CARCOL[ST.card.car]||[])[2]:null;
- $('groups').innerHTML=`<div class="grp"><h3>Start here</h3><div class="ag"><div class="acc feat ${hasCard?'done':''}"><div class="hd"><div class="lg" style="background:linear-gradient(135deg,#1f6fd1,#0ea5c6)">ID</div><div><div class="t">Insurance card</div><div class="k">Step 1 · unlocks your benefits</div></div></div><p>${hasCard?`${esc(ST.card.car)} · ${esc(ST.card.pt)}${ST.card.mid?' · ID ending '+esc(ST.card.mid.slice(-4)):''}`:'Snap or type in your card to see your deductible, copays, network and benefits for the year.'}</p><div class="ft"><span class="tag ${hasCard?'ok':'ac'}">${hasCard?'Collected':'Start here'}</span><a class="cbtn" href="#card" style="text-decoration:none">${hasCard?'Edit card':'Add card'}</a></div></div></div></div>`+
+ const match=hasCard?carCol(ST.card.car)[2]:null;
+ $('groups').innerHTML=`<div class="grp"><h3>Start here</h3><div class="ag"><div class="acc feat ${hasCard?'done':''}"><div class="hd"><div class="lg" style="background:linear-gradient(135deg,#1f6fd1,#0ea5c6)">ID</div><div><div class="t">Insurance card + photo ID</div><div class="k">Step 1 · unlocks your benefits</div></div></div><p>${hasCard?`${esc(ST.card.car)} · ${esc(ST.card.pt)}${ST.card.mid?' · ID ending '+esc(ST.card.mid.slice(-4)):''}${ST.pid?' · '+esc(ST.pid.t)+' on file':''}`:'Snap or type in your card and photo ID to see your deductible, copays, network and benefits for the year.'}</p><div class="ft"><span class="tag ${hasCard?'ok':'ac'}">${hasCard?'Collected':'Start here'}</span><a class="cbtn" href="#card" style="text-decoration:none">${hasCard?'Edit card':'Add card'}</a></div></div></div></div>`+
  GROUPS.map(([g,list])=>`<div class="grp"><h3>${g}</h3><div class="ag">${list.map(a=>{const done=!!ST.got[a.id];const lk=!hasCard&&!done;return `<div class="acc ${done?'done':''} ${lk?'lock':''}" data-id="${a.id}"><div class="hd"><div class="lg" style="background:${a.col}">${a.ab}</div><div><div class="t">${a.t}</div><div class="k">${a.k}</div></div></div><p>${a.d}.</p><div class="via">${lock}<span>${a.via}</span></div><div class="ft">${done?'<span class="tag ok">Collected · simulated</span>':match===a.id?'<span class="tag ac">Matches your card</span>':'<span class="tag">Not connected</span>'}<button class="cbtn" type="button" data-c="${a.id}" ${lk?'aria-disabled="true" title="Add your insurance card first"':''}>${done?'Remove':lk?'Card first':'Collect'}</button></div></div>`}).join('')}</div></div>`).join('');
  const n=(hasCard?1:0)+Object.keys(ST.got).filter(k=>ST.got[k]).length;
  $('pn').textContent=`${n} of ${TOTAL}`;$('pbi').style.width=(n/TOTAL*100)+'%';$('pb').setAttribute('aria-valuenow',n);
@@ -235,21 +256,41 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b
  const a=ALL.find(x=>x.id==id);ST.got[id]=!ST.got[id];if(!ST.got[id])delete ST.got[id];save();render();toast(ST.got[id]?`${a.t} collected (simulated). On the real app you'd sign in on their page.`:`${a.t} removed.`)});
 // live preview
 const F=['car','nm','mid','grp','pt','bin'];
-function paint(){const car=$('car').value,c=CARCOL[car]||['#0a5cc2','#0b3f86'];$('pc').style.background=`linear-gradient(135deg,${c[0]},${c[1]})`;$('pcar').textContent=car.replace(' (red, white and blue card)','');$('ppt').textContent=$('pt').value;$('pnm').textContent=($('nm').value||'YOUR NAME').toUpperCase();$('pmid').textContent=$('mid').value||'———';$('pgrp').textContent=$('grp').value||'———';$('pbin').textContent=$('bin').value||'———'}
+function paint(){const car=$('car').value,c=carCol(car);$('pc').style.background=`linear-gradient(135deg,${c[0]},${c[1]})`;$('pcar').textContent=car?car.replace(/ \(Original Medicare.*\)$| \(red, white and blue card\)/,''):'Your insurance carrier';$('ppt').textContent=$('pt').value;$('pnm').textContent=($('nm').value||'YOUR NAME').toUpperCase();$('pmid').textContent=$('mid').value||'———';$('pgrp').textContent=$('grp').value||'———';$('pbin').textContent=$('bin').value||'———'}
 F.forEach(f=>$(f).addEventListener('input',paint));
-$('car').addEventListener('change',()=>{const v=$('car').value;if(/Medicare \(/.test(v))$('pt').value='Medicare';else if(/Advantage/.test(v))$('pt').value='Medicare Advantage';else if(/Medi-Cal/.test(v))$('pt').value='Medi-Cal';paint()});
-const DEMO={car:'Blue Shield of California',nm:'Chris Yates',mid:'XEB71845203-01',grp:'W0051234',pt:'HDHP / HSA',bin:'610014'};
-function fill(d){F.forEach(f=>$(f).value=d[f]||'');paint()}
-$('demo').onclick=()=>{fill(DEMO);$('st').className='status';$('st').textContent='Demo card filled in. Tap "Collect my card" to add it.'};
-$('save').onclick=()=>{const d={};F.forEach(f=>d[f]=$(f).value.trim());if(!d.nm||!d.mid){$('st').className='status';$('st').textContent='Add the member name and member ID from your card, or use the demo card.';(!d.nm?$('nm'):$('mid')).focus();return}
- ST.card=d;save();render();const m=(CARCOL[d.car]||[])[2];$('st').className='status ok';$('st').textContent=`Card collected. ${m?'We found a matching account to connect below.':'Next, collect your other accounts.'}`;toast('Insurance card collected');setTimeout(()=>$('accounts').scrollIntoView({behavior:'smooth'}),900)};
+const PK=CC.mount({state:$('cst'),input:$('car'),onState:v=>{if(v&&!$('ids').value)$('ids').value=v;paint()},onPick:r=>{if(r){const f=r[3],st=$('cst').value;if(r[1]=='CMS')$('pt').value='Medicare';else if(f.includes('D')&&!f.includes('M'))$('pt').value=st=='CA'?'Medi-Cal':'Medicaid';else if(f.includes('T'))$('pt').value='TRICARE';else if(f.includes('d'))$('pt').value='Dental';else if(f.includes('v'))$('pt').value='Vision';else if(/medicare advantage/i.test(r[0]))$('pt').value='Medicare Advantage'}paint()}});
+const DEMO={cst:'CA',car:'Blue Shield of California',nm:'Chris Yates',mid:'XEB71845203-01',grp:'W0051234',pt:'HDHP / HSA',bin:'610014'};
+function fill(d){PK.set(d.cst||'',d.car||'');F.forEach(f=>{if(f!='car')$(f).value=d[f]||''});paint()}
+const IF=['idt','idn','id4','idx','ids','idb'];
+const DEMOID={idt:"Driver's license",idn:'Chris Yates',id4:'4821',idx:'2029-09-27',ids:'CA',idb:'1982-09-27'};
+function fillId(d){IF.forEach(f=>$(f).value=d[f]||'');if(!d.idt)$('idt').selectedIndex=0}
+const nrm=s=>String(s||'').toLowerCase().replace(/[^a-z ]/g,'').split(/\s+/).filter(Boolean);
+function idCheck(nm){const w=$('idw'),d={};IF.forEach(f=>d[f]=$(f).value.trim());const msgs=[];
+ if(d.idx&&new Date(d.idx+'T23:59:59')<new Date())msgs.push('This ID looks expired. Please add a current ID.');
+ const a=nrm(nm),b=nrm(d.idn);if(a.length&&b.length&&!(a[0]===b[0]&&a[a.length-1]===b[b.length-1]))msgs.push('The name on your ID doesn\u2019t match the member name on the card. If this is a family member\u2019s card, add the ID of the person getting care, and use their name as it appears on the card.');
+ w.style.display=msgs.length?'block':'none';w.textContent=msgs.join(' ');return {d,msgs}}
+$('demo').onclick=()=>{fill(DEMO);fillId(DEMOID);$('st').className='status';$('st').textContent='Demo card filled in. Tap "Collect my card" to add it.'};
+$('save').onclick=()=>{const d={};F.forEach(f=>d[f]=$(f).value.trim());d.cst=$('cst').value;if(!d.cst){$('st').className='status';$('st').textContent='Choose the state where your plan is from first.';$('cst').focus();return}if(!d.car){$('st').className='status';$('st').textContent='Pick your insurance carrier, or type it as shown on your card.';$('car').focus();return}const row=CC.find(d.car);if(row){d.pid=row[1]}if(!d.nm||!d.mid){$('st').className='status';$('st').textContent='Add the member name and member ID from your card, or use the demo card.';(!d.nm?$('nm'):$('mid')).focus();return}
+ const ic=idCheck(d.nm),q=ic.d;
+ if(!ST.idImg&&!(q.idn&&q.id4.length===4&&q.idx)){$('st').className='status';$('st').textContent='Add your photo ID too: snap the front, or fill in the name, last 4 digits and expiration date.';$('drop2').scrollIntoView({behavior:'smooth',block:'center'});return}
+ if(!q.idn||q.id4.length!==4||!q.idx){$('st').className='status';$('st').textContent='Check the ID fields: name, last 4 digits and expiration date.';(!q.idn?$('idn'):q.id4.length!==4?$('id4'):$('idx')).focus();return}
+ if(ic.msgs.length){$('st').className='status';$('st').textContent='Fix the ID issue above before collecting.';return}
+ ST.card=d;ST.pid={t:q.idt,n:q.idn,l4:q.id4,x:q.idx,s:q.ids.toUpperCase(),dob:q.idb,photo:!!ST.idImg,at:new Date().toISOString()};delete ST.idImg;save();render();const m=carCol(d.car)[2];$('st').className='status ok';$('st').textContent=`Card and photo ID collected. ${m?'We found a matching account to connect below.':'Next, collect your other accounts.'}`;toast('Insurance card and photo ID collected');setTimeout(()=>$('accounts').scrollIntoView({behavior:'smooth'}),900)};
 // upload (simulated reading)
 const fileIn=$('file'),drop=$('drop');
 ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('on')}));['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('on')}));
 drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)readCard(f)});fileIn.addEventListener('change',()=>{if(fileIn.files[0])readCard(fileIn.files[0])});
 function readCard(f){if(!/^image\//.test(f.type)){$('st').className='status';$('st').textContent='Please choose a photo (JPG or PNG).';return}
  const r=new FileReader();r.onload=()=>{$('timg').src=r.result;$('thumb').style.display='flex';$('tmsg').textContent='Reading your card…';setTimeout(()=>{fill(DEMO);$('tmsg').textContent='Card read (simulated with demo details). Check the fields, then collect it.'},1400)};r.readAsDataURL(f)}
+// ID upload (simulated reading; the image is never saved)
+const f2=$('file2'),d2=$('drop2');
+['dragenter','dragover'].forEach(ev=>d2.addEventListener(ev,e=>{e.preventDefault();d2.classList.add('on')}));['dragleave','drop'].forEach(ev=>d2.addEventListener(ev,e=>{e.preventDefault();d2.classList.remove('on')}));
+d2.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)readId(f)});f2.addEventListener('change',()=>{if(f2.files[0])readId(f2.files[0])});
+function readId(f){if(!/^image\//.test(f.type)){$('st').className='status';$('st').textContent='Please choose a photo of your ID (JPG or PNG).';return}
+ const r=new FileReader();r.onload=()=>{$('timg2').src=r.result;$('thumb2').style.display='flex';$('tmsg2').textContent='Reading your ID…';ST.idImg=1;setTimeout(()=>{const nm=$('nm').value.trim();fillId(Object.assign({},DEMOID,nm?{idn:nm}:{}));$('tmsg2').textContent='ID read (simulated with demo details). Check the fields. The photo stays on your device.';idCheck($('nm').value)},1400)};r.readAsDataURL(f)}
+['idn','idx'].forEach(f=>$(f).addEventListener('change',()=>idCheck($('nm').value)));
 // restore
+if(ST.pid)fillId({idt:ST.pid.t,idn:ST.pid.n,id4:ST.pid.l4,idx:ST.pid.x,ids:ST.pid.s,idb:ST.pid.dob});
 if(ST.card)fill(ST.card);else paint();render();
 const hdr=$('top');addEventListener('scroll',()=>hdr.classList.toggle('sc',scrollY>8),{passive:true});
 </script>
