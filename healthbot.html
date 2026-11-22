@@ -12,6 +12,7 @@
  <div class="mem" id="mem" aria-label="Choose a family member"></div>
  <div class="priv"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><div><b>Private to this device.</b> Your notes are saved only in this browser on this phone or computer. They are not sent to CollectCare, your insurer or anyone else. You decide when to show the summary. <a href="#privacy" style="color:#7dd3fc">Lock or delete</a></div></div>
 
+ <div class="card hidden" id="reqs" aria-live="polite"></div>
  <div class="grid g2" style="margin-top:2px;align-items:start">
   <div class="card" id="ccard" style="grid-column:1/-1"><div class="row"><h2 style="margin:0" id="ctitle">Today's check-in</h2><span class="sp"></span><span class="tag" id="cstat"></span></div>
    <div id="planban"></div><div class="chat" id="chat" aria-live="polite"></div></div>
@@ -147,7 +148,7 @@ $('exp').onclick=()=>HB.download('health-bot-'+M.first.toLowerCase()+'-'+HB.ymd(
 $('del').onclick=()=>{if(confirm('Delete every Health Bot note for '+M.first+' on this device? This cannot be undone.')){ocLS.removeItem(HB.key(M.mid));D=HB.load(M.mid);STEP=0;A=blank();drawAll()}};
 $('smp').onclick=()=>{HB.sample(M.mid);D=HB.load(M.mid);drawAll()};
 $('smpx').onclick=()=>{HB.clearSample(M.mid);D=HB.load(M.mid);drawAll()};
-function drawAll(){HB.memBar($('mem'),M,'healthbot.html');buildSteps();drawPlan();drawChat();drawStrip();drawHist();document.querySelectorAll('.who').forEach(x=>x.textContent=M.first)}
+function drawAll(){HB.memBar($('mem'),M,'healthbot.html');HB.reqPatient($('reqs'),M.mid);buildSteps();drawPlan();drawChat();drawStrip();drawHist();document.querySelectorAll('.who').forEach(x=>x.textContent=M.first)}
 HB.guard($('hb'),()=>{M=HB.member();D=HB.load(M.mid);A=blank();
  const q='?m='+encodeURIComponent(M.mid);$('nsum').href='healthbot-summary.html'+q;$('tosum').href='healthbot-summary.html'+q;
  if(D.entries.some(e=>e.date==HB.ymd()))STEP=-1;drawAll()});

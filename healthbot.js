@@ -12,7 +12,9 @@ HB.MEM=[
  {mid:'XEB71845203-02',name:'Colin Yates',first:'Colin',rel:'Spouse',age:46},
  {mid:'XEB71845203-03',name:'Chayanne Yates',first:'Chayanne',rel:'Daughter',age:19},
  {mid:'XEB71845203-04',name:'Christian Yates',first:'Christian',rel:'Son',age:15},
- {mid:'4TQ7-RM2-KX58',name:'Margaret Yates',first:'Margaret',rel:'Mother',age:79}
+ {mid:'4TQ7-RM2-KX58',name:'Margaret Yates',first:'Margaret',rel:'Mother',age:79},
+ /* Demo cardiology patient (not part of the Yates family). Hidden from the family member bar. */
+ {mid:'W2847-61930',name:'Raymond Ortiz',first:'Raymond',rel:'Cardiology demo patient',age:64,guest:true}
 ];
 HB.FEEL=[null,{w:'Bad',c:'#d64545'},{w:'Not great',c:'#ef8a3c'},{w:'Okay',c:'#e8c33a'},{w:'Good',c:'#5bbf6a'},{w:'Great',c:'#16a34a'}];
 HB.SYM=['Headache','Tired','Cough','Sore throat','Fever or chills','Stuffy nose','Nausea','Stomach pain','Diarrhea','Dizzy','Short of breath','Chest pain','Heart racing','Joint pain','Back pain','Rash','Swelling','Anxious','Low mood','Trouble sleeping','Poor appetite','Thoughts of self-harm'];
@@ -27,7 +29,7 @@ HB.fmt=(s,o)=>HB.pd(s).toLocaleDateString('en-US',o||{weekday:'short',month:'sho
 HB.key=mid=>'ccHB:v1:'+mid;
 HB.load=mid=>{try{const d=JSON.parse(ocLS.getItem(HB.key(mid))||'null');if(d&&d.entries)return Object.assign({questions:[],visit:{}},d)}catch(e){}return{entries:[],questions:[],visit:{}}};
 HB.save=(mid,d)=>{try{ocLS.setItem(HB.key(mid),JSON.stringify(d))}catch(e){alert('This browser could not save your note. Private browsing may block saving.')}};
-HB.member=()=>{const q=new URLSearchParams(location.search).get('m');let m=HB.MEM.find(x=>x.mid==q);if(!m){const last=ocLS.getItem('ccHB:last');m=HB.MEM.find(x=>x.mid==last)||HB.MEM[0]}ocLS.setItem('ccHB:last',m.mid);return m};
+HB.member=()=>{const q=new URLSearchParams(location.search).get('m');let m=HB.MEM.find(x=>x.mid==q);if(!m){const last=ocLS.getItem('ccHB:last');m=HB.MEM.find(x=>x.mid==last)||HB.MEM[0]}if(!m.guest)ocLS.setItem('ccHB:last',m.mid);return m};
 HB.sha=async t=>{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))|0;return 'x'+h};
 HB.flags=e=>{const f=[];(e.symptoms||[]).forEach(s=>{if(HB.RED.includes(s))f.push(s)});if(e.pain>=8)f.push('Pain '+e.pain+' of 10');const t=parseFloat(e.vitals&&e.vitals.temp);if(t>=103)f.push('Temperature '+t+' F');const bp=(e.vitals&&e.vitals.bp||'').match(/(\d{2,3})\s*\/\s*(\d{2,3})/);if(bp&&(+bp[1]>=180||+bp[2]>=120))f.push('Blood pressure '+bp[1]+'/'+bp[2]);(e.pq||[]).concat(e.mh||[]).forEach(x=>{if(!x.al)return;if(x.crisis){if(!f.includes('Thoughts of self-harm'))f.push('Thoughts of self-harm')}else f.push(x.text.replace(/\?$/,'')+': '+x.a)});return f};
 HB.alertHTML=f=>`<div class="alert" role="alert"><b>Please don't wait on this.</b> You noted: ${f.map(HB.esc).join(', ')}. Health Bot notes are not watched by a doctor or nurse in real time, and this demo does not contact your doctor. If your doctor asked about this, call their office today.
@@ -53,7 +55,7 @@ HB.guard=function(main,onOK){
 };
 
 HB.lock=()=>{ocSS.removeItem('ccHB:open');location.reload()};
-HB.memBar=(el,cur,href)=>{el.innerHTML=HB.MEM.map(m=>{const n=HB.load(m.mid).entries.length;return `<button class="${m.mid==cur.mid?'on':''}" data-m="${m.mid}" aria-pressed="${m.mid==cur.mid}"><b>${HB.esc(m.first)}</b><small>${HB.esc(m.rel)}, ${m.age} · ${n} note${n==1?'':'s'}</small></button>`}).join('');
+HB.memBar=(el,cur,href)=>{el.innerHTML=HB.MEM.filter(m=>!m.guest||m.mid==cur.mid).map(m=>{const n=HB.load(m.mid).entries.length;return `<button class="${m.mid==cur.mid?'on':''}" data-m="${m.mid}" aria-pressed="${m.mid==cur.mid}"><b>${HB.esc(m.first)}</b><small>${HB.esc(m.rel)}, ${m.age} · ${n} note${n==1?'':'s'}</small></button>`}).join('');
  el.onclick=e=>{const b=e.target.closest('button[data-m]');if(b)location.href=href+'?m='+encodeURIComponent(b.dataset.m)}};
 /* Sample check-ins so the summary can be shown in a demo. Clearly marked sample:true. */
 HB.sample=mid=>{const d=HB.load(mid);let seed=7;const r=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};const out=[];
@@ -131,3 +133,62 @@ HB.pqUI=(q,v)=>{const e=HB.esc;v=v==null?'':v;
  if(q.type=='yesno'||q.type=='choice'){const o=q.type=='yesno'?['Yes','No']:(q.opts||[]);return `<div class="chips">${o.map(x=>`<button type="button" class="chip${String(v)==x?' on':''}" data-pqv="${e(x)}" aria-pressed="${String(v)==x}">${e(x)}</button>`).join('')}</div>`}
  if(q.type=='number')return `<div class="row" style="flex-wrap:nowrap"><input type="number" step="any" inputmode="decimal" id="pq_n" value="${e(v)}" aria-label="${e(q.text)}" style="max-width:180px">${q.unit?`<b class="mut">${e(q.unit)}</b>`:''}</div>`;
  return `<input type="text" id="pq_t" value="${e(v)}" aria-label="${e(q.text)}" placeholder="Type a short answer">`};
+
+/* ---------- Care-team requests and home assignments ----------
+   A physician sends a request (reading, home assignment, file, question, reading
+   material, lab). It shows in the patient's Health Bot; the patient's responses
+   show back on the provider page. Demo: saved in this browser only. */
+HB.reqKey=mid=>'ccHB:req:'+mid;
+HB.getReqs=mid=>{try{return JSON.parse(ocLS.getItem(HB.reqKey(mid))||'[]')}catch(e){return[]}};
+HB.setReqs=(mid,a)=>{try{ocLS.setItem(HB.reqKey(mid),JSON.stringify(a))}catch(e){alert('This browser could not save. Private browsing may block saving.')}};
+HB.RT={reading:{n:'Home reading',verb:'Send reading'},task:{n:'Home assignment',verb:'Mark done for today'},upload:{n:'Photo or file',verb:'Send file'},question:{n:'Question',verb:'Send answer'},read:{n:'Please read',verb:"I've read this"},lab:{n:'Lab or test',verb:'Done'}};
+HB.PRIO={routine:'Routine',soon:'This week',urgent:'As soon as possible'};
+HB.reqProg=r=>({n:(r.log||[]).filter(l=>l.kind=='do').length,t:r.target||1});
+HB.reqState=r=>{if(r.status=='canceled')return{k:'canceled',t:'Canceled',c:'p-n'};const p=HB.reqProg(r);
+ if((r.log||[]).some(l=>l.kind=='help'&&!l.rev))return{k:'help',t:'Patient needs help',c:'p-r'};
+ if(r.status=='done')return r.rev?{k:'rev',t:'Done · reviewed',c:'p-ok'}:{k:'done',t:'Done · new',c:'p-ok'};
+ if(r.due&&r.due<HB.ymd())return{k:'late',t:'Overdue',c:'p-r'};
+ if(p.n||(r.log||[]).some(l=>l.kind=='sched'))return{k:'prog',t:r.type=='lab'&&!p.n?'Scheduled':'In progress '+p.n+'/'+p.t,c:'p-w'};
+ if(r.seen)return{k:'seen',t:'Seen by patient',c:'p-w'};return{k:'new',t:'Sent',c:'p-n'}};
+HB.logTxt=(r,l)=>{const e=HB.esc,o=[];
+ if(l.kind=='sched')o.push('Scheduled for '+HB.fmt(l.when,{month:'short',day:'numeric'}));
+ 
+ if(l.kind=='do'&&r.type=='read')o.push('Read and understood');
+ if(l.kind=='do'&&r.type=='task')o.push('Done');
+ if(l.kind=='do'&&r.type=='lab')o.push('Done');
+ (l.vals||[]).forEach((v,i)=>{if(v)o.push(e((r.fields||[])[i]||'Reading')+': <b>'+e(v)+'</b>')});
+ if(l.file)o.push('File: <b>'+e(l.file.name)+'</b> ('+Math.max(1,Math.round(l.file.size/1024))+' KB)');
+ if(l.text)o.push('"'+e(l.text)+'"');return (l.kind=='help'?'<b class="dn">Needs help:</b> ':'')+o.join(' · ')};
+HB.reqPatient=(el,mid,onChange)=>{const e=HB.esc;
+ const draw=()=>{const all=HB.getReqs(mid);let ch=false;all.forEach(r=>{if(r.status!='canceled'&&!r.seen){r.seen=new Date().toISOString();ch=true}});if(ch)HB.setReqs(mid,all);
+  const open=all.filter(r=>r.status=='open'),done=all.filter(r=>r.status=='done');
+  if(!open.length&&!done.length){el.innerHTML='';el.classList.add('hidden');return}el.classList.remove('hidden');
+  const by=(all[0]||{}).by||'Your care team';
+  const item=r=>{const p=HB.reqProg(r),today=(r.log||[]).some(l=>l.kind=='do'&&l.date==HB.ymd());let f='';
+   if(r.type=='reading')f=`<div class="grid g2" style="gap:8px">${(r.fields||['Reading']).map((x,i)=>`<div><label class="f" for="rv_${r.id}_${i}">${e(x)}</label><input type="text" id="rv_${r.id}_${i}" data-v="${i}" placeholder="${/bp|blood|lying|standing|sitting/i.test(x)?'For example 128/76':''}"></div>`).join('')}</div>`;
+   if(r.type=='upload')f=`<input type="file" data-file accept="image/*,.pdf" aria-label="Choose a photo or file" style="margin:4px 0">`;
+   if(r.type=='question')f=`<textarea data-t placeholder="Type your answer" aria-label="Your answer"></textarea>`;
+   if(r.type=='lab')f=`<div class="row"><label class="f" for="ld_${r.id}" style="margin:0">Date</label><input type="date" id="ld_${r.id}" data-when value="${HB.ymd()}" style="max-width:180px"><button type="button" class="btn ghost sm" data-sched>I scheduled it</button></div>`;
+   if(r.type=='task'||r.type=='reading'||r.type=='upload'||r.type=='lab')f+=`<input type="text" data-t placeholder="Add a note (optional)" aria-label="Note" style="margin-top:8px">`;
+   const prog=p.t>1?`<div class="rqbar" aria-label="${p.n} of ${p.t} done"><i style="width:${Math.min(100,p.n/p.t*100)}%"></i></div><span class="mut" style="font-size:12.5px">${p.n} of ${p.t} done</span>`:'';
+   const log=(r.log||[]).length?`<div class="rqlog">${r.log.map(l=>`<div><span class="mut">${HB.fmt(l.date,{month:'short',day:'numeric'})}</span> ${HB.logTxt(r,l)}</div>`).join('')}</div>`:'';
+   return `<div class="rq${r.prio=='urgent'?' urg':''}" data-id="${r.id}"><div class="row" style="gap:6px"><span class="tag ac">${HB.RT[r.type].n}</span>${r.prio!='routine'?`<span class="tag" style="background:${r.prio=='urgent'?'#fff1f0;color:#b42318':'#fff4e5;color:#b45309'}">${HB.PRIO[r.prio]}</span>`:''}<span class="sp"></span>${r.due?`<span class="mut" style="font-size:12.5px">Due ${HB.fmt(r.due,{weekday:'short',month:'short',day:'numeric'})}</span>`:''}</div>
+    <h3 style="margin:8px 0 2px">${e(r.title)}</h3><p class="rqd">${e(r.detail)}</p>${r.remind?`<p class="rqrem">Reminder from ${e(r.by)} on ${HB.fmt(r.remind.slice(0,10),{month:'short',day:'numeric'})}</p>`:''}${prog}${log}
+    ${r.type=='read'&&r.ack?'':`<form class="rqf">${today&&r.type=='task'?'<p class="okmsg" style="margin:0 0 8px">Done for today. Come back tomorrow.</p>':f}<div class="row" style="margin-top:10px">${today&&r.type=='task'?'':`<button class="btn sm">${HB.RT[r.type].verb}</button>`}<span class="sp"></span><button type="button" class="x" data-help>I can't do this or need help</button></div><div class="hidden" data-hbox><textarea data-ht placeholder="Tell ${e(r.by)} what's getting in the way" aria-label="Message to your care team"></textarea><button type="button" class="btn ghost sm" data-hsend style="margin-top:6px">Send message</button></div><p class="mut" data-err role="alert" style="font-size:13px;margin:6px 0 0"></p></form>`}</div>`};
+  el.innerHTML=`<div class="row"><h2 style="margin:0">From your care team</h2><span class="sp"></span><span class="tag ${open.length?'ac':'ok'}">${open.length?open.length+' to do':'All done'}</span></div><p class="mut" style="font-size:13.5px;margin:4px 0 0">${e(by)} asked you to do ${all.filter(r=>r.status!='canceled').length==1?'this':'these'}. Your answers go back to the care team.</p>${open.map(item).join('')}${done.length?`<details class="rqdone"><summary>Done (${done.length})</summary>${done.map(r=>`<div class="rq done"><b>${e(r.title)}</b><div class="rqlog">${(r.log||[]).map(l=>`<div><span class="mut">${HB.fmt(l.date,{month:'short',day:'numeric'})}</span> ${HB.logTxt(r,l)}</div>`).join('')}</div></div>`).join('')}</details>`:''}`;
+ };
+ const push=(id,entry)=>{const all=HB.getReqs(mid),r=all.find(x=>x.id==id);if(!r)return;r.log=r.log||[];r.log.push(Object.assign({at:new Date().toISOString(),date:HB.ymd()},entry));
+  if(entry.kind=='do'&&HB.reqProg(r).n>=(r.target||1)){r.status='done';r.doneAt=new Date().toISOString()}if(entry.kind=='do'&&r.type=='read')r.ack=new Date().toISOString();
+  HB.setReqs(mid,all);draw();onChange&&onChange()};
+ el.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;const card=b.closest('.rq');if(!card)return;const id=card.dataset.id;
+  if(b.dataset.help!=null){card.querySelector('[data-hbox]').classList.toggle('hidden');const t=card.querySelector('[data-ht]');t&&t.focus();return}
+  if(b.dataset.hsend!=null){const t=card.querySelector('[data-ht]').value.trim();if(!t){card.querySelector('[data-err]').textContent='Type a short message first.';return}push(id,{kind:'help',text:t});return}
+  if(b.dataset.sched!=null){const w=card.querySelector('[data-when]').value;if(!w)return;push(id,{kind:'sched',when:w});return}};
+ el.onsubmit=ev=>{ev.preventDefault();const f=ev.target,card=f.closest('.rq'),id=card.dataset.id,r=HB.getReqs(mid).find(x=>x.id==id),err=f.querySelector('[data-err]');
+  const t=(f.querySelector('[data-t]')||{}).value;const entry={kind:'do',text:(t||'').trim()};
+  if(r.type=='reading'){entry.vals=[...f.querySelectorAll('[data-v]')].map(i=>i.value.trim());if(!entry.vals.some(Boolean)){err.textContent='Enter at least one reading.';return}}
+  if(r.type=='upload'){const fi=f.querySelector('[data-file]').files[0];if(!fi){err.textContent='Choose a photo or file first.';return}entry.file={name:fi.name,size:fi.size,type:fi.type}}
+  if(r.type=='question'&&!entry.text){err.textContent='Type your answer first.';return}
+  if(r.type=='lab'){const w=f.querySelector('[data-when]').value;if(w)entry.when=w}
+  push(id,entry)};
+ draw();return draw};
