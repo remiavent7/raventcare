@@ -69,7 +69,7 @@ select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 1
 
 <div class="col c-pat card"><div class="hd"><div class="ic" style="background:#e3eefc;color:var(--ac)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><div><h3>1 · Patient</h3><small>CollectCare app</small></div></div>
 <div><label class="f" for="med">Prescription with no refills left</label><select id="med"></select></div>
-<div class="row2"><div><label class="f" for="phm">Pharmacy</label><select id="phm"><option value="cvs">CVS Pharmacy · 596 Long Beach Blvd</option><option value="wag">Walgreens · 1170 E 4th St</option></select></div><div><label class="f" for="emr">Doctor's system</label><select id="emr"><option value="athena">athenahealth</option><option value="epic">Epic</option><option value="inbox">CollectCare practice inbox</option></select></div></div>
+<div class="row2"><div><label class="f" for="phm">Pharmacy</label><select id="phm"><option value="cvs">Retail pharmacy · Long Beach Blvd</option><option value="wag">Retail pharmacy · E 4th St</option></select></div><div><label class="f" for="emr">Doctor's system</label><select id="emr"><option value="athena">Practice EHR</option><option value="epic">Health-system EHR</option><option value="inbox">CollectCare practice inbox</option></select></div></div>
 <button class="btn" id="ask">Ask my doctor for a refill</button>
 <div id="patTl"></div>
 <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" id="pop" style="width:18px;height:18px"> Pop-up alerts on this device</label>
@@ -86,30 +86,30 @@ select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 1
 <p class="note" style="margin-top:14px">Demo with sample patients. No real prescriptions are sent. Each step shows where the real update will come from once that connection is live.</p>
 </section>
 
-<section class="sec"><h2>Connections</h2><p class="mut" style="font-size:14.5px;margin-top:4px">What each partner allows outside apps to do today, and the next step for CollectCare.</p>
+<section class="sec"><h2>Connections</h2><p class="mut" style="font-size:14.5px;margin-top:4px">What each type of connection allows outside apps to do today, and the next step for CollectCare.</p>
 <div class="grid3" id="partners"></div></section>
 
 <section class="sec card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline"><h2>Go-live checklist</h2><span class="mut" style="font-size:13.5px" id="ckc"></span></div>
 <p class="mut" style="font-size:14px;margin-top:4px">Tap an item to mark it done. Progress is saved on this device.</p>
 <ul class="ck" id="ck"></ul></section>
 
-<p class="foot">Partner capabilities are summarized from each company's public developer documentation as of November 2026 and can change. CollectCare is not affiliated with or endorsed by CVS, Walgreens, Surescripts, athenahealth or Epic. Always confirm with your insurer and pharmacist.</p>
+<p class="foot">Connection types are summarized from public developer documentation as of November 2026 and can change. CollectCare has no partnerships yet. Always confirm with your insurer and pharmacist.</p>
 </main>
 <div id="toasts" aria-live="polite"></div>
 <script>
 const K='ccLoop',LS=(()=>{try{localStorage.setItem('_t','1');return localStorage}catch(e){return null}})();
 const MEDS=[
- {id:'a',who:'Chris Yates',n:'Lisinopril 10 mg tablet',dr:'Optum, Downtown Long Beach',doc:'Dr. Patel'},
- {id:'b',who:'Colin Yates',n:'Anastrozole 1 mg tablet',dr:'MemorialCare Todd Cancer Institute',doc:'Dr. Nguyen'},
- {id:'c',who:'Christian Yates',n:'Albuterol HFA inhaler',dr:'Optum, Downtown Long Beach',doc:'Dr. Patel'},
- {id:'d',who:'Margaret Yates',n:'Apixaban (Eliquis) 5 mg tablet',dr:'MemorialCare Heart & Vascular Institute',doc:'Dr. Romero'}];
-const PH={cvs:{n:'CVS Pharmacy',a:'596 Long Beach Blvd',api:'CVS Retail Guest Refill API'},wag:{n:'Walgreens',a:'1170 E 4th St',api:'Walgreens Pharmacy Prescription API'}};
-const EMR={athena:{n:'athenahealth',in:'Refill task in the athenaOne clinical inbox',back:'athenahealth prescription data shows which pharmacy it went to'},epic:{n:'Epic',in:'Refill request in the Epic In Basket (set up per health system)',back:'Epic signed-order data shows the prescription was sent'},inbox:{n:'CollectCare practice inbox',in:'Refill request in the CollectCare practice inbox',back:'Staff tap "Sent to pharmacy" in CollectCare'}};
+ {id:'a',who:'Chris Yates',n:'Lisinopril 10 mg tablet',dr:'Primary care office, Downtown Long Beach',doc:'Dr. Patel'},
+ {id:'b',who:'Colin Yates',n:'Anastrozole 1 mg tablet',dr:'Cancer center, Long Beach',doc:'Dr. Nguyen'},
+ {id:'c',who:'Christian Yates',n:'Albuterol HFA inhaler',dr:'Primary care office, Downtown Long Beach',doc:'Dr. Patel'},
+ {id:'d',who:'Margaret Yates',n:'Apixaban (Eliquis) 5 mg tablet',dr:'Heart and vascular clinic, Long Beach',doc:'Dr. Romero'}];
+const PH={cvs:{n:'Retail pharmacy',a:'Long Beach Blvd',api:'the pharmacy\'s refill connection'},wag:{n:'Retail pharmacy',a:'E 4th St',api:'the pharmacy\'s refill connection'}};
+const EMR={athena:{n:'the practice EHR',in:'Refill task in the practice EHR clinical inbox',back:'EHR prescription data shows which pharmacy it went to'},epic:{n:'the health-system EHR',in:'Refill request in the health-system EHR inbox (set up per health system)',back:'EHR signed-order data shows the prescription was sent'},inbox:{n:'CollectCare practice inbox',in:'Refill request in the CollectCare practice inbox',back:'Staff tap "Sent to pharmacy" in CollectCare'}};
 function steps(r){const p=PH[r.ph],e=EMR[r.emr];return [
  ['req','You asked for a refill','CollectCare'],
  ['inbox','Delivered to '+r.dr,e.in],
  ['appr',r.doc+' approved it','Doctor signs in their own system'],
- ['sent','Sent to '+p.n,'E-prescription over Surescripts · '+e.back],
+ ['sent','Sent to '+p.n,'E-prescription over the national e-prescribing network · '+e.back],
  ['rcv',p.n+' received it',p.api],
  ['ready','Ready for pickup',p.n+' pickup time via '+p.api],
  ['pick','Picked up','Pharmacy pickup notice']]}
@@ -142,7 +142,7 @@ function draw(){const r=S.r,st=stage();
  else{const nx={rcv:'Received, filling now',ready:'Ready for pickup',pick:'Picked up'}[st]||'Done';
   $('phBox').innerHTML=`<div class="item ${st=='ready'||st=='pick'?'new':''}"><span class="pill ${st=='done'?'p-ok':'p-wa'}" style="margin-bottom:6px">${st=='rcv'?'Incoming e-prescription':st=='ready'?'Filling':st=='pick'?'Waiting for pickup':'Picked up'}</span><b>${esc(r.who)}</b><span class="m">${esc(r.n)}<br>Prescriber: ${esc(r.doc)}, ${esc(r.dr)}</span></div>
   ${st=='ready'?'<button class="btn" data-a="ready">Mark ready for pickup</button>':st=='pick'?'<button class="btn sec" data-a="pick">Patient picked it up</button>':''}
-  <p class="mut" style="font-size:12.5px">${esc(PH[r.ph].api)} will supply the pickup time in the live version.</p>`}
+  <p class="mut" style="font-size:12.5px">In the live version, the pharmacy’s refill connection will supply the pickup time.</p>`}
 }
 function toast(t,b){const el=document.createElement('div');el.className='toast';el.innerHTML=`<b>${esc(t)}</b>${esc(b)}`;$('toasts').appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),600)},5200);
  if($('pop').checked&&'Notification' in window&&Notification.permission=='granted'){try{new Notification('CollectCare: '+t,{body:b,icon:'icon-192.png'})}catch(e){}}}
@@ -164,15 +164,15 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.que
 const h=location.hash.slice(1);if(['pat','doc','ph'].includes(h))document.querySelector(`#tabs [data-v="${h}"]`).click();
 
 const PARTNERS=[
- {n:'Walgreens',s:['Public API','p-ok'],what:['Refill a Walgreens prescription from inside an app','Transfer a prescription in from another pharmacy','Walgreens texts the patient when it is ready'],gap:'Does not send each step back to outside apps.',next:'Register on the Walgreens developer portal for an API key and affiliate ID.',l:[['Prescription Refill & Transfer API','https://developer.walgreens.com/api/prescription-refill-transfer']]},
- {n:'CVS Pharmacy',s:['Approval needed','p-wa'],what:['Check whether a prescription can be refilled','Earliest pickup date and time','Place the refill order'],gap:'Step-by-step status is not offered publicly.',next:'Request a CVS Health developer account and test in the sandbox.',l:[['CVS Health developer portal','https://developer.cvshealth.com/']]},
- {n:'athenahealth',s:['Partner program','p-wa'],what:['Create a refill task in the practice\'s clinical inbox','See the new prescription and which pharmacy it went to'],gap:'Each practice must turn on CollectCare.',next:'Apply to the athenahealth Marketplace partner program, then pilot with one practice.',l:[['athenahealth API docs','https://docs.athenahealth.com/api'],['Patient cases','https://help.athenahealth.com/Ohelp/Content/C_Patient_Case_Tab_PH.htm']]},
- {n:'Epic',s:['Per health system','p-wa'],what:['Read signed prescriptions and fill status','Sending requests in is set up with each health system'],gap:'Each Epic customer approves the app separately.',next:'Register on Epic on FHIR and Vendor Services, then work with one health system.',l:[['Epic on FHIR','https://fhir.epic.com/'],['Vendor Services','https://vendorservices.epic.com/']]},
- {n:'Surescripts',s:['Through the EHR','p-mu'],what:['Carries the e-prescription from doctor to pharmacy','Pickup notices (RxFill) go back to the prescriber'],gap:'Not a direct feed to consumer apps.',next:'No contract needed at first. CollectCare reads the result from the EHR.',l:[['Surescripts e-prescribing','https://surescripts.com/products/e-prescribing']]},
+ {n:'Pharmacy chain with a public API',s:['Public API','p-ok'],what:['Refill a prescription from inside an app','Transfer a prescription in from another pharmacy','The pharmacy texts the patient when it is ready'],gap:'Does not send each step back to outside apps.',next:'Register on the pharmacy\'s developer portal for an API key.',l:[]},
+ {n:'Pharmacy chain with partner approval',s:['Approval needed','p-wa'],what:['Check whether a prescription can be refilled','Earliest pickup date and time','Place the refill order'],gap:'Step-by-step status is not offered publicly.',next:'Request a developer account and test in the sandbox.',l:[]},
+ {n:'Practice EHR',s:['Partner program','p-wa'],what:['Create a refill task in the practice\'s clinical inbox','See the new prescription and which pharmacy it went to'],gap:'Each practice must turn on CollectCare.',next:'Apply to the EHR\'s marketplace partner program, then pilot with one practice.',l:[]},
+ {n:'Health-system EHR',s:['Per health system','p-wa'],what:['Read signed prescriptions and fill status','Sending requests in is set up with each health system'],gap:'Each health system approves the app separately.',next:'Register as a FHIR app developer, then work with one health system.',l:[]},
+ {n:'E-prescribing network',s:['Through the EHR','p-mu'],what:['Carries the e-prescription from doctor to pharmacy','Pickup notices go back to the prescriber'],gap:'Not a direct feed to consumer apps.',next:'No contract needed at first. CollectCare reads the result from the EHR.',l:[]},
  {n:'CollectCare practice inbox',s:['Built · demo','p-ok'],what:['Works with any practice on day one','Staff tap "Sent to pharmacy" after approving in their EHR'],gap:'Relies on staff to update it.',next:'Add real staff logins once HIPAA hosting is in place.',l:[['Practice view','practice.html']]}];
 $('partners').innerHTML=PARTNERS.map(p=>`<div class="card pc"><div class="hd"><h3 style="font-size:17px">${esc(p.n)}</h3><span class="pill ${p.s[1]}">${esc(p.s[0])}</span></div><ul>${p.what.map(w=>`<li>${esc(w)}</li>`).join('')}</ul><p class="mut" style="font-size:13.5px">${esc(p.gap)}</p><div class="nx"><b>Next:</b> ${esc(p.next)}</div><div class="lk">${p.l.map(l=>`<a href="${l[1]}" ${l[1].startsWith('http')?'target="_blank" rel="noopener"':''}>${esc(l[0])} →</a>`).join(' · ')}</div></div>`).join('');
 
-const CK=[['llc','California LLC approved (Ravent Care LLC)'],['dba','File a CollectCare fictitious business name (DBA)'],['hipaa','HIPAA-ready hosting and a signed BAA with the host'],['wag','Walgreens developer account and API key'],['cvs','CVS Health developer account approved'],['ath','athenahealth Marketplace partner application'],['epic','Epic on FHIR app registration'],['pilot','First pilot practice signed, with a BAA'],['consent','Patient consent screen for linking a doctor\'s office']];
+const CK=[['llc','California LLC approved (Ravent Care LLC)'],['dba','File a CollectCare fictitious business name (DBA)'],['hipaa','HIPAA-ready hosting and a signed BAA with the host'],['wag','Pharmacy chain developer account and API key'],['cvs','Second pharmacy chain developer account approved'],['ath','Practice EHR marketplace partner application'],['epic','Health-system EHR FHIR app registration'],['pilot','First pilot practice signed, with a BAA'],['consent','Patient consent screen for linking a doctor\'s office']];
 let CS={};try{CS=JSON.parse(LS&&LS.getItem('ccLoopCk')||'{}')}catch(e){}
 function drawCk(){$('ck').innerHTML=CK.map(c=>`<li class="${CS[c[0]]?'y':''}" role="checkbox" aria-checked="${!!CS[c[0]]}" tabindex="0" data-k="${c[0]}" style="cursor:pointer"><span class="b">${CS[c[0]]?'✓':''}</span>${esc(c[1])}</li>`).join('');$('ckc').textContent=CK.filter(c=>CS[c[0]]).length+' of '+CK.length+' done'}
 $('ck').addEventListener('click',e=>{const li=e.target.closest('[data-k]');if(!li)return;CS[li.dataset.k]=!CS[li.dataset.k];try{LS&&LS.setItem('ccLoopCk',JSON.stringify(CS))}catch(x){}drawCk()});

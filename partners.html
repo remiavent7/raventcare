@@ -32,7 +32,7 @@ fieldset{border:1px solid var(--line);border-radius:12px;margin:4px 0 12px;paddi
 <div class="card"><h2>What we need from you</h2><ul class="list">
 <li><b>Business Associate Agreement.</b> We sign a BAA before any patient data is shared.</li>
 <li><b>Security review.</b> We complete your security questionnaire and share our test results.</li>
-<li><b>EHR connection.</b> We start read-only, with schedule and rooms. We work with Epic, athenahealth, eClinicalWorks, NextGen and others.</li>
+<li><b>EHR connection.</b> We start read-only, with schedule and rooms. We work with the major EHR systems.</li>
 <li><b>One pilot lead.</b> An office manager who meets with us for 30 minutes a week.</li></ul></div>
 <div class="card"><h2>Pilot timeline</h2><ol class="list">
 <li><b>Weeks 1–2:</b> BAA, security review, kickoff</li><li><b>Weeks 3–4:</b> Connect the schedule, set up rooms and the QR stand</li><li><b>Weeks 5–12:</b> Go live, with weekly check-ins on wait times and front-desk time</li><li><b>Week 13:</b> Results review, then you decide whether to continue</li></ol>
@@ -43,7 +43,7 @@ fieldset{border:1px solid var(--line);border-radius:12px;margin:4px 0 12px;paddi
 <div class="g2"><label>Practice name<input name="practice" required placeholder="Harbor Family Medicine"></label><label>Your name<input name="name" required></label>
 <label>Role<select name="role"><option>Office manager</option><option>Physician / owner</option><option>Practice administrator</option><option>IT / operations</option><option>Other</option></select></label><label>City<input name="city" placeholder="Long Beach, CA"></label>
 <label>Email<input name="email" type="email" required></label><label>Phone<input name="phone" type="tel"></label>
-<label>EHR system<select name="ehr"><option>Epic</option><option>athenahealth</option><option>eClinicalWorks</option><option>NextGen</option><option>Cerner / Oracle Health</option><option>Other / not sure</option></select></label>
+<label>EHR system<input name="ehr" placeholder="The EHR your practice uses"></label>
 <label>Exam rooms<input name="rooms" type="number" min="1" value="10"></label><label>Providers<input name="providers" type="number" min="1" value="5"></label><label>Patients per day<input name="ppd" type="number" min="1" value="70"></label></div>
 <fieldset><legend>Most interested in</legend><label class="ck"><input type="checkbox" name="f" value="Practice board" checked> Practice board</label><label class="ck"><input type="checkbox" name="f" value="QR check-in" checked> QR check-in</label><label class="ck"><input type="checkbox" name="f" value="Patient app"> Patient app</label><label class="ck"><input type="checkbox" name="f" value="Benefit and copay checks"> Benefit and copay checks</label></fieldset>
 <label>Anything else<textarea name="notes" rows="3" placeholder="Biggest front-desk pain point, timing, questions"></textarea></label>
@@ -54,7 +54,7 @@ fieldset{border:1px solid var(--line);border-radius:12px;margin:4px 0 12px;paddi
 <script>(function(){function mk(n){var m={},mem={getItem:function(k){return k in m?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]}};try{var s=window[n+'Storage'];var t='__oc';s.setItem(t,'1');s.removeItem(t);return s}catch(e){return mem}}window.ocLS=mk('local');window.ocSS=mk('session')})();</script><script>document.querySelectorAll('nav a[data-p="partners"]').forEach(a=>{a.classList.add('on')})</script>
 <script>document.getElementById('pf').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),o=Object.fromEntries(f);o.f=f.getAll('f');try{ocLS.setItem('ocPilot',JSON.stringify(o))}catch(x){}
 const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-document.getElementById('fcard').innerHTML=`<span class="tag ok">Application received (demo)</span><h2 style="margin-top:8px">Thanks, ${esc(o.name)}</h2><p>We have ${esc(o.practice)}${o.city?' in '+esc(o.city):''} down for the pilot: ${esc(o.rooms)} exam rooms, ${esc(o.providers)} providers, about ${esc(o.ppd)} patients a day, on ${esc(o.ehr)}.</p><p><b>Next steps:</b> a 20-minute intro call, then we send the BAA and security packet. Most practices go live in about 4 weeks.</p><p class="mut" style="font-size:13px;margin-bottom:0">Demo only. This form was not sent anywhere.</p>`;document.getElementById('fcard').scrollIntoView({behavior:'smooth',block:'start'})}</script>
+document.getElementById('fcard').innerHTML=`<span class="tag ok">Application received (demo)</span><h2 style="margin-top:8px">Thanks, ${esc(o.name)}</h2><p>We have ${esc(o.practice)}${o.city?' in '+esc(o.city):''} down for the pilot: ${esc(o.rooms)} exam rooms, ${esc(o.providers)} providers, about ${esc(o.ppd)} patients a day${o.ehr?', on '+esc(o.ehr):''}.</p><p><b>Next steps:</b> a 20-minute intro call, then we send the BAA and security packet. Most practices go live in about 4 weeks.</p><p class="mut" style="font-size:13px;margin-bottom:0">Demo only. This form was not sent anywhere.</p>`;document.getElementById('fcard').scrollIntoView({behavior:'smooth',block:'start'})}</script>
 <script data-pplx-inline-edit>
 (function () {
   if (window === window.top) return;

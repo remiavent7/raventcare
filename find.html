@@ -257,7 +257,7 @@ function setTab(t,keep){T=t;['doc','org'].forEach(function(k){$('tab-'+k).setAtt
  if(SPECS[t].some(function(s){return s[0]===cur}))$('spec').value=cur;
  $('speclab').textContent=t==='doc'?'Specialty':'Type of place';
  $('namelab').textContent=t==='doc'?'Provider name (optional)':'Name of place (optional)';
- $('name').placeholder=t==='doc'?'e.g. Patel':'e.g. Kaiser';
+ $('name').placeholder=t==='doc'?'e.g. Patel':'e.g. Family Medicine';
  $('gwrap').hidden=t!=='doc';
  emerg();}
 function emerg(){$('emerg').hidden=!(T==='org'&&($('spec').value==='urgent'||$('spec').value==='hosp'))}
@@ -432,7 +432,7 @@ function step2(){var D=nextDays(),ok=S.asap||(S.days.length&&S.win.length);
  '<label class="ml">Pick up to 3 days that work</label><div class="days" role="group" aria-label="Preferred days">'+D.map(function(d){var k=dkey(d),sun=d.getDay()===0,on=S.days.indexOf(k)>=0;return '<button type="button" class="day'+(on?' on':'')+'" data-d="'+k+'" aria-pressed="'+on+'"'+(sun||S.asap||(!on&&S.days.length>=3)?' disabled':'')+' aria-label="'+fmtD(d,true)+(sun?', most offices closed':'')+'">'+d.toLocaleDateString('en-US',{weekday:'short'})+'<b>'+d.getDate()+'</b>'+d.toLocaleDateString('en-US',{month:'short'})+'</button>'}).join('')+'</div>'+
  '<label class="ml">Times of day that work</label><div class="chips">'+WIN.map(function(w){var on=S.win.indexOf(w[0])>=0;return '<button type="button" class="chip'+(on?' on':'')+'" data-w="'+w[0]+'" aria-pressed="'+on+'"'+(S.asap?' disabled':'')+'>'+w[1]+' · '+w[2]+'</button>'}).join('')+'</div>'+
  '<p class="note">Sundays are greyed out because most offices are closed. These are your preferences; the office will offer an actual opening when you call.</p>'+
- '<div class="twocol" style="margin-top:4px"><div><label class="ml" for="swho">Patient first name (optional)</label><input id="swho" maxlength="40" value="'+esc(S.who)+'" placeholder="e.g. Chris"></div><div><label class="ml" for="sins">Insurance plan (optional)</label><input id="sins" maxlength="60" value="'+esc(S.ins)+'" placeholder="e.g. Blue Shield PPO"></div></div>'+
+ '<div class="twocol" style="margin-top:4px"><div><label class="ml" for="swho">Patient first name (optional)</label><input id="swho" maxlength="40" value="'+esc(S.who)+'" placeholder="e.g. Chris"></div><div><label class="ml" for="sins">Insurance plan (optional)</label><input id="sins" maxlength="60" value="'+esc(S.ins)+'" placeholder="e.g. PPO from your insurance card"></div></div>'+
  '<div class="mfoot"><button type="button" class="ghost" data-a="b2">Back</button><button type="button" class="go" data-a="n2"'+(ok?'':' disabled')+'>'+(ok?'Next: review':'Pick days and times')+'</button></div>');
  var m=$('mback');m.addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;S.who=$('swho').value.trim();S.ins=$('sins').value.trim();
   if(t.dataset.a==='asap'){S.asap=!S.asap;step2()}
@@ -488,7 +488,7 @@ function drawMy(){var L=loadA(),box=$('myap');
   '<div class="meta">'+(c?'<b style="color:var(--tx)">'+fmtD(fromKey(a.date),true)+' at '+fmtT(a.time)+'</b>'+(a.conf?' · '+esc(a.conf):''):'You asked for: '+esc(prefText(a)))+'</div>'+
   '<div class="meta">'+(a.pt==='new'?'New patient':'Returning patient')+(a.who?' · '+esc(a.who):'')+' · '+esc(a.why)+'</div><div class="meta">'+esc(a.p.addr)+'</div>'+
   '<div class="acts" style="margin-top:8px">'+(a.p.tel?'<a href="tel:+1'+a.p.tel+'">'+IC.ph+'Call office</a>':'')+
-  (c?'<button type="button" data-ics="'+a.id+'">Add to calendar</button><a href="'+gcal(a)+'" target="_blank" rel="noopener">Google Calendar</a><button type="button" data-cf="'+a.id+'">Change time</button>':'<button type="button" data-cf="'+a.id+'">Office confirmed a time</button><button type="button" data-cp="'+a.id+'">Copy request</button>')+
+  (c?'<button type="button" data-ics="'+a.id+'">Add to calendar</button><a href="'+gcal(a)+'" target="_blank" rel="noopener">Add to web calendar</a><button type="button" data-cf="'+a.id+'">Change time</button>':'<button type="button" data-cf="'+a.id+'">Office confirmed a time</button><button type="button" data-cp="'+a.id+'">Copy request</button>')+
   '<button type="button" data-rm="'+a.id+'" style="color:var(--mut)">'+(c?'Cancel':'Remove')+'</button></div></div>'}).join('')}
 $('myap').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var L=loadA();
  if(b.dataset.cf)confirmA(b.dataset.cf);

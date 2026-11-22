@@ -122,9 +122,9 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
   </div>
  </div>
  <div class="stack" aria-hidden="true">
-  <div class="ic ghost-card g1"><div class="row1"><div class="car">Quest Diagnostics</div><span class="pt">Labs</span></div><div class="mid"><div class="lb">Latest result</div><div class="vl">Lipid panel · Dec</div></div></div>
-  <div class="ic ghost-card g2"><div class="row1"><div class="car">CVS Pharmacy</div><span class="pt">Rx</span></div><div class="mid"><div class="lb">Next refill</div><div class="vl">Ready Thursday</div></div></div>
-  <div class="ic main-card"><div class="scan"></div><div class="row1"><div class="car">Blue Shield<br>of California</div><span class="pt">PPO</span></div><div class="chip"></div><div class="mid"><div class="lb">Member</div><div class="vl">CHRIS YATES</div></div><div class="bot"><div><div class="lb">Member ID</div><div class="vl">XEB71845203</div></div><div><div class="lb">Group</div><div class="vl">W0051234</div></div><div><div class="lb">Rx BIN</div><div class="vl">610014</div></div></div></div>
+  <div class="ic ghost-card g1"><div class="row1"><div class="car">Lab results</div><span class="pt">Labs</span></div><div class="mid"><div class="lb">Latest result</div><div class="vl">Lipid panel · Dec</div></div></div>
+  <div class="ic ghost-card g2"><div class="row1"><div class="car">Pharmacy</div><span class="pt">Rx</span></div><div class="mid"><div class="lb">Next refill</div><div class="vl">Ready Thursday</div></div></div>
+  <div class="ic main-card"><div class="scan"></div><div class="row1"><div class="car">Insurance card</div><span class="pt">PPO</span></div><div class="chip"></div><div class="mid"><div class="lb">Member</div><div class="vl">CHRIS YATES</div></div><div class="bot"><div><div class="lb">Member ID</div><div class="vl">XEB71845203</div></div><div><div class="lb">Group</div><div class="vl">W0051234</div></div><div><div class="lb">Rx BIN</div><div class="vl">610014</div></div></div></div>
   <div class="badge b1"><b style="background:var(--ok)">✓</b>Card read · 2026 benefits found</div>
   <div class="badge b2"><b style="background:#c2410c">Dr</b>+ Doctors' records</div>
  </div>
@@ -168,7 +168,7 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
    <div class="status" id="st" role="status"></div>
   </div>
   <div class="prev">
-   <div class="ic" id="pc" style="background:linear-gradient(135deg,#0a5cc2,#0b3f86)"><div class="row1"><div class="car" id="pcar">Blue Shield of California</div><span class="pt" id="ppt">PPO</span></div><div class="chip"></div><div class="mid"><div class="lb">Member</div><div class="vl" id="pnm">YOUR NAME</div></div><div class="bot"><div><div class="lb">Member ID</div><div class="vl" id="pmid">———</div></div><div><div class="lb">Group</div><div class="vl" id="pgrp">———</div></div><div><div class="lb">Rx BIN</div><div class="vl" id="pbin">———</div></div></div></div>
+   <div class="ic" id="pc" style="background:linear-gradient(135deg,#0a5cc2,#0b3f86)"><div class="row1"><div class="car" id="pcar">Insurance card</div><span class="pt" id="ppt">PPO</span></div><div class="chip"></div><div class="mid"><div class="lb">Member</div><div class="vl" id="pnm">YOUR NAME</div></div><div class="bot"><div><div class="lb">Member ID</div><div class="vl" id="pmid">———</div></div><div><div class="lb">Group</div><div class="vl" id="pgrp">———</div></div><div><div class="lb">Rx BIN</div><div class="vl" id="pbin">———</div></div></div></div>
    <div class="unlock" id="unl">
     <div><b>Deductible and out-of-pocket</b><span class="mut">How much you've used and what's left</span></div>
     <div><b>Copays and coverage</b><span class="mut">Visits, urgent care, specialists, Rx</span></div>
@@ -220,26 +220,22 @@ const save=()=>{try{ocLS.setItem(KEY,JSON.stringify(ST))}catch(e){}};
 // Accounts mirror connect.html
 const GROUPS=[
  ['Health plans',[
-  {id:'bsc',t:'Blue Shield of California',k:'Health plan',d:'Coverage, claims, deductible progress and prior authorizations',via:'Patient Access API · Blue Shield sign-in',col:'#0a5cc2',ab:'BS'},
-  {id:'uhc',t:'UnitedHealthcare',k:'Health plan',d:'Coverage, claims, deductible progress and in-network providers',via:'Patient Access API · myUHC sign-in',col:'#002677',ab:'UHC'},
-  {id:'kp',t:'Kaiser Permanente',k:'Health plan + records',d:'Coverage, visits, test results, prescriptions and messages',via:'Patient Access API · kp.org sign-in',col:'#0067a5',ab:'KP'},
-  {id:'cms',t:'Medicare',k:'Health plan',d:'Original Medicare Parts A, B and D claims, going back up to 4 years',via:'Blue Button 2.0 · Medicare.gov sign-in',col:'#0b4a8b',ab:'M'},
-  {id:'pg',t:'Plan G supplement',k:'Medicare supplement',d:'Supplement claims and what Plan G paid after Medicare',via:'Patient Access API · your Plan G insurer',col:'#2b6cb0',ab:'G'},
+  {id:'bsc',t:'Health plan (from your insurance card)',k:'Health plan',d:'Coverage, claims, deductible progress and prior authorizations',via:'Patient Access API \u00b7 health plan sign-in',col:'#0a5cc2',ab:'HP'},
+  {id:'cms',t:'Medicare',k:'Health plan',d:'Original Medicare Parts A, B and D claims, going back up to 4 years',via:'Medicare patient access \u00b7 Medicare.gov sign-in',col:'#0b4a8b',ab:'M'},
+  {id:'pg',t:'Plan G supplement',k:'Medicare supplement',d:'Supplement claims and what Plan G paid after Medicare',via:'Patient Access API \u00b7 your Plan G insurer',col:'#2b6cb0',ab:'G'},
   {id:'local',t:'Medi-Cal & Covered California',k:'Local plans',d:'Medi-Cal, Medicare + Medi-Cal, Covered California and PACE plans in Los Angeles and San Diego counties',via:'Pick your plan on the Connect page',col:'#5b3fd6',ab:'CA'}]],
  ['Vision & HSA',[
-  {id:'vsp',t:'VSP Vision Care',k:'Vision plan',d:'Eye exam and glasses coverage, frame and contact allowances, claims and network eye doctors',via:'VSP member sign-in',col:'#00467f',ab:'VSP'},
-  {id:'hsa',t:'HealthEquity HSA',k:'HSA account',d:'HSA balance, contributions, card payments and receipts for medical expenses',via:'HealthEquity member sign-in',col:'#4a8a3c',ab:'HE'}]],
+  {id:'vsp',t:'Vision plan',k:'Vision plan',d:'Eye exam and glasses coverage, frame and contact allowances, claims and network eye doctors',via:'Vision plan member sign-in',col:'#00467f',ab:'VIS'},
+  {id:'hsa',t:'HSA account',k:'HSA account',d:'HSA balance, contributions, card payments and receipts for medical expenses',via:'HSA member sign-in',col:'#4a8a3c',ab:'HSA'}]],
  ['Doctors & labs',[
-  {id:'ehr',t:'Doctors\u2019 records',k:'Medical records',d:'Visits, diagnoses, medications, allergies, immunizations and notes from your doctors and hospitals',via:'MyChart sign-in, plus a nationwide record search through TEFCA',col:'#c2410c',ab:'Dr'},
-  {id:'quest',t:'Quest Diagnostics',k:'Lab results',d:'Blood work and lab results from Quest patient service centers',via:'MyQuest sign-in',col:'#0f6b4a',ab:'Q'},
-  {id:'labcorp',t:'Labcorp',k:'Lab results',d:'Lab results and test history from Labcorp patient service centers',via:'Labcorp Patient sign-in',col:'#1d4f91',ab:'LC'}]],
+  {id:'ehr',t:'Doctors\u2019 records',k:'Medical records',d:'Visits, diagnoses, medications, allergies, immunizations and notes from your doctors and hospitals',via:'Patient portal sign-in, plus a nationwide record search through TEFCA',col:'#c2410c',ab:'Dr'},
+  {id:'quest',t:'Lab results',k:'Lab results',d:'Blood work and lab results from your lab\u2019s patient service centers',via:'Lab patient portal sign-in',col:'#0f6b4a',ab:'LAB'}]],
  ['Pharmacies',[
-  {id:'cvs',t:'CVS Pharmacy',k:'Pharmacy',d:'Prescriptions, refill dates and what you paid',via:'CVS account sign-in',col:'#b42318',ab:'CVS'},
-  {id:'wag',t:'Walgreens',k:'Pharmacy',d:'Prescriptions, refill dates, vaccines and what you paid',via:'Walgreens account sign-in',col:'#e31837',ab:'W'}]]
+  {id:'cvs',t:'Pharmacy',k:'Pharmacy',d:'Prescriptions, refill dates, vaccines and what you paid',via:'Pharmacy account sign-in',col:'#b42318',ab:'Rx'}]]
 ];
 const ALL=GROUPS.flatMap(g=>g[1]);const TOTAL=ALL.length+1;
-const CARCOL={'Blue Shield of California':['#0a5cc2','#0b3f86','bsc'],'Aetna':['#7d3f98','#4f2263',null],'UnitedHealthcare':['#002677','#0b1a4a','uhc'],'Cigna':['#0a7aa8','#065273',null],'Kaiser Permanente':['#0067a5','#004a78','kp'],'Humana Medicare Advantage':['#3f8a2e','#2a5f1f',null],'Anthem Blue Cross':['#1a5aa8','#0e3a72',null],'Kaiser Permanente Senior Advantage':['#0067a5','#004a78','kp'],'Health Net':['#0a7f6f','#065a4f',null],'L.A. Care Covered':['#00609c','#003f66','local'],'Medicare (red, white and blue card)':['#0b4a8b','#8a1f2b','cms'],'Medi-Cal':['#5b3fd6','#3a2696','local']};
-function carCol(n){n=String(n||'');if(CARCOL[n])return CARCOL[n];const R=[[/blue shield of california/i,'Blue Shield of California'],[/^aetna/i,'Aetna'],[/unitedhealthcare|^uhc/i,'UnitedHealthcare'],[/cigna/i,'Cigna'],[/kaiser/i,'Kaiser Permanente'],[/humana/i,'Humana Medicare Advantage'],[/anthem/i,'Anthem Blue Cross'],[/health net/i,'Health Net'],[/l\.a\. care/i,'L.A. Care Covered'],[/original medicare|^medicare \(/i,'Medicare (red, white and blue card)'],[/medi-cal|covered california/i,'Medi-Cal']];for(const[r,k]of R)if(r.test(n))return CARCOL[k];return ['#1f6fd1','#0b3f86',null]}
+const CARCOL={'Medicare (red, white and blue card)':['#0b4a8b','#8a1f2b','cms'],'Medi-Cal':['#5b3fd6','#3a2696','local']};
+function carCol(n){n=String(n||'');if(CARCOL[n])return CARCOL[n];if(/original medicare|^medicare \(/i.test(n))return CARCOL['Medicare (red, white and blue card)'];if(/medi-cal|covered california/i.test(n))return CARCOL['Medi-Cal'];return n?['#0a5cc2','#0b3f86','bsc']:['#1f6fd1','#0b3f86',null]}
 const lock='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 function render(){
  const hasCard=!!ST.card;
@@ -259,7 +255,7 @@ const F=['car','nm','mid','grp','pt','bin'];
 function paint(){const car=$('car').value,c=carCol(car);$('pc').style.background=`linear-gradient(135deg,${c[0]},${c[1]})`;$('pcar').textContent=car?car.replace(/ \(Original Medicare.*\)$| \(red, white and blue card\)/,''):'Your insurance carrier';$('ppt').textContent=$('pt').value;$('pnm').textContent=($('nm').value||'YOUR NAME').toUpperCase();$('pmid').textContent=$('mid').value||'———';$('pgrp').textContent=$('grp').value||'———';$('pbin').textContent=$('bin').value||'———'}
 F.forEach(f=>$(f).addEventListener('input',paint));
 const PK=CC.mount({state:$('cst'),input:$('car'),onState:v=>{if(v&&!$('ids').value)$('ids').value=v;paint()},onPick:r=>{if(r){const f=r[3],st=$('cst').value;if(r[1]=='CMS')$('pt').value='Medicare';else if(f.includes('D')&&!f.includes('M'))$('pt').value=st=='CA'?'Medi-Cal':'Medicaid';else if(f.includes('T'))$('pt').value='TRICARE';else if(f.includes('d'))$('pt').value='Dental';else if(f.includes('v'))$('pt').value='Vision';else if(/medicare advantage/i.test(r[0]))$('pt').value='Medicare Advantage'}paint()}});
-const DEMO={cst:'CA',car:'Blue Shield of California',nm:'Chris Yates',mid:'XEB71845203-01',grp:'W0051234',pt:'HDHP / HSA',bin:'610014'};
+const DEMO={cst:'CA',car:'Insurance card',nm:'Chris Yates',mid:'XEB71845203-01',grp:'W0051234',pt:'HDHP / HSA',bin:'610014'};
 function fill(d){PK.set(d.cst||'',d.car||'');F.forEach(f=>{if(f!='car')$(f).value=d[f]||''});paint()}
 const IF=['idt','idn','id4','idx','ids','idb'];
 const DEMOID={idt:"Driver's license",idn:'Chris Yates',id4:'4821',idx:'2029-09-27',ids:'CA',idb:'1982-09-27'};

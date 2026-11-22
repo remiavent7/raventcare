@@ -38,14 +38,14 @@ table{width:100%;border-collapse:collapse;font-size:14px}td{padding:9px 4px;bord
 <div class="confirm" role="note" style="display:flex;gap:10px;align-items:flex-start;margin:14px 0;padding:12px 14px;border-radius:12px;background:#fff7ec;border:1px solid #f6d9b5;color:#6b3407;font-size:14px;line-height:1.45;max-width:760px"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;margin-top:1px" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5v.5"/></svg><div><b>Always confirm with your insurer.</b> Before any visit, call the member services number on your insurance card, or check your insurer's website, to confirm the provider is in network for your plan. Network lists can be out of date.</div></div>
 <div class="lay">
  <div class="card"><h2>Choose a test patient</h2>
-  <p class="mut" style="font-size:13px;margin-bottom:12px">These are practice patients from Stedi, our insurance-check partner. Each check goes through Stedi's real system and returns that insurer's sample answer.</p>
+  <p class="mut" style="font-size:13px;margin-bottom:12px">These are practice patients from our insurance-check clearinghouse. Each check goes through the clearinghouse's real system and returns that insurer's sample answer.</p>
   <div class="pt" id="pts"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   <button class="go" id="go" disabled>Check benefits</button>
-  <div class="banner"><b>Test mode.</b> Real member details can't be checked yet. That starts once CollectCare has a provider NPI, a live Stedi key and signed HIPAA agreements.</div>
+  <div class="banner"><b>Test mode.</b> Real member details can't be checked yet. That starts once CollectCare has a provider NPI, a live clearinghouse key and signed HIPAA agreements.</div>
  </div>
  <div class="card" id="res"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7.5-4.6-7.5-10.4A4.4 4.4 0 0 1 12 7.8a4.4 4.4 0 0 1 7.5 2.8C19.5 16.4 12 21 12 21Z"/></svg><h2>Pick a patient and run a check</h2><p class="mut" style="font-size:14px">Results usually come back in a few seconds.</p></div></div>
 </div>
-<p class="foot">Answers come straight from the insurer through Stedi and aren't stored by CollectCare. In test mode, plans, dates and dollar amounts are the insurer's sample data, not anyone's real coverage.</p>
+<p class="foot">Answers come straight from the insurer through our clearinghouse and aren't stored by CollectCare. In test mode, plans, dates and dollar amounts are the insurer's sample data, not anyone's real coverage.</p>
 </main>
 <script>
 const API=/pplx\.app$/.test(location.hostname)?"__PORT_5000__":"https://raventcare-benefits.pplx.app/port/5000";

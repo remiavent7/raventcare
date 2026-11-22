@@ -76,7 +76,7 @@ const PROV=[{n:'Dr. Elena Ramos, MD',r:'Family medicine',c:'#1f6fd1'},{n:'Dr. Ma
 const FN=['Maria','James','Linda','Robert','Sofia','David','Grace','Daniel','Ava','Luis','Hannah','Kevin','Mei','Anthony','Olivia','Jose','Emma','Tyrell','Nora','Victor','Isabel','Brian','Chloe','Ethan','Fatima','Marcus','Rosa','Henry','Leah','Diego','Amara','Paul','Yuki','Carlos','Zoe','Andre','Ruth','Kai','Elena','Samuel'];
 const LN=['Garcia','Nguyen','Johnson','Martinez','Kim','Brown','Lopez','Patel','Davis','Hernandez','Wilson','Chen','Thomas','Rivera','Moore','Tran','Jackson','Flores','Lee','Walker','Ramirez','Young','Santos','Cruz','Ali'];
 const VIS=[['Annual physical',30],['Follow-up',15],['Sick visit',15],['Diabetes check',20],['Blood pressure check',15],['Well-child visit',30],['Medicare wellness visit',30],['New patient',30],['Medication review',15],['Telehealth follow-up',15],['Vaccine visit',10],['Lab review',15]];
-const INS=['Blue Shield PPO','Anthem Blue Cross','Blue Shield PPO','Aetna PPO','Kaiser (out of network)','Anthem Blue Cross','UnitedHealthcare','Medicare + Plan G','Medi-Cal','Cigna','Medicare Advantage','Self-pay'];
+const INS=['Commercial PPO','Commercial HMO','Commercial PPO','Employer PPO','HMO (out of network)','Commercial HMO','Employer PPO','Medicare + Plan G','Medi-Cal','HDHP / HSA','Medicare Advantage','Self-pay'];
 let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647,pick=a=>a[Math.floor(rnd()*a.length)];
 // 70 appointments, 8:00 to 5:00, 14 per provider
 const P=[];let id=0;
