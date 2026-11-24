@@ -45,7 +45,7 @@
       return '<button type="button" data-act="'+esc(a.act)+'"'+(a.arg?' data-arg="'+esc(a.arg)+'"':'')+(a.cls?' class="'+a.cls+'"':'')+'>'+esc(a.t)+'</button>';
     }).join('')+'</div>';
   }
-  var CHIPS=['What is left on my deductible?','Which refills are waiting?','Explain my lab results','Benefits expiring Dec 31','Next appointment','Find a cardiologist','Draft a message to my doctor','Get my records'];
+  var CHIPS=['Book an appointment','What is left on my deductible?','Which refills are waiting?','Explain my lab results','Benefits expiring Dec 31','Next appointment','Find a cardiologist','Draft a message to my doctor','Get my records'];
   function chips(){$('ccaChips').innerHTML=CHIPS.map(function(c){return '<button type="button">'+esc(c)+'</button>'}).join('');}
   $('ccaChips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)ask(b.textContent)});
 
@@ -63,7 +63,7 @@
   function greet(){
     var p=viewing();
     add('a','Hi, I\'m the CollectCare Agent. I can read '+esc(first(p))+'\'s benefits, refills, labs and appointments on this page and take you to the right step.'+
-      '<ul><li>Explain costs and what\'s left this year</li><li>Track refills and upcoming visits</li><li>Find in-network care or urgent care</li><li>Draft a note to the care team or request records</li></ul>'+
+      '<ul><li>Book an appointment in a few taps</li><li>Explain costs and what\'s left this year</li><li>Track refills and upcoming visits</li><li>Find in-network care or urgent care</li><li>Draft a note to the care team or request records</li></ul>'+
       'Try a suggestion below or type a question.');
   }
 
@@ -85,6 +85,10 @@
     else if(a==='copy'){var ta=b.closest('.m').querySelector('textarea');ta.select();
       (navigator.clipboard?navigator.clipboard.writeText(ta.value):Promise.reject()).then(function(){b.textContent='Copied'},function(){try{document.execCommand('copy');b.textContent='Copied'}catch(x){}})}
     else if(a==='ask')ask(g);
+    else if(a==='bk1'){var pr=g.split('|');if(pr[1]==='more'){var v=VISITS[pr[0]];v.times=v.times.slice(1).concat(v.times[0]);}
+      reply(VISITS[pr[0]].n+(pr[1]?' · more times':''),function(){if(pr[1]==='more'){var last=BK&&BK.slots[2]?BK.slots[2].d:null;var r=bookTimes(pr[0]);if(last){BK.slots=nextDays(3,last).map(function(d,i){return {d:d,t:BK.v.times[i]}});r=r.replace(/Soonest openings:[\s\S]*$/,'Next openings:'+acts(BK.slots.map(function(s,i){return {t:dstr(s.d)+' · '+s.t,act:'bk2',arg:String(i)}}).concat([{t:'More times',act:'bk1',arg:pr[0]+'|more'}])))}return r}return bookTimes(pr[0])})}
+    else if(a==='bk2'){var sl=BK.slots[+g];reply(dstr(sl.d)+' · '+sl.t,function(){return bookConfirm(g)})}
+    else if(a==='bk3'){var w=b.closest('.m').querySelector('.ccaWhy');var why=w?w.value.trim():'';b.disabled=true;reply('Confirm booking',function(){return bookDone(why)})}
   });
 
   /* ---------- answers ---------- */
@@ -183,6 +187,80 @@
       acts([{t:'Show benefits',act:'scroll',arg:'bens'}]);
   }
 
+
+  /* ---------- booking (demo: sample offices and times, nothing is sent) ---------- */
+  var VISITS={
+    primary:{n:'Primary care visit',prov:'Primary care office, Downtown Long Beach',dur:'20 min',times:['9:20 AM','1:40 PM','4:00 PM']},
+    physical:{n:'Yearly physical',prov:'Primary care office, Downtown Long Beach',dur:'40 min',times:['8:30 AM','10:50 AM','2:15 PM'],prev:1},
+    video:{n:'Video visit',prov:'Primary care, video visit',dur:'15 min',times:['12:10 PM','5:30 PM','7:15 PM']},
+    cardio:{n:'Cardiology visit',prov:'Heart and vascular clinic, Long Beach',dur:'30 min',times:['10:00 AM','1:30 PM','3:45 PM']},
+    derm:{n:'Dermatology visit',prov:'Dermatology office, Long Beach',dur:'20 min',times:['9:00 AM','11:30 AM','2:40 PM']},
+    ortho:{n:'Orthopedics visit',prov:'Orthopedic office, Long Beach',dur:'30 min',times:['8:45 AM','12:30 PM','3:15 PM']},
+    therapy:{n:'Therapy session',prov:'Counseling practice, Long Beach (in person or video)',dur:'50 min',times:['11:00 AM','4:00 PM','6:00 PM'],ben:'therapy'},
+    pt:{n:'Physical therapy',prov:'Physical therapy clinic, Long Beach Blvd',dur:'45 min',times:['7:30 AM','12:00 PM','5:15 PM'],ben:'pt'},
+    eye:{n:'Eye exam',prov:'Optometry office, Long Beach',dur:'30 min',times:['10:20 AM','1:00 PM','4:30 PM'],ben:'eye'},
+    lab:{n:'Lab work',prov:'Lab patient service center',dur:'15 min',times:['7:00 AM','7:30 AM','8:15 AM']}
+  };
+  var BK=null;
+  function nextDays(n,start){var out=[],d=start?new Date(start):new Date();d.setHours(12,0,0,0);
+    var HOL={'2026-11-26':1,'2026-12-25':1,'2027-01-01':1,'2027-01-18':1};
+    while(out.length<n){d.setDate(d.getDate()+1);var w=d.getDay(),k=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);if(w&&w<6&&!HOL[k])out.push(new Date(d))}return out}
+  function dstr(d){return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
+  function visitKey(s){
+    if(/physical|annual|yearly check|wellness/.test(s))return 'physical';
+    if(/video|virtual|telehealth/.test(s))return 'video';
+    if(/lab|blood work|blood draw/.test(s))return 'lab';
+    if(/physical therap|\bpt\b/.test(s))return 'pt';
+    if(/therap|counsel/.test(s))return 'therapy';
+    if(/cardio|heart/.test(s))return 'cardio';
+    if(/derm|skin|rash/.test(s))return 'derm';
+    if(/ortho|knee|hip|joint|bone/.test(s))return 'ortho';
+    if(/eye|vision|optom/.test(s))return 'eye';
+    if(/primary|sick|pcp|family doctor|checkup/.test(s))return 'primary';
+    return '';
+  }
+  function costLine(p,v){
+    var b=(p&&p.b)||{},med=/medicare/i.test((p&&p.planName)||'');
+    if(v.prev)return '$0 · preventive care';
+    if(v.ben==='eye'&&b.eye&&!med)return '$10 copay · vision plan';
+    if(med)return (p.ded&&p.ded[0]>=p.ded[1])?'Likely $0 · Part B deductible met, Medigap Plan G':'Part B deductible applies, then Medigap Plan G';
+    if(p&&p.ded){var left=p.ded[1]-p.ded[0];return left>0?'Plan rate until '+money(left)+' deductible is met · pay with HSA':'$0 · deductible met'}
+    return 'Cost shown after the office confirms';
+  }
+  function bookStart(p){
+    var opts=[['Primary care visit','primary'],['Video visit','video'],['Yearly physical','physical'],['Lab work','lab'],['Cardiology','cardio'],['Physical therapy','pt'],['Therapy','therapy'],['Eye exam','eye']];
+    return 'Happy to book for <b>'+esc(first(p))+'</b>. What kind of visit?'+acts(opts.map(function(o){return {t:o[0],act:'bk1',arg:o[1]}}))+
+      '<span style="font-size:12px;color:var(--mut,#4d6180)">Or tell me who it\'s for, like "book Margaret a cardiology visit."</span>';
+  }
+  function bookTimes(key){
+    var p=viewing(),v=VISITS[key],b=(p&&p.b)||{},note='',start=null;
+    if(v.prev&&b.physical&&b.physical[0]>=b.physical[1]){note=esc(first(p))+'\'s 2026 physical is already used. The next one is $0 starting Jan 1, so here are early January times.';start=new Date(2026,11,31)}
+    if(v.ben&&b[v.ben]&&v.ben!=='eye'){var u=b[v.ben];if(u[1]-u[0]>0&&u[1]<99)note=esc(u[1]-u[0])+' '+(v.ben==='pt'?'visits':'sessions')+' left this year on '+esc(first(p))+'\'s plan.'}
+    var days=nextDays(3,start),slots=days.map(function(d,i){return {d:d,t:v.times[i]}});
+    BK={key:key,v:v,p:p,slots:slots,why:''};
+    return '<b>'+esc(v.n)+'</b> · '+esc(v.prov)+'<ul><li>In network for '+esc(p?p.planName:'this plan')+' (sample)</li><li>'+esc(costLine(p,v))+'</li></ul>'+(note?note+'<br>':'')+
+      'Soonest openings:'+acts(slots.map(function(s,i){return {t:dstr(s.d)+' · '+s.t,act:'bk2',arg:String(i)}}).concat([{t:'More times',act:'bk1',arg:key+'|more'}]));
+  }
+  function bookConfirm(i){
+    var s=BK.slots[+i];BK.sel=s;
+    return 'Ready to book?<ul><li><b>'+esc(BK.v.n)+'</b> for '+esc(BK.p?BK.p.name:'')+'</li><li>'+esc(dstr(s.d))+' at '+esc(s.t)+' · '+esc(BK.v.dur)+'</li><li>'+esc(BK.v.prov)+'</li><li>Insurance card and photo ID already on file</li></ul>'+
+      '<label for="ccaWhy'+log.children.length+'" style="font-size:13px;font-weight:700">Reason for the visit (optional)</label><input id="ccaWhy'+log.children.length+'" class="ccaWhy" type="text" maxlength="120" placeholder="e.g. follow up on blood pressure" style="width:100%;box-sizing:border-box;margin-top:4px;padding:8px;border:1px solid var(--line,#d6e2f0);border-radius:10px;font:14px Satoshi,system-ui,sans-serif">'+
+      acts([{t:'Confirm booking',act:'bk3'},{t:'Pick another time',act:'bk1',arg:BK.key}]);
+  }
+  function ics(){
+    var s=BK.sel,t=s.t.match(/(\d+):(\d+) (AM|PM)/),h=(+t[1]%12)+(t[3]=='PM'?12:0),d=new Date(s.d);d.setHours(h,+t[2],0,0);
+    var e=new Date(d.getTime()+parseInt(BK.v.dur)*60000),z=function(n){return ('0'+n).slice(-2)},f=function(x){return x.getFullYear()+z(x.getMonth()+1)+z(x.getDate())+'T'+z(x.getHours())+z(x.getMinutes())+'00'};
+    var body=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CollectCare//Agent demo//EN','BEGIN:VEVENT','UID:cca-'+Date.now()+'@collectmycare.com','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,''),'DTSTART:'+f(d),'DTEND:'+f(e),
+      'SUMMARY:'+BK.v.n+' (CollectCare demo)','LOCATION:'+BK.v.prov,'DESCRIPTION:Sample booking from the CollectCare Agent prototype.','BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:Reminder','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+    return 'data:text/calendar;charset=utf-8,'+encodeURIComponent(body);
+  }
+  function bookDone(why){
+    var s=BK.sel;BK.why=why;
+    var h='<b>Booked · '+esc(BK.v.n)+'</b><ul><li>'+esc(dstr(s.d))+' at '+esc(s.t)+' · '+esc(BK.v.prov)+'</li><li>For '+esc(BK.p?BK.p.name:'')+(why?' · '+esc(why):'')+'</li><li>Reminder the day before, plus a Health Bot check-in so the doctor sees how '+esc(first(BK.p))+' has been feeling</li><li>Show the check-in QR at the front desk; the card is already shared</li></ul>'+
+      '<span style="font-size:12px;color:var(--mut,#4d6180)">Demo booking: sample office and times. Nothing was sent to a real office.</span>'+
+      '<div class="acts"><a href="'+ics()+'" download="collectcare-appointment.ics">Add to calendar</a><button type="button" data-act="click" data-arg="qrbtn">Check-in QR</button><a href="healthbot.html">Health Bot check-in</a></div>';
+    return h;
+  }
   function respond(q){
     var s=q.toLowerCase(),p=viewing(),ps=people();
     if(SOS.test(s))return {h:'<b>This could be an emergency. Call 911 now</b> or go to the nearest emergency room. For thoughts of suicide or self-harm, call or text <b>988</b>. Don\'t wait for an app.'+
@@ -193,6 +271,10 @@
         if(ok){setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150);
           return {h:'Now viewing <b>'+esc(ps[i].name)+'</b> ('+esc(ps[i].rel)+'). Ask me about '+esc(first(ps[i]))+'\'s costs, refills or appointments.'}}
       }}
+    if(/\bbook\b|make an appointment|schedule (a|an|my)|set up (a|an) (visit|appointment)|see a doctor|need an appointment/.test(s)){
+      for(var j=0;j<ps.length;j++){var fn=ps[j].name.split(' ')[0];if(new RegExp('\\b'+fn.toLowerCase()+'\\b').test(s)&&fn!==first(p)){switchTo(fn);p=ps[j];setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}}
+      var k=visitKey(s);return {h:k?bookTimes(k):bookStart(p)};
+    }
     if(/^(hi|hello|hey|help|what can you do|menu)\b/.test(s))return {h:'I can help with costs, refills, labs, appointments, finding care, records and messages to your care team. Pick a suggestion below.'};
     if(/urgent|walk.?in|after hours|nearest|clinic near/.test(s))return {h:urgent()};
     if(/911|emergenc|\ber\b/.test(s))return {h:'If you think it\'s an emergency, call 911 or go to the nearest ER. For something that can wait a few hours, urgent care is an option.'+acts([{t:'Call 911',href:'tel:911',cls:'red'},{t:'Nearest urgent care',act:'click',arg:'urgbtn'}]),c:'sos'};
@@ -211,7 +293,11 @@
     if(/benefit|cover|plan/.test(s))return {h:'Here\'s what '+esc(first(p))+'\'s plan covers this year, with what\'s been used and what\'s left.'+acts([{t:'Show benefits',act:'scroll',arg:'bens'},{t:'Check my benefits',href:'benefits.html'}])};
     if(/symptom|pain|sick|fever|cough|hurt|rash|dizzy/.test(s))return {h:'I can\'t diagnose symptoms. If it\'s severe or sudden, call 911. Otherwise, log it in a Health Bot check-in so your doctor sees it, or visit urgent care.'+
       acts([{t:'Health Bot check-in',href:'healthbot.html'},{t:'Nearest urgent care',act:'click',arg:'urgbtn'},{t:'Draft a message',act:'ask',arg:'draft a message about a symptom'}])};
-    return {h:'I\'m not sure about that one yet. In this prototype I can help with:'+acts(['What is left on my deductible?','Which refills are waiting?','Explain my lab results','Next appointment','Find a doctor','Get my records'].map(function(t){return {t:t,act:'ask',arg:t}}))};
+    return {h:'I\'m not sure about that one yet. In this prototype I can help with:'+acts(['Book an appointment','What is left on my deductible?','Which refills are waiting?','Explain my lab results','Next appointment','Find a doctor','Get my records'].map(function(t){return {t:t,act:'ask',arg:t}}))};
+  }
+  function reply(label,fn){
+    add('u',esc(label));var t=add('a','<span class="typing">Checking openings…</span>');
+    setTimeout(function(){try{t.innerHTML=fn()}catch(e){t.innerHTML='Something went wrong. Try again.'}log.scrollTop=log.scrollHeight},400);
   }
   function ask(q){
     add('u',esc(q));
