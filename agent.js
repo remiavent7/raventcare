@@ -45,7 +45,7 @@
       return '<button type="button" data-act="'+esc(a.act)+'"'+(a.arg?' data-arg="'+esc(a.arg)+'"':'')+(a.cls?' class="'+a.cls+'"':'')+'>'+esc(a.t)+'</button>';
     }).join('')+'</div>';
   }
-  var CHIPS=['Book an appointment','What is left on my deductible?','Which refills are waiting?','Explain my lab results','Benefits expiring Dec 31','Next appointment','Find a cardiologist','Draft a message to my doctor','Get my records'];
+  var CHIPS=['Book an appointment','Schedule a video visit','Compare Medicare plans','What is left on my deductible?','Which refills are waiting?','Explain my lab results','Benefits expiring Dec 31','Next appointment','Find a cardiologist','Draft a message to my doctor','Get my records'];
   function chips(){$('ccaChips').innerHTML=CHIPS.map(function(c){return '<button type="button">'+esc(c)+'</button>'}).join('');}
   $('ccaChips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)ask(b.textContent)});
 
@@ -192,7 +192,8 @@
   var VISITS={
     primary:{n:'Primary care visit',prov:'Primary care office, Downtown Long Beach',dur:'20 min',times:['9:20 AM','1:40 PM','4:00 PM']},
     physical:{n:'Yearly physical',prov:'Primary care office, Downtown Long Beach',dur:'40 min',times:['8:30 AM','10:50 AM','2:15 PM'],prev:1},
-    video:{n:'Video visit',prov:'Primary care, video visit',dur:'15 min',times:['12:10 PM','5:30 PM','7:15 PM']},
+    video:{n:'Video visit',prov:'Primary care, video visit',dur:'15 min',times:['12:10 PM','5:30 PM','7:15 PM'],vv:1},
+    cvideo:{n:'Cardiology video visit',prov:'Heart and vascular clinic · video visit from home',dur:'20 min',times:['11:20 AM','2:00 PM','4:30 PM'],vv:1},
     cardio:{n:'Cardiology visit',prov:'Heart and vascular clinic, Long Beach',dur:'30 min',times:['10:00 AM','1:30 PM','3:45 PM']},
     derm:{n:'Dermatology visit',prov:'Dermatology office, Long Beach',dur:'20 min',times:['9:00 AM','11:30 AM','2:40 PM']},
     ortho:{n:'Orthopedics visit',prov:'Orthopedic office, Long Beach',dur:'30 min',times:['8:45 AM','12:30 PM','3:15 PM']},
@@ -208,7 +209,7 @@
   function dstr(d){return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
   function visitKey(s){
     if(/physical|annual|yearly check|wellness/.test(s))return 'physical';
-    if(/video|virtual|telehealth/.test(s))return 'video';
+    if(/video|virtual|telehealth/.test(s))return /cardio|heart/.test(s)?'cvideo':'video';
     if(/lab|blood work|blood draw/.test(s))return 'lab';
     if(/physical therap|\bpt\b/.test(s))return 'pt';
     if(/therap|counsel/.test(s))return 'therapy';
@@ -239,7 +240,7 @@
     var days=nextDays(3,start),slots=days.map(function(d,i){return {d:d,t:v.times[i]}});
     BK={key:key,v:v,p:p,slots:slots,why:''};
     return '<b>'+esc(v.n)+'</b> · '+esc(v.prov)+'<ul><li>In network for '+esc(p?p.planName:'this plan')+' (sample)</li><li>'+esc(costLine(p,v))+'</li></ul>'+(note?note+'<br>':'')+
-      'Soonest openings:'+acts(slots.map(function(s,i){return {t:dstr(s.d)+' · '+s.t,act:'bk2',arg:String(i)}}).concat([{t:'More times',act:'bk1',arg:key+'|more'}]));
+      (v.vv?'Video visits from home. Soonest openings:':'Soonest openings:')+acts(slots.map(function(s,i){return {t:dstr(s.d)+' · '+s.t,act:'bk2',arg:String(i)}}).concat([{t:'More times',act:'bk1',arg:key+'|more'}]));
   }
   function bookConfirm(i){
     var s=BK.slots[+i];BK.sel=s;
@@ -256,9 +257,31 @@
   }
   function bookDone(why){
     var s=BK.sel;BK.why=why;
+    if(BK.v.vv){var q='visit.html?who='+encodeURIComponent(first(BK.p))+'&d='+encodeURIComponent(dstr(s.d))+'&t='+encodeURIComponent(s.t);
+      return '<b>Booked · '+esc(BK.v.n)+'</b><ul><li>'+esc(dstr(s.d))+' at '+esc(s.t)+' · '+esc(BK.v.dur)+'</li><li>For '+esc(BK.p?BK.p.name:'')+(why?' · '+esc(why):'')+'</li><li>Join link goes live 10 minutes before. Text reminder the day before</li><li>Today\'s Health Bot check-in and home readings go to the doctor ahead of the call</li><li>Coverage checked: '+esc(costLine(BK.p,BK.v))+'</li></ul>'+
+      '<span style="font-size:12px;color:var(--mut,#4d6180)">Demo booking: sample clinic and times. Nothing was sent to a real office.</span>'+
+      '<div class="acts"><a href="'+esc(q)+'" class="vvgo">Join video visit</a><a href="'+ics()+'" download="collectcare-video-visit.ics">Add to calendar</a><a href="healthbot.html">Health Bot check-in</a></div>'}
     var h='<b>Booked · '+esc(BK.v.n)+'</b><ul><li>'+esc(dstr(s.d))+' at '+esc(s.t)+' · '+esc(BK.v.prov)+'</li><li>For '+esc(BK.p?BK.p.name:'')+(why?' · '+esc(why):'')+'</li><li>Reminder the day before, plus a Health Bot check-in so the doctor sees how '+esc(first(BK.p))+' has been feeling</li><li>Show the check-in QR at the front desk; the card is already shared</li></ul>'+
       '<span style="font-size:12px;color:var(--mut,#4d6180)">Demo booking: sample office and times. Nothing was sent to a real office.</span>'+
       '<div class="acts"><a href="'+ics()+'" download="collectcare-appointment.ics">Add to calendar</a><button type="button" data-act="click" data-arg="qrbtn">Check-in QR</button><a href="healthbot.html">Health Bot check-in</a></div>';
+    return h;
+  }
+
+  /* ---------- Medicare plan comparison (demo: sample plans, not real offers) ---------- */
+  function maCompare(){
+    var R=[['Monthly premium','$270 (Plan G + Part D, sample)','$0','$39'],
+      ['Video visit','$0 after Part B deductible','$0 copay','$0 in network'],
+      ['Her 9 doctors','All 9 · any doctor taking Medicare','7 of 9 · neurologist out','9 of 9 · 2 cost more'],
+      ['Yearly max out of pocket','About $283, then $0','$4,900 in network','$6,700 in network'],
+      ['Referrals and prior auth','None needed','Referrals + prior auth','Prior auth for some care'],
+      ['Hearing aids','Not covered','$1,000 allowance','$500 allowance'],
+      ['Eliquis and other drugs','Part D · capped at $2,400','Included · capped at $2,400','Included · capped at $2,400']];
+    var h='<b>Margaret · 2027 Medicare options</b><br><span style="font-size:12.5px;color:var(--mut,#4d6180)">Open Enrollment ends Dec 7 · changes start Jan 1. Sample plans for Long Beach, not real offers.</span>'+
+      '<table class="ccaT"><thead><tr><th></th><th class="cur">Keep current<small>Medicare + Plan G</small></th><th>Sample HMO<small>Medicare Advantage</small></th><th>Sample PPO<small>Medicare Advantage</small></th></tr></thead><tbody>'+
+      R.map(function(r){return '<tr><th>'+esc(r[0])+'</th><td class="cur">'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td></tr>'}).join('')+'</tbody></table>'+
+      '<div class="ccaWarn"><b>Before switching:</b> if Margaret drops Plan G for Medicare Advantage, she may not be able to get Plan G back later, or it may cost more. A 12-month trial right may apply because she has never had Medicare Advantage.</div>'+
+      'For her, keeping Plan G costs more each month but keeps every doctor and about $0 per visit. The HMO adds hearing aid help but drops her neurologist. This is not a recommendation. Free, unbiased help: California HICAP counselors.'+
+      acts([{t:'Find free HICAP help',href:'https://www.shiphelp.org/'},{t:'Compare on Medicare.gov',href:'https://www.medicare.gov/plan-compare'}]);
     return h;
   }
   function respond(q){
@@ -271,6 +294,10 @@
         if(ok){setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150);
           return {h:'Now viewing <b>'+esc(ps[i].name)+'</b> ('+esc(ps[i].rel)+'). Ask me about '+esc(first(ps[i]))+'\'s costs, refills or appointments.'}}
       }}
+    if(/medicare advantage|compare (her |my |medicare )?(medicare )?plans|open enrollment|part c\b/.test(s)){
+      if(/margaret|mom|mother/.test(s)&&first(p)!=='Margaret'){switchTo('Margaret');setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}
+      return {h:maCompare()};
+    }
     if(/\bbook\b|make an appointment|schedule (a|an|my)|set up (a|an) (visit|appointment)|see a doctor|need an appointment/.test(s)){
       for(var j=0;j<ps.length;j++){var fn=ps[j].name.split(' ')[0];if(new RegExp('\\b'+fn.toLowerCase()+'\\b').test(s)&&fn!==first(p)){switchTo(fn);p=ps[j];setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}}
       var k=visitKey(s);return {h:k?bookTimes(k):bookStart(p)};

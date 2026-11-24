@@ -35,3 +35,9 @@
   #ccaFab{right:14px;bottom:14px;padding:8px 14px 8px 8px;font-size:14px}
   #ccaP{right:0;left:0;bottom:0;width:100%;max-width:100%;height:calc(100dvh - 40px);border-radius:20px 20px 0 0}
 }
+#ccaLog .acts a.vvgo{background:var(--ac,#1f6fd1);color:#fff;border-color:var(--ac,#1f6fd1)}
+#ccaLog .ccaT{width:100%;border-collapse:collapse;margin:8px 0 6px;font-size:11.5px;line-height:1.3;table-layout:fixed}
+#ccaLog .ccaT th,#ccaLog .ccaT td{border-top:1px solid #e3ebf5;padding:5px 4px;vertical-align:top;text-align:left;overflow-wrap:break-word}
+#ccaLog .ccaT thead th{border-top:0;font-size:11.5px;color:var(--tx,#10233f)}#ccaLog .ccaT thead small{display:block;font-weight:500;color:var(--mut,#4d6180);font-size:10.5px}
+#ccaLog .ccaT tbody th{font-weight:700;color:var(--mut,#4d6180);width:23%}#ccaLog .ccaT .cur{background:#f2f7fd}
+#ccaLog .ccaWarn{background:#fff7e8;border:1px solid #f3dfb8;color:#7a4a00;border-radius:10px;padding:8px 10px;font-size:12.5px;margin:6px 0 8px}
