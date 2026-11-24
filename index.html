@@ -98,6 +98,12 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
 .idsub{font-size:14px;color:var(--mut);margin:0 0 14px}
 .idwarn{font-size:13.5px;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff7ec;border:1px solid #f6d9b5;color:#6b3407;display:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* hipaa 2027 */
+.hip{padding:30px 0 20px}.hip .panel{display:grid;grid-template-columns:.9fr 1.1fr;gap:34px;align-items:start}
+.hip .dates{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 20px}.hip .dates div{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13.5px;color:var(--mut)}.hip .dates b{display:block;color:var(--tx);font-size:16px}
+.hg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hg div{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fff}.hg b{display:block;font-size:15.5px;margin-bottom:4px}.hg span{font-size:14px;color:var(--mut);line-height:1.45;display:block}
+.hip .fine{font-size:12.5px;color:var(--mut);margin:16px 0 0}
+@media(max-width:900px){.hip .panel{grid-template-columns:1fr;gap:22px}}@media(max-width:560px){.hg{grid-template-columns:1fr}}
 </style></head><body>
 <script src="carriers-data.js"></script>
 <script src="carriers.js"></script>
@@ -105,7 +111,7 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
 
 <header class="top" id="top"><div class="w">
  <a class="brand" href="index.html" aria-label="CollectCare home"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span style="color:var(--ac)">Care</span></span></a>
- <nav aria-label="Main"><a class="hide" href="#accounts">Accounts</a><a class="hide" href="find.html">Find a doctor</a><a class="hide" href="benefits.html">Check benefits</a><a class="hide" href="pharmacy.html">Pharmacy</a><a class="hide" href="partners.html">For practices</a><a class="btn sm" href="app.html">Open the app</a></nav>
+ <nav aria-label="Main"><a class="hide" href="#accounts">Accounts</a><a class="hide" href="find.html">Find a doctor</a><a class="hide" href="benefits.html">Check benefits</a><a class="hide" href="pharmacy.html">Pharmacy</a><a class="hide" href="partners.html">For practices</a><a class="hide" href="#hipaa">Your rights</a><a class="btn sm" href="app.html">Open the app</a></nav>
 </div></header>
 
 <main>
@@ -179,6 +185,27 @@ footer{padding:34px 0 46px;font-size:13.5px;color:var(--mut)}footer .w{display:f
   </div>
  </div>
 </div></section>
+
+<section class="hip" id="hipaa"><div class="w"><div class="panel">
+ <div>
+  <p class="kick">New HIPAA rule · Mobile health apps</p>
+  <h2>Your records, sent to the app you choose</h2>
+  <p class="sub" style="font-size:17px">A new federal HIPAA rule, issued November 2026, says for the first time that your right to your health records includes getting them through a personal health app on your phone, like CollectCare.</p>
+  <div class="dates"><div><b>Jan 19, 2027</b>Rule takes effect</div><div><b>Jul 19, 2027</b>Providers and plans must comply</div><div><b>Jan 1, 2027</b>Plans add prior authorization data to apps</div></div>
+  <div class="cta"><a class="btn" href="law.html#apps">Read the app rules</a><a class="btn gh" href="law.html">All your rights</a></div>
+ </div>
+ <div>
+  <div class="hg">
+   <div><b>Apps are expressly covered</b><span>If a provider or plan already shares records through a secure connection, it must send yours to the app you pick.</span></div>
+   <div><b>Free through an app</b><span>No fee to get electronic records through a personal health app, patient portal or similar online method.</span></div>
+   <div><b>15 days, down from 30</b><span>They must respond as soon as practicable, within 15 days. One 30-day extension is allowed only with a written reason.</span></div>
+   <div><b>No refusing your app</b><span>They can't say no because the app isn't covered by HIPAA or competes with their own service. Only real risk to their own systems counts.</span></div>
+   <div><b>No paperwork walls</b><span>No in-person visit when remote ID checks work, no ink signature when an e-signature is valid, and no notarization.</span></div>
+   <div><b>Your app, your choice</b><span>Once records reach your app, HIPAA no longer covers them, so choose an app that never sells your data. CollectCare never does.</span></div>
+  </div>
+  <p class="fine">Source: <a href="https://www.govinfo.gov/content/pkg/FR-2026-11-19/html/2026-23429.htm" target="_blank" rel="noopener">HIPAA Privacy Rule final rule, Federal Register, Nov. 19, 2026</a> and <a href="https://www.hhs.gov/hipaa/for-professionals/privacy/2026-privacy-final-rule/index.html" target="_blank" rel="noopener">HHS</a>. Plain-language summary, not legal advice. Until the rule applies, today's 30-day HIPAA rules remain in place.</p>
+ </div>
+</div></div></section>
 
 <section id="accounts"><div class="w">
  <p class="kick">Step 2 · Collect the rest</p>
