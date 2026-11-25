@@ -14,13 +14,18 @@
   const TOUCH = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
 
   const KINDS = {
-    insurance: { label: 'Insurance', one: 'insurance plan', fields: [['plan', 'Plan name', 'text', 1], ['type', 'Type (medical, dental, vision, Medicare)'], ['member_id', 'Member ID'], ['group', 'Group number'], ['phone', 'Member services phone', 'tel'], ['notes', 'Notes', 'area']], t: d => d.plan, s: d => [d.type, d.member_id && 'ID ' + d.member_id, d.group && 'Group ' + d.group, d.phone, d.notes] },
+    insurance: { label: 'Insurance', one: 'insurance plan', fields: [['plan', 'Plan name', 'text', 1], ['type', 'Type (medical, dental, vision, Medicare)'], ['member_id', 'Member ID'], ['group', 'Group number'], ['phone', 'Member services phone', 'tel'],
+      ['holder_name', 'Policyholder\u2019s full name, if it\u2019s someone else'], ['holder_dob', 'Policyholder\u2019s date of birth, if someone else', 'date'],
+      ['_h1', 'Your costs this plan year (from your plan\u2019s website, app or Summary of Benefits)', 'head'], ['ded', 'Deductible ($)', 'money'], ['ded_met', 'Deductible met so far ($)', 'money'], ['oop', 'Out-of-pocket maximum ($)', 'money'], ['oop_met', 'Out-of-pocket spent so far ($)', 'money'], ['as_of', 'Amounts as of', 'date'], ['year_start', 'Plan year starts', 'date'],
+      ['_h2', 'What you pay per visit (copay, or coinsurance like 20%)', 'head'], ['c_pcp', 'Primary care visit'], ['c_spec', 'Specialist visit'], ['c_urgent', 'Urgent care'], ['c_er', 'Emergency room'], ['c_tele', 'Video visit'], ['c_rx', 'Generic prescription'], ['c_ther', 'Therapy or counseling'], ['coins', 'Coinsurance after deductible (e.g. 20%)'],
+      ['_h3', 'Health savings', 'head'], ['hsa', 'HSA or FSA balance ($)', 'money'], ['notes', 'Notes', 'area']],
+      t: d => d.plan, s: d => [d.type, d.member_id && 'ID ' + d.member_id, d.group && 'Group ' + d.group, d.phone, d.notes] },
     doctor: { label: 'Doctors and care team', one: 'doctor', fields: [['name', 'Name', 'text', 1], ['specialty', 'Specialty'], ['practice', 'Practice or hospital'], ['phone', 'Phone', 'tel'], ['portal', 'Patient portal (e.g. MyChart at Cedars-Sinai)'], ['notes', 'Notes', 'area']], t: d => d.name, s: d => [d.specialty, d.practice, d.phone, d.portal, d.notes] },
     medication: { label: 'Medications', one: 'medication', fields: [['name', 'Medication', 'text', 1], ['dose', 'Dose'], ['how', 'How often'], ['prescriber', 'Prescribed by'], ['pharmacy', 'Pharmacy'], ['notes', 'Notes', 'area']], t: d => [d.name, d.dose].filter(Boolean).join(' '), s: d => [d.how, d.prescriber && 'By ' + d.prescriber, d.pharmacy, d.notes] },
     allergy: { label: 'Allergies', one: 'allergy', fields: [['name', 'Allergic to', 'text', 1], ['reaction', 'Reaction'], ['severity', 'Severity', 'select', 0, ['', 'Mild', 'Moderate', 'Severe']]], t: d => d.name, s: d => [d.reaction, d.severity] },
     condition: { label: 'Conditions', one: 'condition', fields: [['name', 'Condition', 'text', 1], ['since', 'Since'], ['notes', 'Notes', 'area']], t: d => d.name, s: d => [d.since && 'Since ' + d.since, d.notes] },
     vaccine: { label: 'Vaccines', one: 'vaccine', fields: [['name', 'Vaccine', 'text', 1], ['date', 'Date', 'date'], ['where', 'Where']], t: d => d.name, s: d => [d.date, d.where] },
-    visit: { label: 'Visits', one: 'visit', fields: [['date', 'Date', 'date', 1], ['with', 'With'], ['reason', 'Reason'], ['notes', 'Notes', 'area']], t: d => [d.date, d.with].filter(Boolean).join(' · '), s: d => [d.reason, d.notes], sort: (a, b) => String(b.data.date || '').localeCompare(String(a.data.date || '')) },
+    visit: { label: 'Visits', one: 'visit', fields: [['date', 'Date', 'date', 1], ['with', 'With'], ['reason', 'Reason'], ['billed', 'Billed by the provider ($)', 'money'], ['paid', 'You paid ($)', 'money'], ['notes', 'Notes', 'area']], t: d => [d.date, d.with].filter(Boolean).join(' · '), s: d => [d.reason, (d.billed || d.paid) ? [d.billed && 'Billed ' + usd(d.billed), d.paid && 'You paid ' + usd(d.paid)].filter(Boolean).join(' · ') : '', d.notes], sort: (a, b) => String(b.data.date || '').localeCompare(String(a.data.date || '')) },
     note: { label: 'Notes', one: 'note', fields: [['title', 'Title', 'text', 1], ['text', 'Note', 'area']], t: d => d.title, s: d => [d.text] }
   };
   const ORDER = ['insurance', 'doctor', 'medication', 'allergy', 'condition', 'vaccine', 'visit', 'note'];
@@ -34,6 +39,8 @@
   function show(v) { $$('.view').forEach(x => x.hidden = true); $('#v' + v[0].toUpperCase() + v.slice(1)).hidden = false; $$('#nav .lnk[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v)); window.scrollTo(0, 0); }
   function busy(btn, on) { if (btn) btn.disabled = on; }
   function fmt(ts) { try { return new Date(ts).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return ts; } }
+  function num(v) { const n = parseFloat(String(v == null ? '' : v).replace(/[$,]/g, '')); return isFinite(n) ? n : null; }
+  function usd(v) { const n = num(v); return n == null ? '' : '$' + n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
   function first(n) { return String(n || '').split(' ')[0]; }
   async function log(action, detail) { if (!user) return; try { await sb.from('activity').insert({ action, detail: (detail || '').slice(0, 300) }); } catch (e) { } }
   function fail(e) { console.error(e); toast((e && e.message) ? 'Something went wrong: ' + e.message : 'Something went wrong. Please try again.'); }
@@ -45,11 +52,13 @@
       f.innerHTML = `<h2>${esc(title)}</h2>${intro ? `<p class="mut small">${intro}</p>` : ''}` + fields.map(([k, l, t = 'text', req, opts]) => {
         const v = vals[k] == null ? '' : vals[k];
         const r = req ? ' required' : '';
+        if (t === 'head') return `<p class="fh">${esc(l)}</p>`;
+        if (t === 'money') return `<label>${esc(l)}<input type="text" inputmode="decimal" name="${k}" value="${esc(v)}" maxlength="12" pattern="[$]?[0-9,]*[.]?[0-9]{0,2}"${r}></label>`;
         if (t === 'area') return `<label>${esc(l)}<textarea name="${k}" maxlength="4000"${r}>${esc(v)}</textarea></label>`;
         if (t === 'select') return `<label>${esc(l)}<select name="${k}"${r}>${opts.map(o => { const [ov, ol] = Array.isArray(o) ? o : [o, o || 'Choose']; return `<option value="${esc(ov)}"${String(ov) === String(v) ? ' selected' : ''}>${esc(ol)}</option>`; }).join('')}</select></label>`;
         return `<label>${esc(l)}<input type="${t}" name="${k}" value="${esc(v)}" maxlength="300"${r}></label>`;
       }).join('') + `<div class="drow"><button class="btn ghost" value="cancel" formnovalidate>Cancel</button><button class="btn" value="ok">${esc(okText)}</button></div>`;
-      const done = () => { d.removeEventListener('close', done); if (d.returnValue !== 'ok') return res(null); const o = {}; fields.forEach(([k]) => { const el = f.elements[k]; o[k] = el ? el.value.trim() : ''; }); res(o); };
+      const done = () => { d.removeEventListener('close', done); if (d.returnValue !== 'ok') return res(null); const o = {}; fields.forEach(([k, l, t]) => { if (t === 'head') return; const el = f.elements[k]; o[k] = el ? el.value.trim() : ''; if (t === 'money' && o[k]) o[k] = o[k].replace(/[$,]/g, ''); }); res(o); };
       d.returnValue = ''; d.addEventListener('close', done); d.showModal();
       const fi = f.querySelector('input,textarea,select'); if (fi) fi.focus();
     });
@@ -161,7 +170,7 @@
     if (!m) { $('#memBody').innerHTML = ''; return; }
     const mi = items.filter(x => x.member_id === m.id), md = docs.filter(x => x.member_id === m.id);
     const age = m.birth_date ? Math.floor((Date.now() - new Date(m.birth_date + 'T00:00:00')) / 31557600000) : null;
-    let h = `<div class="card"><div class="mhead"><div><h2>${esc(m.full_name)}</h2><p class="mut small">${esc(REL[m.relationship] || '')}${age != null ? ' · ' + age + ' years old' : ''}${m.birth_date ? ' · Born ' + esc(m.birth_date) : ''}</p>${m.notes ? `<p class="d small">${esc(m.notes)}</p>` : ''}</div><div class="a"><button class="btn ghost sm" data-act="editMember">Edit</button> <button class="btn red sm" data-act="delMember">Remove</button></div></div></div><div class="sects">`;
+    let h = `<div class="card"><div class="mhead"><div><h2>${esc(m.full_name)}</h2><p class="mut small">${esc(REL[m.relationship] || '')}${age != null ? ' · ' + age + ' years old' : ''}${m.birth_date ? ' · Born ' + esc(m.birth_date) : ''}</p>${m.notes ? `<p class="d small">${esc(m.notes)}</p>` : ''}</div><div class="a"><button class="btn ghost sm" data-act="editMember">Edit</button> <button class="btn red sm" data-act="delMember">Remove</button></div></div></div>` + benefitsCard(m, mi) + `<div class="sects">`;
     ORDER.forEach(k => {
       const K = KINDS[k]; let list = mi.filter(x => x.kind === k); if (K.sort) list = list.slice().sort(K.sort);
       h += `<div class="card sect"><div class="sh"><h3>${esc(K.label)}</h3><button class="btn ghost sm" data-act="addItem" data-kind="${k}">Add</button></div>` +
@@ -170,8 +179,75 @@
     h += `<div class="card sect"><div class="sh"><h3>Documents</h3><span>${NAT ? '<button class="btn sm" data-act="scan">Scan with camera</button> ' : (TOUCH ? '<label class="btn sm">Take a photo<input type="file" id="camFile" accept="image/*" capture="environment" hidden></label> ' : '')}<label class="btn ghost sm">Upload<input type="file" id="upFile" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,image/webp" hidden></label></span></div><p class="mut small">Insurance cards, lab reports, visit summaries. PDF or photo, up to 10 MB.</p>` +
       (md.length ? md.map(x => `<div class="it"><div><div class="t">${esc(x.name)}</div><div class="d">${fmt(x.created_at)} · ${Math.max(1, Math.round((x.size_bytes || 0) / 1024))} KB</div></div><div class="a"><button class="lnk small" data-act="openDoc" data-id="${x.id}">Open</button><button class="lnk small" data-act="delDoc" data-id="${x.id}">Delete</button></div></div>`).join('') : '<p class="empty">No documents yet.</p>') + '</div></div>';
     $('#memBody').innerHTML = h;
+    $('#memBody').querySelectorAll('[data-w]').forEach(e => { e.style.width = e.dataset.w + '%'; });
     const up = $('#upFile'); if (up) up.addEventListener('change', () => upload(up));
     const cam = $('#camFile'); if (cam) cam.addEventListener('change', () => upload(cam));
+  }
+
+  // Benefits at a glance, built only from numbers the user entered from their own plan.
+  function bar(label, met, max) {
+    const pct = Math.max(0, Math.min(100, Math.round(met / max * 100))), left = Math.max(0, max - met);
+    return `<div class="bf"><div class="bfh"><b>${esc(label)}</b><span>${usd(met)} of ${usd(max)}</span></div><div class="bt" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(label)}"><i data-w="${pct}"></i></div><div class="small mut">${left ? usd(left) + ' left' : 'Met'}</div></div>`;
+  }
+  const BEN = !!(window.CC_CONFIG && window.CC_CONFIG.benefits);
+  async function callBen(body) {
+    const { data, error } = await sb.functions.invoke('benefits', { body });
+    if (error) { let j = {}; try { j = await error.context.json(); } catch (e) { } return { ...j, error: j.error || 'Benefit checks are not available right now.' }; }
+    return data || {};
+  }
+  async function pickPayer(it) {
+    const q = await ask('Find your insurance company', [['q', 'Name on your card, like Blue Shield of California or Aetna', 'text', 1]], { q: it.data.payer_name || it.data.plan || '' }, 'Search');
+    if (!q) return;
+    toast('Searching\u2026');
+    const r = await callBen({ action: 'payers', q: q.q });
+    if (r.error) return toast(r.error);
+    const list = (r.payers || []).filter(x => x.elig !== 'NOT_SUPPORTED');
+    if (!list.length) return toast('No insurers that support benefit checks matched. Try another name.');
+    const c = await ask('Which one is on your card?', [['pid', 'Insurance company', 'select', 1, list.map(x => [x.id, x.name + ' (' + x.id + ')' + (x.elig === 'ENROLLMENT_REQUIRED' ? ' \u00b7 needs setup' : '')])]], {}, 'Use this one');
+    if (!c) return;
+    const pick = list.find(x => x.id === c.pid);
+    const { error } = await sb.from('items').update({ data: { ...it.data, payer_id: pick.id, payer_name: pick.name } }).eq('id', it.id);
+    if (error) return fail(error); log('Set insurance company', pick.name); await loadAll(); toast('Insurer saved');
+  }
+  async function checkBen(it, m) {
+    toast('Checking with your insurer\u2026');
+    const r = await callBen({ action: 'check', item_id: it.id });
+    if (r.need === 'payer') return pickPayer(it);
+    if (r.error) return ask(r.test ? 'Test check' : 'Benefit check', [], {}, 'OK', esc(r.error));
+    const b = r.benefits || {};
+    const L = [['ded', 'Deductible'], ['ded_met', 'Deductible met'], ['oop', 'Out-of-pocket max'], ['oop_met', 'Out-of-pocket spent'], ['c_pcp', 'Primary care'], ['c_spec', 'Specialist'], ['c_urgent', 'Urgent care'], ['c_er', 'Emergency room'], ['c_rx', 'Generic drugs'], ['coins', 'Coinsurance']];
+    const rows = L.filter(([k]) => b[k]).map(([k, l]) => esc(l) + ': <b>' + esc(/^c_|coins/.test(k) ? b[k] : usd(b[k])) + '</b>').join('<br>');
+    if (r.test) return ask('Test check worked', [], {}, 'OK', 'Benefit checks are in <b>test mode</b>, so this is Stedi\u2019s sample Aetna member, not ' + esc(first(m.full_name)) + '\u2019s plan. Nothing was saved.<br><br>' + (rows || 'No amounts in the sample.'));
+    await loadAll();
+    toast(b.coverage === 'inactive' ? 'Your insurer reports this coverage as inactive' : 'Benefits updated from your insurer');
+  }
+  function benefitsCard(m, mi) {
+    const ins = mi.filter(x => x.kind === 'insurance');
+    if (!ins.length) return '';
+    const p = ins.find(x => num(x.data.ded) != null || num(x.data.oop) != null) || ins[0], d = p.data;
+    const ded = num(d.ded), dm = num(d.ded_met) || 0, oop = num(d.oop), om = num(d.oop_met) || 0;
+    const start = d.year_start || (new Date().getFullYear() + '-01-01');
+    const vis = mi.filter(x => x.kind === 'visit' && x.data.date && x.data.date >= start);
+    const paid = vis.reduce((a, x) => a + (num(x.data.paid) || 0), 0), billed = vis.reduce((a, x) => a + (num(x.data.billed) || 0), 0);
+    const C = [['c_pcp', 'Primary care'], ['c_spec', 'Specialist'], ['c_urgent', 'Urgent care'], ['c_er', 'Emergency room'], ['c_tele', 'Video visit'], ['c_rx', 'Generic drugs'], ['c_ther', 'Therapy'], ['coins', 'After deductible']].filter(([k]) => d[k]);
+    const has = ded != null || oop != null || C.length || d.hsa;
+    let h = `<div class="card bcard"><div class="sh"><div><h2>${esc(first(m.full_name))}\u2019s benefits</h2><p class="mut small">${esc(d.plan || 'Insurance')}${d.member_id ? ' \u00b7 ID ' + esc(d.member_id) : ''}</p></div><div class="a">${BEN ? `<button class="btn sm" data-act="checkBen" data-id="${p.id}">Check with my insurer</button> ` : ''}<button class="btn ghost sm" data-act="editItem" data-id="${p.id}">${has ? 'Update amounts' : 'Add costs'}</button></div></div>`;
+    if (BEN) h += `<p class="small mut">${d.payer_id ? 'Insurer: <b>' + esc(d.payer_name || d.payer_id) + '</b> \u00b7 ' : ''}<button class="lnk small" data-act="pickPayer" data-id="${p.id}">${d.payer_id ? 'Change' : 'Find my insurance company'}</button>${d.coverage === 'inactive' ? ' <span class="tag bad">Insurer reports coverage inactive</span>' : d.coverage === 'active' && d.src === 'insurer' ? ' <span class="tag ok">Coverage active</span>' : ''}</p>`;
+    if (!has) return h + `<p class="mut">Add your deductible, out-of-pocket maximum and copays from your plan\u2019s website or app to see what you\u2019ve met and what visits will cost.</p></div>`;
+    h += '<div class="bgrid">';
+    if (ded != null) h += bar('Deductible', dm, ded);
+    if (oop != null) h += bar('Out-of-pocket maximum', om, oop);
+    h += '</div>';
+    if (ded != null && dm < ded) h += `<p class="small">Until the deductible is met, most non-preventive visits cost the plan\u2019s full negotiated rate. After that you pay ${d.coins ? esc(d.coins) + ' coinsurance or ' : ''}the copays below.</p>`;
+    else if (oop != null && om >= oop) h += '<p class="small"><span class="tag ok">Max met</span> Covered in-network care should be $0 for the rest of this plan year.</p>';
+    if (C.length) h += '<div class="chips">' + C.map(([k, l]) => `<div class="chipc"><span>${esc(l)}</span><b>${esc(d[k])}</b></div>`).join('') + '</div>';
+    if (d.ded_fam || d.oop_fam) h += `<p class="small"><b>Family:</b> ${d.ded_fam ? 'deductible ' + (d.ded_fam_met != null ? usd(d.ded_fam_met) + ' of ' : '') + usd(d.ded_fam) : ''}${d.ded_fam && d.oop_fam ? ' \u00b7 ' : ''}${d.oop_fam ? 'out-of-pocket ' + (d.oop_fam_met != null ? usd(d.oop_fam_met) + ' of ' : '') + usd(d.oop_fam) : ''}</p>`;
+    if (d.hsa) h += `<p class="small"><b>HSA/FSA balance:</b> ${usd(d.hsa)}</p>`;
+    if (vis.length) h += `<p class="small"><b>${vis.length} visit${vis.length > 1 ? 's' : ''} this plan year</b>${billed ? ' \u00b7 billed ' + usd(billed) : ''}${paid ? ' \u00b7 you paid ' + usd(paid) : ''}</p>`;
+    const foot = d.src === 'insurer'
+      ? `From ${esc(d.payer_name || 'your insurer')}\u2019s real-time benefits check on ${esc(d.as_of || '')}. Totals can lag behind claims that are still processing.`
+      : `Entered by you from your plan${d.as_of ? ', as of ' + esc(d.as_of) : ''}.${BEN ? '' : ' CollectCare doesn\u2019t pull these from your insurer yet.'} Check with your plan before a visit.`;
+    return h + `<p class="mut small">${foot}</p></div>`;
   }
 
   const MEMBER_FIELDS = () => [['full_name', 'Full name', 'text', 1], ['relationship', 'Relationship to you', 'select', 1, Object.entries(REL)], ['birth_date', 'Date of birth', 'date'], ['notes', 'Notes', 'area']];
@@ -202,9 +278,19 @@
         const it = act === 'editItem' ? items.find(x => x.id === t.dataset.id) : null;
         const kind = it ? it.kind : t.dataset.kind, K = KINDS[kind];
         const v = await ask((it ? 'Edit ' : 'Add ') + K.one + ' for ' + first(m.full_name), K.fields, it ? it.data : {}); if (!v) return;
-        Object.keys(v).forEach(k => { if (!v[k]) delete v[k]; });
-        const r = it ? await sb.from('items').update({ data: v }).eq('id', it.id) : await sb.from('items').insert({ member_id: m.id, kind, data: v });
+        let data = v;
+        if (it) {
+          // Keep fields the form doesn't show (insurer ID, last check), and note when amounts were edited by hand.
+          data = { ...it.data };
+          const AMT = ['ded', 'ded_met', 'oop', 'oop_met'];
+          if (kind === 'insurance' && AMT.some(k => String(it.data[k] || '') !== String(v[k] || ''))) { data.src = 'you'; delete data.ded_fam; delete data.ded_fam_met; delete data.oop_fam; delete data.oop_fam_met; }
+          Object.keys(v).forEach(k => { if (v[k]) data[k] = v[k]; else delete data[k]; });
+        } else Object.keys(v).forEach(k => { if (!v[k]) delete v[k]; });
+        const r = it ? await sb.from('items').update({ data }).eq('id', it.id) : await sb.from('items').insert({ member_id: m.id, kind, data });
         if (r.error) return fail(r.error); log((it ? 'Edited ' : 'Added ') + K.one, first(m.full_name)); await loadAll();
+      } else if (act === 'pickPayer' || act === 'checkBen') {
+        const it = items.find(x => x.id === t.dataset.id); if (!it) return;
+        if (act === 'pickPayer') await pickPayer(it); else await checkBen(it, m);
       } else if (act === 'delItem') {
         const it = items.find(x => x.id === t.dataset.id), K = KINDS[it.kind];
         if (!await confirmBox('Delete this ' + K.one + '?', 'It will be removed from ' + first(m.full_name) + '\u2019s profile.')) return;

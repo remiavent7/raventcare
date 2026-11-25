@@ -80,3 +80,12 @@ html.native #toast{bottom:calc(22px + env(safe-area-inset-bottom))}
 .it .a{flex-wrap:wrap;justify-content:flex-end;max-width:55%;row-gap:2px}
 td code{white-space:nowrap}
 @media(max-width:480px){.tbl table{min-width:560px}.it .t{overflow-wrap:anywhere}}
+
+.fh{margin:14px 0 2px;font-weight:700;font-size:13.5px;color:var(--ac);grid-column:1/-1}
+.bcard{margin-bottom:14px}.bcard .sh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px}.bcard h2{margin:0}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:6px 0 10px}
+.bfh{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:6px}.bfh span{color:var(--mut)}
+.bt{height:10px;border-radius:99px;background:var(--s2);border:1px solid var(--line);overflow:hidden}.bt i{display:block;height:100%;background:var(--ac);border-radius:99px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:10px 0}
+.chipc{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}.chipc span{font-size:12.5px;color:var(--mut)}.chipc b{font-size:15px}
+@media(max-width:480px){.bgrid{grid-template-columns:1fr}}
