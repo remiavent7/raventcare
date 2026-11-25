@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://api.fontshare.com; font-src https://cdn.fontshare.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
@@ -116,6 +116,7 @@
       <form id="fName" class="row-f"><label>Display name<input name="name" maxlength="120"></label><button class="btn ghost">Save</button></form>
     </div>
     <div class="card"><h2>Two-step verification</h2><p class="mut" id="mfaState">Checking…</p><div id="mfaBox"></div></div>
+    <div class="card" id="devBox" hidden><h2>This iPhone</h2><p class="small"><b>App lock with <span id="bioName">Face ID</span></b></p><p class="mut" id="bioState"></p><button class="btn sm" id="bioBtn">Turn on</button><p class="small gap"><b>Medication reminders</b></p><p class="mut" id="remState"></p></div>
     <div class="card"><h2>Your data</h2><p class="mut">Download a copy of everything you've added, including links to your documents.</p><button class="btn ghost" id="export">Download my data</button></div>
     <div class="card danger"><h2>Delete account</h2><p class="mut">This permanently deletes your account, every family profile and every uploaded document. It can't be undone.</p><button class="btn red" id="delAcct">Delete my account</button></div>
   </section>
@@ -138,6 +139,7 @@
   </section>
 </main>
 
+<div id="lock" hidden><div class="lockin"><img src="../logo.svg" alt="" width="56" height="56"><h2>CollectCare is locked</h2><p class="mut">Unlock to see your family's information.</p><button class="btn" id="lockBtn">Unlock</button><button class="lnk" id="lockOut">Sign out</button></div></div>
 <dialog id="dlg"><form method="dialog" id="dlgForm" class="frm"></form></dialog>
 
 <footer class="foot">CollectCare private beta by Ravent Care LLC. Not medical advice, not an insurance service and not a substitute for your doctor or plan. <a href="../privacy.html">Privacy policy</a> · <a href="../law.html">Your rights</a></footer>
