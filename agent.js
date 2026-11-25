@@ -63,7 +63,7 @@
   function greet(){
     var p=viewing();
     add('a','Hi, I\'m the CollectCare Agent. I can read '+esc(first(p))+'\'s benefits, refills, labs and appointments on this page and take you to the right step.'+
-      '<ul><li>Book an appointment in a few taps</li><li>Explain costs and what\'s left this year</li><li>Track refills and upcoming visits</li><li>Find in-network care or urgent care</li><li>Draft a note to the care team or request records</li></ul>'+
+      '<ul><li>Book an appointment in a few taps</li><li>Explain costs and what\'s left this year</li><li>Track refills and upcoming visits</li><li>Find care and check network status as your plan reports it</li><li>Draft a note to the care team or request records</li></ul>'+
       'Try a suggestion below or type a question.');
   }
 
@@ -239,7 +239,7 @@
     if(v.ben&&b[v.ben]&&v.ben!=='eye'){var u=b[v.ben];if(u[1]-u[0]>0&&u[1]<99)note=esc(u[1]-u[0])+' '+(v.ben==='pt'?'visits':'sessions')+' left this year on '+esc(first(p))+'\'s plan.'}
     var days=nextDays(3,start),slots=days.map(function(d,i){return {d:d,t:v.times[i]}});
     BK={key:key,v:v,p:p,slots:slots,why:''};
-    return '<b>'+esc(v.n)+'</b> · '+esc(v.prov)+'<ul><li>In network for '+esc(p?p.planName:'this plan')+' (sample)</li><li>'+esc(costLine(p,v))+'</li></ul>'+(note?note+'<br>':'')+
+    return '<b>'+esc(v.n)+'</b> · '+esc(v.prov)+'<ul><li>Listed in network by '+esc(p?p.planName:'your plan')+' as of Nov. 20, 2026 (sample). Your plan\'s answer is what counts, so ask it to confirm before your visit.</li><li>'+esc(costLine(p,v))+'</li></ul>'+(note?note+'<br>':'')+
       (v.vv?'Video visits from home. Soonest openings:':'Soonest openings:')+acts(slots.map(function(s,i){return {t:dstr(s.d)+' · '+s.t,act:'bk2',arg:String(i)}}).concat([{t:'More times',act:'bk1',arg:key+'|more'}]));
   }
   function bookConfirm(i){

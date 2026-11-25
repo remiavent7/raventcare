@@ -27,7 +27,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 <h1>Your federal right to see and get your health information</h1>
 <p class="mut">Federal law gives you the right to see your medical and insurance records, get a copy, and send them to an app or person you choose. This page explains those laws in plain language. Last updated November 23, 2026.</p>
 <div class="note"><b>Not legal advice.</b> This is a plain-language summary written for the CollectCare demo. A healthcare attorney should review it before launch. State laws may give you more rights than federal law.</div>
-<div class="toc"><a href="#short">Short version</a><a href="#hipaa">HIPAA right of access</a><a href="#new">New 2026 rule</a><a href="#apps">Sending records to apps</a><a href="#cures">Cures Act</a><a href="#payers">Health plan apps</a><a href="#help">If you are refused</a><a href="#sources">Official sources</a></div>
+<div class="toc"><a href="#short">Short version</a><a href="#hipaa">HIPAA right of access</a><a href="#new">New 2026 rule</a><a href="#apps">Sending records to apps</a><a href="#cures">Cures Act</a><a href="#payers">Health plan apps</a><a href="#network">In network or not</a><a href="#help">If you are refused</a><a href="#sources">Official sources</a></div>
 
 <div class="card" id="short"><h2>The short version</h2>
 <ul class="list">
@@ -109,11 +109,25 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 </table>
 <p class="cite">Sources: <a href="https://www.cms.gov/initiatives/burden-reduction/overview/interoperability/frequently-asked-questions/patient-access-api" target="_blank" rel="noopener">CMS, Patient Access API FAQ</a>; <a href="https://www.cms.gov/initiatives/burden-reduction/overview/interoperability/policies-regulations/cms-interoperability-patient-access-final-rule-cms-9115-f" target="_blank" rel="noopener">CMS Interoperability and Patient Access Final Rule (CMS-9115-F)</a>; <a href="https://www.cms.gov/newsroom/fact-sheets/cms-interoperability-prior-authorization-final-rule-cms-0057-f" target="_blank" rel="noopener">CMS Interoperability and Prior Authorization Final Rule fact sheet (CMS-0057-F)</a>.</p></div>
 
+<div class="card" id="network"><h2>4a. Is your doctor in network? What plans must tell you</h2>
+<p><span class="law">No Surprises Act</span> · <span class="law">42 U.S.C. § 300gg-115</span> · <span class="law">CMS-9115-F Provider Directory API</span></p>
+<p>Plan directories aren't always right. Federal law sets rules for how plans keep them up to date and what happens if they're wrong.</p>
+<table>
+<tr><th style="width:28%">Topic</th><th>What the rules say</th></tr>
+<tr><td><b>Keeping directories current</b></td><td>Health plans must update and verify their provider directory information at least once every 90 days.</td></tr>
+<tr><td><b>Asking your plan</b></td><td>Plans must answer your question about whether a provider or facility is in network within one business day.</td></tr>
+<tr><td><b>If the directory was wrong</b></td><td>If you get care from an out-of-network provider because the plan's directory had wrong information, the plan can't charge you more than in-network cost sharing, and what you pay must count toward your in-network deductible and out-of-pocket maximum.</td></tr>
+<tr><td><b>Public directory connections</b></td><td>Medicare Advantage, Medicaid and CHIP plans must offer a public Provider Directory API that apps can read.</td></tr>
+</table>
+<p><b>How CollectCare uses this.</b> CollectCare shows whether a doctor is in or out of network as your health plan reports it, with the date the plan reported it and a one-tap way to ask your plan to confirm. CollectCare isn't your insurer, so your plan's answer is what counts. We keep a dated copy of what your plan showed, in case you ever need it for a billing dispute. This feature is a demo on sample data today.</p>
+<p class="cite">Sources: <a href="https://www.cms.gov/files/document/nsa-keyprotections.pdf" target="_blank" rel="noopener">CMS, No Surprises Act key consumer protections</a>; <a href="https://www.cms.gov/initiatives/burden-reduction/overview/interoperability/frequently-asked-questions/provider-directory-api" target="_blank" rel="noopener">CMS, Provider Directory API FAQ</a>.</p></div>
+
 <div class="g2">
 <div class="card"><h2>What this means for CollectCare</h2>
 <ul class="list">
 <li>CollectCare is designed as an app that <b>you</b> choose. These laws are why you can connect your doctor's portal and your health plan with your own approval.</li>
 <li>Once your records reach an app you control, HIPAA generally no longer covers that copy. That's why we follow the FTC Health Breach Notification Rule and California privacy law, and why we never sell your data. See our <a href="privacy.html">privacy policy</a>.</li>
+<li>Network status in CollectCare is always shown as what your plan reports, with a date. It isn't a guarantee of coverage.</li>
 <li>CollectCare connections are a demo today. They aren't live links to any provider or plan yet.</li>
 </ul>
 <p class="cite">See also: <a href="https://healthit.gov/faq/will-educating-patients-about-privacy-and-security-risks-posed-third-party-apps-patient-chooses/" target="_blank" rel="noopener">HealthIT.gov on third-party apps patients choose</a>.</p></div>
