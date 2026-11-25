@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://api.fontshare.com; font-src https://cdn.fontshare.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>CollectCare · Private beta</title>
+<link rel="icon" href="../logo.svg">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="beta.css">
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="./"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span class="acc">Care</span></span></a>
+  <span class="tag ac">Private beta</span>
+  <nav id="nav" hidden>
+    <button class="lnk" data-view="family">Family</button>
+    <button class="lnk" data-view="activity">Activity</button>
+    <button class="lnk" data-view="settings">Settings</button>
+    <button class="lnk" data-view="admin" id="navAdmin" hidden>Invites</button>
+    <button class="lnk" id="signOut">Sign out</button>
+  </nav>
+</div></header>
+
+<main id="main">
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Setup not finished -->
+  <section id="vSetup" class="view" hidden>
+    <div class="card narrow"><h1>Beta is being set up</h1><p class="mut">The secure server for the CollectCare private beta is not connected yet. Please check back soon.</p><p><a href="../app.html">See the sample-data demo instead</a></p></div>
+  </section>
+
+  <!-- Signed out -->
+  <section id="vAuth" class="view" hidden>
+    <div class="authwrap">
+      <div class="intro">
+        <h1>Your family's healthcare, in one private place</h1>
+        <p class="mut">The CollectCare private beta is open by invitation to friends, family and investors. Your information is stored on a secure server, is visible only to your account and is never sold or used for ads.</p>
+        <ul class="list mut">
+          <li>Add each family member and keep their insurance, doctors, medications, allergies and documents together</li>
+          <li>Two-step sign-in, automatic sign-out and a full activity log</li>
+          <li>Download everything or delete your account at any time</li>
+        </ul>
+        <p class="mut small">Connecting Epic/MyChart, health plans and Medicare is coming next. In this beta you add information yourself. Looking for the investor walkthrough? <a href="../app.html">Open the sample-data demo</a>.</p>
+      </div>
+      <div class="card">
+        <div class="seg" role="tablist">
+          <button class="chip on" data-tab="in" role="tab">Sign in</button>
+          <button class="chip" data-tab="up" role="tab">I have an invite</button>
+        </div>
+
+        <form id="fIn" class="frm">
+          <label>Email<input type="email" name="email" autocomplete="username" required></label>
+          <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+          <button class="btn wide">Sign in</button>
+          <button type="button" class="lnk small" id="forgot">Forgot password?</button>
+        </form>
+
+        <form id="fUp" class="frm" hidden>
+          <label>Invite code<input name="code" autocomplete="off" required placeholder="CC-XXXX-XXXX" maxlength="32"></label>
+          <label>Your name<input name="name" autocomplete="name" required maxlength="120"></label>
+          <label>Email<input type="email" name="email" autocomplete="email" required></label>
+          <label>Create a password <span class="mut small">(at least 12 characters)</span><input type="password" name="password" autocomplete="new-password" minlength="12" required></label>
+          <label class="ck"><input type="checkbox" name="agree" required> <span>I understand this is a private beta, it is not medical advice or an insurance service, and I have read the <a href="../privacy.html" target="_blank" rel="noopener">privacy policy</a>.</span></label>
+          <button class="btn wide">Create my account</button>
+        </form>
+
+        <form id="fMfa" class="frm" hidden>
+          <h2>Two-step verification</h2>
+          <p class="mut small">Enter the 6-digit code from your authenticator app.</p>
+          <label>Code<input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+          <button class="btn wide">Verify</button>
+        </form>
+
+        <form id="fReset" class="frm" hidden>
+          <h2>Choose a new password</h2>
+          <label>New password<input type="password" name="password" autocomplete="new-password" minlength="12" required></label>
+          <button class="btn wide">Save password</button>
+        </form>
+        <p id="authMsg" class="msg" role="alert"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Family -->
+  <section id="vFamily" class="view" hidden>
+    <div class="head">
+      <div><h1 id="hello">Your family</h1><p class="mut">Only you can see what you add here.</p></div>
+      <button class="btn" id="addMember">Add a family member</button>
+    </div>
+    <div id="memTabs" class="mem"></div>
+    <div id="memEmpty" class="card" hidden><h2>Start with yourself</h2><p class="mut">Add yourself first, then anyone you help care for, such as a spouse, child or parent.</p><button class="btn" id="addSelf">Add myself</button></div>
+    <div id="memBody"></div>
+    <div class="card soon"><h2>Coming next: connect your accounts</h2><p class="mut">We're registering CollectCare with Epic/MyChart, Medicare and health plans so records can come in automatically after you approve each connection. Until then, nothing here is pulled from any outside system.</p></div>
+  </section>
+
+  <!-- Activity -->
+  <section id="vActivity" class="view" hidden>
+    <h1>Activity</h1><p class="mut">Everything your account has done, newest first.</p>
+    <div class="card"><ol id="actList" class="act"></ol></div>
+  </section>
+
+  <!-- Settings -->
+  <section id="vSettings" class="view" hidden>
+    <h1>Settings</h1>
+    <div class="card"><h2>Account</h2><p class="mut" id="acctLine"></p>
+      <form id="fName" class="row-f"><label>Display name<input name="name" maxlength="120"></label><button class="btn ghost">Save</button></form>
+    </div>
+    <div class="card"><h2>Two-step verification</h2><p class="mut" id="mfaState">Checking…</p><div id="mfaBox"></div></div>
+    <div class="card"><h2>Your data</h2><p class="mut">Download a copy of everything you've added, including links to your documents.</p><button class="btn ghost" id="export">Download my data</button></div>
+    <div class="card danger"><h2>Delete account</h2><p class="mut">This permanently deletes your account, every family profile and every uploaded document. It can't be undone.</p><button class="btn red" id="delAcct">Delete my account</button></div>
+  </section>
+
+  <!-- Admin -->
+  <section id="vAdmin" class="view" hidden>
+    <h1>Invites</h1><p class="mut">Create invite codes for friends, family and investors. You see who joined and how many profiles they've created, never their health information.</p>
+    <div class="card"><h2>New invite</h2>
+      <form id="fInv" class="grid-f">
+        <label>Who it's for<input name="note" maxlength="200" placeholder="e.g. Aunt Carol, or Investor: J. Smith"></label>
+        <label>Lock to email <span class="mut small">(optional)</span><input type="email" name="email"></label>
+        <label>Uses<input type="number" name="max" min="1" max="50" value="1"></label>
+        <label>Expires in (days)<input type="number" name="days" min="1" max="90" value="30"></label>
+        <button class="btn">Create invite</button>
+      </form>
+      <div id="invNew"></div>
+    </div>
+    <div class="card"><h2>Invite codes</h2><div class="tbl"><table id="invTbl"></table></div></div>
+    <div class="card"><h2>Beta accounts</h2><div class="tbl"><table id="accTbl"></table></div></div>
+  </section>
+</main>
+
+<dialog id="dlg"><form method="dialog" id="dlgForm" class="frm"></form></dialog>
+
+<footer class="foot">CollectCare private beta by Ravent Care LLC. Not medical advice, not an insurance service and not a substitute for your doctor or plan. <a href="../privacy.html">Privacy policy</a> · <a href="../law.html">Your rights</a></footer>
+
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<script src="beta.js"></script>
+</body>
+</html>
