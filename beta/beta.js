@@ -11,6 +11,7 @@
   const NAT = (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ? window.Capacitor.Plugins : null;
   const WEB = location.protocol.indexOf('http') === 0 ? location.origin + location.pathname : 'https://collectmycare.com/beta/';
   const LOCK_AFTER_MS = 60000;
+  const TOUCH = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
 
   const KINDS = {
     insurance: { label: 'Insurance', one: 'insurance plan', fields: [['plan', 'Plan name', 'text', 1], ['type', 'Type (medical, dental, vision, Medicare)'], ['member_id', 'Member ID'], ['group', 'Group number'], ['phone', 'Member services phone', 'tel'], ['notes', 'Notes', 'area']], t: d => d.plan, s: d => [d.type, d.member_id && 'ID ' + d.member_id, d.group && 'Group ' + d.group, d.phone, d.notes] },
@@ -166,10 +167,11 @@
       h += `<div class="card sect"><div class="sh"><h3>${esc(K.label)}</h3><button class="btn ghost sm" data-act="addItem" data-kind="${k}">Add</button></div>` +
         (list.length ? list.map(x => `<div class="it"><div><div class="t">${esc(K.t(x.data) || K.one)}</div><div class="d">${K.s(x.data).filter(Boolean).map(esc).join('\n')}</div></div><div class="a">${NAT && k === 'medication' ? remBtn(x) : ''}<button class="lnk small" data-act="editItem" data-id="${x.id}">Edit</button><button class="lnk small" data-act="delItem" data-id="${x.id}">Delete</button></div></div>`).join('') : `<p class="empty">No ${esc(K.label.toLowerCase())} yet.</p>`) + '</div>';
     });
-    h += `<div class="card sect"><div class="sh"><h3>Documents</h3><span>${NAT ? '<button class="btn sm" data-act="scan">Scan with camera</button> ' : ''}<label class="btn ghost sm">Upload<input type="file" id="upFile" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,image/webp" hidden></label></span></div><p class="mut small">Insurance cards, lab reports, visit summaries. PDF or photo, up to 10 MB.</p>` +
+    h += `<div class="card sect"><div class="sh"><h3>Documents</h3><span>${NAT ? '<button class="btn sm" data-act="scan">Scan with camera</button> ' : (TOUCH ? '<label class="btn sm">Take a photo<input type="file" id="camFile" accept="image/*" capture="environment" hidden></label> ' : '')}<label class="btn ghost sm">Upload<input type="file" id="upFile" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,image/webp" hidden></label></span></div><p class="mut small">Insurance cards, lab reports, visit summaries. PDF or photo, up to 10 MB.</p>` +
       (md.length ? md.map(x => `<div class="it"><div><div class="t">${esc(x.name)}</div><div class="d">${fmt(x.created_at)} · ${Math.max(1, Math.round((x.size_bytes || 0) / 1024))} KB</div></div><div class="a"><button class="lnk small" data-act="openDoc" data-id="${x.id}">Open</button><button class="lnk small" data-act="delDoc" data-id="${x.id}">Delete</button></div></div>`).join('') : '<p class="empty">No documents yet.</p>') + '</div></div>';
     $('#memBody').innerHTML = h;
     const up = $('#upFile'); if (up) up.addEventListener('change', () => upload(up));
+    const cam = $('#camFile'); if (cam) cam.addEventListener('change', () => upload(cam));
   }
 
   const MEMBER_FIELDS = () => [['full_name', 'Full name', 'text', 1], ['relationship', 'Relationship to you', 'select', 1, Object.entries(REL)], ['birth_date', 'Date of birth', 'date'], ['notes', 'Notes', 'area']];
