@@ -228,3 +228,26 @@ button.hpill{cursor:pointer}button.hpill:hover{background:#bae6fd}
 .fwhere{margin:-4px 0 8px}
 @media(max-width:900px){.row2{grid-template-columns:1fr}}
 @media(max-width:560px){.ja{flex-direction:row;flex-wrap:wrap;width:100%}.ja .btn{flex:1}}
+
+/* Check-in QR, appointments, use it before you lose it */
+dialog.qrd{max-width:440px;width:calc(100% - 24px)}
+.qrd .fdh{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.qrbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px auto;max-width:280px}
+.qrbox svg{display:block;width:100%;height:auto}
+.qrd .prov{background:#f3f7fc;border-radius:12px;padding:10px 12px;margin:8px 0}
+.qchk{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;cursor:pointer}
+.qchk input{width:18px;height:18px}
+.qrtxt{white-space:pre-wrap;font:12.5px/1.45 ui-monospace,Menlo,monospace;background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:10px;max-height:160px;overflow:auto;margin:6px 0 10px}
+.row2.r3{grid-template-columns:1fr 1.25fr}
+.apptc,.usec{margin:0}
+.ap{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.ap:first-of-type{border-top:0}
+.apd{flex:none;width:52px;height:56px;border-radius:12px;background:#e6f0fb;color:var(--ac);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.apd span{font-size:11px;font-weight:700;text-transform:uppercase}.apd b{font-size:21px}
+.apb{flex:1;min-width:0}
+.apa{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.ug{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ui{display:flex;flex-direction:column;gap:3px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fbfcfe}
+.ui.go{border-left:4px solid #f59e0b}.ui.ok{border-left:4px solid #16a34a}.ui.info{border-left:4px solid var(--ac)}
+@media(max-width:900px){.row2.r3{grid-template-columns:1fr}}
+@media(max-width:560px){.ug{grid-template-columns:1fr}}

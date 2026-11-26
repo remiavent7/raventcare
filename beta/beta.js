@@ -25,7 +25,7 @@
     allergy: { label: 'Allergies', one: 'allergy', fields: [['name', 'Allergic to', 'text', 1], ['reaction', 'Reaction'], ['severity', 'Severity', 'select', 0, ['', 'Mild', 'Moderate', 'Severe']]], t: d => d.name, s: d => [d.reaction, d.severity] },
     condition: { label: 'Conditions', one: 'condition', fields: [['name', 'Condition', 'text', 1], ['since', 'Since'], ['notes', 'Notes', 'area']], t: d => d.name, s: d => [d.since && 'Since ' + d.since, d.notes] },
     vaccine: { label: 'Vaccines', one: 'vaccine', fields: [['name', 'Vaccine', 'text', 1], ['date', 'Date', 'date'], ['where', 'Where']], t: d => d.name, s: d => [d.date, d.where] },
-    visit: { label: 'Visits', one: 'visit', fields: [['date', 'Date', 'date', 1], ['with', 'With'], ['reason', 'Reason'], ['billed', 'Billed by the provider ($)', 'money'], ['paid', 'You paid ($)', 'money'], ['notes', 'Notes', 'area']], t: d => [d.date, d.with].filter(Boolean).join(' · '), s: d => [d.reason, (d.billed || d.paid) ? [d.billed && 'Billed ' + usd(d.billed), d.paid && 'You paid ' + usd(d.paid)].filter(Boolean).join(' · ') : '', d.notes], sort: (a, b) => String(b.data.date || '').localeCompare(String(a.data.date || '')) },
+    visit: { label: 'Visits and appointments', one: 'visit', fields: [['date', 'Date', 'date', 1], ['time', 'Time (for appointments)', 'time'], ['with', 'With'], ['where', 'Where'], ['reason', 'Reason'], ['billed', 'Billed by the provider ($)', 'money'], ['paid', 'You paid ($)', 'money'], ['notes', 'Notes', 'area']], t: d => [d.date, d.with].filter(Boolean).join(' · '), s: d => [d.reason, (d.billed || d.paid) ? [d.billed && 'Billed ' + usd(d.billed), d.paid && 'You paid ' + usd(d.paid)].filter(Boolean).join(' · ') : '', d.notes], sort: (a, b) => String(b.data.date || '').localeCompare(String(a.data.date || '')) },
     note: { label: 'Notes', one: 'note', fields: [['title', 'Title', 'text', 1], ['text', 'Note', 'area']], t: d => d.title, s: d => [d.text] }
   };
   const ORDER = ['insurance', 'doctor', 'medication', 'allergy', 'condition', 'vaccine', 'visit', 'note'];
@@ -239,6 +239,83 @@
       draw(NEAR.list);
     } catch (e) { const e2 = $('#nearList'); if (e2) e2.innerHTML = '<p class="mut small">The national provider registry didn\u2019t respond. Try again in a moment.</p>'; }
   }
+  // Check-in QR: plain text the front desk can read with any phone camera. Nothing goes through a server.
+  function qrText(m, withMeds) {
+    const mi = items.filter(x => x.member_id === m.id), p = primaryIns(mi), d = p ? p.data : {}, h = home();
+    const L = ['CollectCare check-in', 'Name: ' + String(m.full_name).toUpperCase()];
+    if (m.birth_date) L.push('DOB: ' + m.birth_date);
+    if (p) { L.push('Insurance: ' + [d.payer_name && (d.plan || '').indexOf(d.payer_name) < 0 ? d.payer_name : '', d.plan].filter(Boolean).join(' ')); if (d.member_id) L.push('Member ID: ' + d.member_id); if (d.group) L.push('Group: ' + d.group); if (d.holder_name) L.push('Subscriber: ' + d.holder_name + (d.holder_dob ? ' (DOB ' + d.holder_dob + ')' : '')); if (d.phone) L.push('Member services: ' + d.phone); }
+    if (h && h.line1) L.push('Address: ' + homeFull(h));
+    if (withMeds) {
+      const al = mi.filter(x => x.kind === 'allergy').map(x => x.data.name + (x.data.reaction ? ' (' + x.data.reaction + ')' : ''));
+      const md = mi.filter(x => x.kind === 'medication').map(x => [x.data.name, x.data.dose].filter(Boolean).join(' '));
+      L.push('Allergies: ' + (al.length ? al.join('; ') : 'none listed'));
+      L.push('Medications: ' + (md.length ? md.join('; ') : 'none listed'));
+    }
+    return L.join('\n');
+  }
+  function showQR(m, withMeds) {
+    const t = qrText(m, withMeds), q = qrcode(0, 'M'); q.addData(t, 'Byte'); q.make();
+    const appt = upcoming(m)[0];
+    const d = $('#qrDlg');
+    d.innerHTML = `<div class="fdh"><div><h2>Check in \u00b7 ${esc(m.full_name)}</h2><p class="mut small">Show this code at the front desk. Any phone camera can read it. It holds only what\u2019s listed below.</p></div><button class="lnk" data-q="close">Close</button></div>
+      <div class="qrbox">${q.createSvgTag({ cellSize: 5, margin: 2, scalable: true })}</div>
+      ${appt ? `<div class="prov"><b>Next appointment: ${esc(apptWhen(appt))}</b><div class="mut small">${esc([appt.data.with, appt.data.reason].filter(Boolean).join(' \u00b7 '))}</div></div>` : '<div class="prov"><b>Walk-in check-in</b><div class="mut small">No upcoming appointment on file. The code shares your name, date of birth and insurance so the front desk can check you in.</div></div>'}
+      <label class="qchk"><input type="checkbox" data-q="meds"${withMeds ? ' checked' : ''}> Include allergies and medications</label>
+      <pre class="qrtxt">${esc(t)}</pre>
+      <div class="drow"><button class="btn ghost" data-q="copy">Copy as text</button><button class="btn" data-q="close">Done</button></div>`;
+    d.onclick = async e => { const b = e.target.closest('[data-q]'); if (!b) { if (e.target === d) d.close(); return; } const a = b.dataset.q;
+      if (a === 'close') d.close(); else if (a === 'meds') showQR(m, b.checked); else if (a === 'copy') copy(t, 'Check-in details copied'); };
+    if (!d.open) d.showModal(); log('Showed check-in QR', first(m.full_name));
+  }
+
+  // Upcoming appointments are visits dated today or later.
+  function upcoming(m) { const t = localDay(); return items.filter(x => x.member_id === m.id && x.kind === 'visit' && x.data.date && x.data.date >= t).sort((a, b) => (a.data.date + (a.data.time || '')).localeCompare(b.data.date + (b.data.time || ''))); }
+  function apptWhen(a) { const d = new Date(a.data.date + 'T' + (a.data.time || '12:00')); return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + (a.data.time ? ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : ''); }
+  function icsFor(a, m) {
+    const d = a.data, pad = n => String(n).padStart(2, '0'), st = new Date(d.date + 'T' + (d.time || '09:00')), en = new Date(st.getTime() + 36e5);
+    const f = x => x.getUTCFullYear() + pad(x.getUTCMonth() + 1) + pad(x.getUTCDate()) + 'T' + pad(x.getUTCHours()) + pad(x.getUTCMinutes()) + '00Z';
+    const e = s => String(s || '').replace(/[\\,;]/g, c => '\\' + c).replace(/\n/g, '\\n');
+    const body = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CollectCare//Beta//EN', 'BEGIN:VEVENT', 'UID:' + a.id + '@collectmycare.com', 'DTSTAMP:' + f(new Date()), (d.time ? 'DTSTART:' + f(st) : 'DTSTART;VALUE=DATE:' + d.date.replace(/-/g, '')), (d.time ? 'DTEND:' + f(en) : ''), 'SUMMARY:' + e(first(m.full_name) + ': ' + (d.reason || 'Appointment') + (d.with ? ' with ' + d.with : '')), d.where ? 'LOCATION:' + e(d.where) : '', 'DESCRIPTION:' + e('Bring your insurance card. Open CollectCare for the check-in QR code.'), 'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', 'DESCRIPTION:Appointment tomorrow', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].filter(Boolean).join('\r\n');
+    const u = URL.createObjectURL(new Blob([body], { type: 'text/calendar' })), l = document.createElement('a'); l.href = u; l.download = 'appointment-' + d.date + '.ics'; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+  }
+  function apptCard(m) {
+    const U = upcoming(m), f = first(m.full_name), q = '?m=' + encodeURIComponent(m.id);
+    return `<div class="card apptc" id="s-appts"><div class="fh2"><h2>Upcoming appointments</h2><button class="btn ghost sm" data-act="addAppt">Add appointment</button></div>` +
+      (U.length ? U.map(a => { const dt = new Date(a.data.date + 'T12:00'); return `<div class="ap"><div class="apd"><span>${dt.toLocaleDateString('en-US', { month: 'short' })}</span><b>${dt.getDate()}</b></div><div class="apb"><b>${esc(a.data.reason || 'Appointment')}${a.data.with ? ' \u00b7 ' + esc(a.data.with) : ''}</b><div class="mut small">${esc(apptWhen(a))}${a.data.where ? ' \u00b7 ' + esc(a.data.where) : ''}</div>
+        <div class="apa"><a class="lnk small" href="jerry-summary.html${q}">Visit summary from Jerry</a><button class="lnk small" data-act="qr">Check-in QR</button><button class="lnk small" data-act="ics" data-id="${a.id}">Add to calendar</button><button class="lnk small" data-act="editItem" data-id="${a.id}">Edit</button></div></div></div>`; }).join('')
+        : `<p class="mut small">No upcoming appointments for ${esc(f)}. Add one to get a calendar reminder, a check-in QR code and a visit summary from Jerry. Online booking comes later.</p>`) + '</div>';
+  }
+
+  // Use it before you lose it: built from the plan year and what this family entered.
+  function useCard(m, p, py) {
+    const mi = items.filter(x => x.member_id === m.id), f = first(m.full_name), d = p ? p.data : {};
+    const start = d.year_start || (new Date().getFullYear() + '-01-01');
+    const vis = mi.filter(x => x.kind === 'visit' && x.data.date && x.data.date >= start && x.data.date <= localDay());
+    const has = rx => vis.some(x => rx.test([x.data.reason, x.data.with, x.data.notes].join(' ')));
+    const flu = mi.some(x => x.kind === 'vaccine' && /flu|influenza/i.test(x.data.name || '') && (x.data.date || '') >= (new Date().getMonth() >= 7 ? new Date().getFullYear() : new Date().getFullYear() - 1) + '-08-01');
+    const ins = mi.filter(x => x.kind === 'insurance'), dental = ins.some(x => /dental/i.test([x.data.type, x.data.plan].join(' '))), vision = ins.some(x => /vision/i.test([x.data.type, x.data.plan].join(' ')));
+    const T = [];
+    if (p) T.push(has(/physical|annual|wellness|preventive|check.?up/i) ? ['ok', 'Annual physical', 'Logged this plan year.', ''] : ['go', 'Annual physical', 'Preventive visits are usually $0 in network. None logged this plan year.', 'c_pcp']);
+    if (!flu) T.push(['go', 'Flu shot', 'Usually $0 at in-network pharmacies. None logged this season.', 'c_rx']);
+    if (dental) T.push(has(/dental|dentist|cleaning/i) ? ['ok', 'Dental cleaning', 'Logged this plan year.', ''] : ['go', 'Dental cleaning', 'Many dental plans cover two cleanings a year at no cost. Check your plan.', '']);
+    if (vision) T.push(has(/eye|vision|optom/i) ? ['ok', 'Eye exam', 'Logged this plan year.', ''] : ['go', 'Eye exam', 'Most vision plans include one exam a year. Check your plan.', '']);
+    const ded = num(d.ded), dm = num(d.ded_met) || 0, oop = num(d.oop), om = num(d.oop_met) || 0;
+    if (ded && dm >= ded) T.push(['go', 'Deductible met', 'Covered care costs less until it resets in ' + py.left + ' days. A good time for care you\u2019ve been putting off.', 'c_spec']);
+    else if (ded && dm > 0) T.push(['info', 'Deductible progress', usd(dm) + ' of ' + usd(ded) + ' met. It resets to $0 in ' + py.left + ' days.', '']);
+    if (oop && om >= oop) T.push(['go', 'Out-of-pocket max met', 'Covered in-network care should be $0 until the plan year resets in ' + py.left + ' days.', 'c_spec']);
+    if (num(d.hsa)) T.push(['info', 'HSA or FSA balance ' + usd(d.hsa), 'FSA money usually must be spent by the plan year deadline. HSA money rolls over.', '']);
+    if (!T.length) return '';
+    return `<div class="card usec" id="s-use"><div class="fh2"><h2>Use it before you lose it</h2><span class="mut small">${py.left} days left in ${esc(f)}\u2019s plan year</span></div><div class="ug">` +
+      T.map(([k, t, s, chip]) => `<div class="ui ${k}"><b>${esc(t)}</b><span class="mut small">${esc(s)}</span>${chip && p ? `<button class="lnk small" data-act="findCare" data-id="${p.id}" data-chip="${chip}">Find nearby \u203a</button>` : ''}${k === 'ok' ? '<span class="tag ok">Done</span>' : ''}</div>`).join('') + '</div></div>';
+  }
+  window.CCB = {
+    state: () => ({ user, home: home(), members, items, docs, cur, ben: BEN }),
+    helpers: { primaryIns, planYear, ageOf, upcoming, apptWhen, homeCity, homeFull, usd, num, first, jerryData, localDay },
+    near: () => NEAR.list,
+    run: (act, ds) => { const b = document.createElement('button'); b.dataset.act = act; Object.assign(b.dataset, ds || {}); b.hidden = true; $('#memBody').appendChild(b); onFamilyClick({ target: b, preventDefault() { } }); b.remove(); },
+    select: id => { cur = id; renderFamily(); }
+  };
   function renderSide() {
     const f = famName(); $('#dsub').textContent = (f ? f + ' family' : 'Your family') + ' \u00b7 private beta';
     $('#dAdmin').hidden = !isAdmin;
@@ -256,7 +333,7 @@
     $('#hello').textContent = (m.relationship === 'self' ? 'Your ' : first(m.full_name) + '\u2019s ') + py.year + ' benefits';
     const camBtn = NAT ? '<button class="qb" data-act="scan">' + ICO.cam + 'Scan a card</button>' : (TOUCH ? '<label class="qb">' + ICO.cam + 'Take a photo<input type="file" id="camTop" accept="image/*" capture="environment" hidden></label>' : '<button class="qb" data-act="qUpload">' + ICO.up + 'Upload a card</button>');
     $('#qaRow').innerHTML = (p && BEN ? `<button class="qb" data-act="checkBen" data-id="${p.id}">${ICO.chk}Check with my insurer</button>` : '') +
-      `<button class="qb urg" data-act="qUrgent">${ICO.plus}Nearest urgent care</button>` + `<a class="qbot" href="jerry.html?m=${encodeURIComponent(m.id)}" aria-label="Check in with Jerry, the health bot" title="Check in with Jerry"><img src="bot.svg" alt="" width="54" height="54"></a>` + camBtn +
+      `<button class="qb" data-act="qr">${ICO.qr}Check-in QR</button><button class="qb urg" data-act="qUrgent">${ICO.plus}Nearest urgent care</button>` + `<a class="qbot" href="jerry.html?m=${encodeURIComponent(m.id)}" aria-label="Check in with Jerry, the health bot" title="Check in with Jerry"><img src="bot.svg" alt="" width="54" height="54"></a>` + camBtn +
       `<button class="qb" data-act="addMember">${ICO.add}Add family member</button>`;
 
     // Insurance card + family tiles
@@ -275,6 +352,7 @@
       ${p && BEN ? `<p class="small mut ins">${d.payer_id ? 'Insurer for benefit checks: <b>' + esc(d.payer_name || d.payer_id) + '</b> \u00b7 ' : ''}<button class="lnk small" data-act="pickPayer" data-id="${p.id}">${d.payer_id ? 'Change' : 'Find my insurance company'}</button></p>` : ''}</div>`;
     h += glanceCard(m, mi, p, py) + '</div>';
     h += '<div class="row2">' + jerryCard(m) + nearCard() + '</div>';
+    h += '<div class="row2 r3">' + apptCard(m) + useCard(m, p, py) + '</div>';
     h += findCard(m, p);
 
     h += '<div class="sects">';
@@ -292,6 +370,7 @@
     renderHomeLn(); loadNear();
   }
   const ICO = {
+    qr: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2zM16 16h2v2h-2z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>',
     home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     chk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     plus: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor"/></svg>',
@@ -365,7 +444,7 @@
     if (!p) return h + `<p class="mut small">Add ${esc(m.relationship === 'self' ? 'your' : first(m.full_name) + '\u2019s')} insurance to see the deductible, out-of-pocket maximum and what visits cost.</p></div>`;
     const d = p.data, ded = num(d.ded), dm = num(d.ded_met) || 0, oop = num(d.oop), om = num(d.oop_met) || 0;
     const start = d.year_start || (new Date().getFullYear() + '-01-01');
-    const vis = mi.filter(x => x.kind === 'visit' && x.data.date && x.data.date >= start);
+    const vis = mi.filter(x => x.kind === 'visit' && x.data.date && x.data.date >= start && x.data.date <= localDay());
     const paid = vis.reduce((a, x) => a + (num(x.data.paid) || 0), 0), billed = vis.reduce((a, x) => a + (num(x.data.billed) || 0), 0);
     if (ded == null && oop == null) h += `<p class="mut small">Add your deductible and out-of-pocket maximum from your plan\u2019s website or app${BEN ? ', or select <b>Check with my insurer</b>' : ''} to see what you\u2019ve met.</p>`;
     else {
@@ -653,6 +732,16 @@
         } else Object.keys(v).forEach(k => { if (!v[k]) delete v[k]; });
         const r = it ? await sb.from('items').update({ data }).eq('id', it.id) : await sb.from('items').insert({ member_id: m.id, kind, data });
         if (r.error) return fail(r.error); log((it ? 'Edited ' : 'Added ') + K.one, first(m.full_name)); await loadAll();
+      } else if (act === 'qr') {
+        if (!m) return addMember(true);
+        showQR(m, false);
+      } else if (act === 'ics') {
+        const it = items.find(x => x.id === t.dataset.id); if (it) icsFor(it, m);
+      } else if (act === 'addAppt') {
+        const v = await ask('Add an appointment for ' + first(m.full_name), [['date', 'Date', 'date', 1], ['time', 'Time', 'time'], ['with', 'With (doctor or clinic)'], ['where', 'Where'], ['reason', 'Reason']], {}, 'Save'); if (!v) return;
+        Object.keys(v).forEach(k => { if (!v[k]) delete v[k]; });
+        const r = await sb.from('items').insert({ member_id: m.id, kind: 'visit', data: v }); if (r.error) return fail(r.error);
+        log('Added appointment', first(m.full_name)); await loadAll(); toast('Appointment saved');
       } else if (act === 'editHome') {
         await editHome();
       } else if (act === 'jerry') {
@@ -805,7 +894,7 @@
     }).join('');
     $('#accTbl').innerHTML = acc.error ? '<tr><td>' + esc(acc.error.message) + '</td></tr>' : '<tr><th>Name</th><th>Email</th><th>Joined</th><th>Last sign-in</th><th>Invite</th><th>Profiles</th></tr>' + acc.data.map(a => `<tr><td>${esc(a.display_name || '')}</td><td>${esc(a.email)}${a.confirmed ? '' : ' <span class="tag">Unconfirmed</span>'}</td><td>${fmt(a.joined)}</td><td>${a.last_sign_in ? fmt(a.last_sign_in) : '—'}</td><td><code>${esc(a.invite_code || '')}</code></td><td>${a.family_members}</td></tr>`).join('');
   }
-  async function copy(t) { try { await navigator.clipboard.writeText(t); toast('Invite link copied'); } catch (e) { toast(t); } }
+  async function copy(t, msg = 'Invite link copied') { try { await navigator.clipboard.writeText(t); toast(msg); } catch (e) { toast(t); } }
 
   // ---------- iPhone app only: Face ID lock, camera scan, medication reminders ----------
   let unlockedOnce = false, hiddenAt = 0;

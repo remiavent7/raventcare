@@ -17,6 +17,7 @@
 <meta name="theme-color" content="#ffffff">
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="beta.css">
+<link rel="stylesheet" href="agent.css">
 </head>
 <body>
 <header class="top"><div class="in">
@@ -36,6 +37,7 @@
   <div class="dsub" id="dsub">Private beta</div>
   <div class="dlab">Quick actions</div>
   <div class="dqa">
+    <button data-act="qr">Check-in QR code</button>
     <button data-act="qCheck">Check with my insurer</button>
     <button class="urg" data-act="qUrgent">+ Nearest urgent care</button>
     <button data-act="jerry">Check in with Jerry</button>
@@ -48,6 +50,8 @@
     <a href="#s-ben" data-jump="s-ben"><i class="dot"></i>Benefits</a>
     <a href="#s-jerry" data-jump="s-jerry"><i class="dot"></i>Jerry · daily check-in</a>
     <a href="#s-near" data-jump="s-near"><i class="dot"></i>Care near home</a>
+    <a href="#s-appts" data-jump="s-appts"><i class="dot"></i>Appointments</a>
+    <a href="#s-use" data-jump="s-use"><i class="dot"></i>Use it before you lose it</a>
     <a href="#s-find" data-jump="s-find"><i class="dot"></i>Find in-network care</a>
     <a href="#s-insurance" data-jump="s-insurance"><i class="dot"></i>Insurance</a>
     <a href="#s-doctor" data-jump="s-doctor"><i class="dot"></i>Doctors and care team</a>
@@ -180,12 +184,15 @@
 
 <div id="lock" hidden><div class="lockin"><img src="../logo.svg" alt="" width="56" height="56"><h2>CollectCare is locked</h2><p class="mut">Unlock to see your family's information.</p><button class="btn" id="lockBtn">Unlock</button><button class="lnk" id="lockOut">Sign out</button></div></div>
 <dialog id="findDlg" class="big" aria-label="Find in-network care"></dialog>
+<dialog id="qrDlg" class="qrd" aria-label="Check-in QR code"></dialog>
 <dialog id="dlg"><form method="dialog" id="dlgForm" class="frm"></form></dialog>
 
 <footer class="foot">CollectCare private beta by Ravent Care LLC. Not medical advice, not an insurance service and not a substitute for your doctor or plan. <a href="../privacy.html">Privacy policy</a> · <a href="../law.html">Your rights</a></footer>
 
 <script src="vendor/supabase.js"></script>
 <script src="config.js"></script>
+<script src="qr.js"></script>
 <script src="beta.js"></script>
+<script src="agent.js"></script>
 </body>
 </html>
