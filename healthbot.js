@@ -12,7 +12,7 @@ HB.MEM=[
  {mid:'XEB71845203-02',name:'Colin Yates',first:'Colin',rel:'Spouse',age:46},
  {mid:'XEB71845203-03',name:'Chayanne Yates',first:'Chayanne',rel:'Daughter',age:19},
  {mid:'XEB71845203-04',name:'Christian Yates',first:'Christian',rel:'Son',age:15},
- {mid:'4TQ7-RM2-KX58',name:'Margaret Yates',first:'Margaret',rel:'Mother',age:79},
+ {mid:'4TQ7-RM2-KX58',name:'Margaret Yates',first:'Margaret',rel:'Mother',age:79,care:'memory',cg:'Chris'},
  /* Demo cardiology patient (not part of the Yates family). Hidden from the family member bar. */
  {mid:'W2847-61930',name:'Raymond Ortiz',first:'Raymond',rel:'Cardiology demo patient',age:64,guest:true}
 ];
@@ -31,8 +31,8 @@ HB.load=mid=>{try{const d=JSON.parse(ocLS.getItem(HB.key(mid))||'null');if(d&&d.
 HB.save=(mid,d)=>{try{ocLS.setItem(HB.key(mid),JSON.stringify(d))}catch(e){alert('This browser could not save your note. Private browsing may block saving.')}};
 HB.member=()=>{const q=new URLSearchParams(location.search).get('m');let m=HB.MEM.find(x=>x.mid==q);if(!m){const last=ocLS.getItem('ccHB:last');m=HB.MEM.find(x=>x.mid==last)||HB.MEM[0]}if(!m.guest)ocLS.setItem('ccHB:last',m.mid);return m};
 HB.sha=async t=>{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))|0;return 'x'+h};
-HB.flags=e=>{const f=[];(e.symptoms||[]).forEach(s=>{if(HB.RED.includes(s))f.push(s)});if(e.pain>=8)f.push('Pain '+e.pain+' of 10');const t=parseFloat(e.vitals&&e.vitals.temp);if(t>=103)f.push('Temperature '+t+' F');const bp=(e.vitals&&e.vitals.bp||'').match(/(\d{2,3})\s*\/\s*(\d{2,3})/);if(bp&&(+bp[1]>=180||+bp[2]>=120))f.push('Blood pressure '+bp[1]+'/'+bp[2]);(e.pq||[]).concat(e.mh||[]).forEach(x=>{if(!x.al)return;if(x.crisis){if(!f.includes('Thoughts of self-harm'))f.push('Thoughts of self-harm')}else f.push(x.text.replace(/\?$/,'')+': '+x.a)});return f};
-HB.alertHTML=f=>`<div class="alert" role="alert"><b>Please don't wait on this.</b> You noted: ${f.map(HB.esc).join(', ')}. Health Bot notes are not watched by a doctor or nurse in real time, and this demo does not contact your doctor. If your doctor asked about this, call their office today.
+HB.flags=e=>{const f=[];(e.symptoms||[]).forEach(s=>{if(HB.RED.includes(s))f.push(s)});if(e.pain>=8)f.push('Pain '+e.pain+' of 10');const t=parseFloat(e.vitals&&e.vitals.temp);if(t>=103)f.push('Temperature '+t+' F');const bp=(e.vitals&&e.vitals.bp||'').match(/(\d{2,3})\s*\/\s*(\d{2,3})/);if(bp&&(+bp[1]>=180||+bp[2]>=120))f.push('Blood pressure '+bp[1]+'/'+bp[2]);(e.pq||[]).concat(e.mh||[],e.mc||[]).forEach(x=>{if(!x.al||x.cgq)return;if(x.crisis){if(!f.includes('Thoughts of self-harm'))f.push('Thoughts of self-harm')}else f.push((x.s||x.text.replace(/\?$/,''))+': '+x.a)});return f};
+HB.alertHTML=f=>`<div class="alert" role="alert"><b>Please don't wait on this.</b> You noted: ${f.map(HB.esc).join(', ')}. Health Bot notes are not watched by a doctor or nurse in real time, and this demo does not contact your doctor. If your doctor asked about this, call their office today.${f.some(x=>/^Sudden new confusion/.test(x))?'<br><b>Sudden new confusion</b> can be a sign of an infection, a medicine problem or a stroke. Call her doctor today. Call 911 right away for face drooping, arm weakness or trouble speaking.':''}${f.some(x=>/^Fall or head bump/.test(x))?'<br><b>A fall or head bump on a blood thinner</b> (like Eliquis) can cause bleeding that shows up later. Call her doctor or go to urgent care today, and call 911 for a bad headache, vomiting, or more sleepiness or confusion.':''}${f.some(x=>/^Wandering/.test(x))?'<br><b>Wandering:</b> if she is missing now, call 911 first.':''}
 <div class="row"><a class="btn red sm" href="tel:911">Call 911 for an emergency</a>${f.includes('Thoughts of self-harm')?'<a class="btn red sm" href="tel:988">Call or text 988 (crisis line)</a>':''}<a class="btn ghost sm" href="app.html?urgent=1">Nearest urgent care</a></div></div>`;
 HB.botSVG='<img src="bot.svg" alt="">';
 HB.lockSVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
@@ -65,9 +65,16 @@ HB.sample=mid=>{const d=HB.load(mid);let seed=7;const r=()=>{seed=(seed*16807)%2
   const sl=Math.round(((late?7:5.8)+r()*1.6-.8)*2)/2;
   const notes=['','','Headache started mid-afternoon, better after water and rest.','Long day at work. Back stiff after sitting.','Slept badly, woke up at 3am.','Felt better today, walked 30 minutes.','Took ibuprofen twice for the headache.','Headaches seem worse after screens late at night.','Good energy most of the day.'];
   out.push({id:'s'+i,date:HB.ymd(day),t:'8:30 PM',feel,pain,areas:pain?(sy.includes('Back pain')?['Lower back']:['Head']):[],sleep:sl,sq:sl<6?'Poorly':sl<7?'Restless':'Well',energy:Math.max(1,Math.min(5,feel+(r()<.5?0:-1))),mood:[feel>=4?'Calm':r()<.5?'Stressed':'Irritable'],symptoms:sy,meds:r()<.12?'missed':'yes',vitals:i%5==0?{bp:(122+Math.round(r()*14))+'/'+(78+Math.round(r()*8)),temp:'',weight:String(184-Math.round((20-i)/7)),glucose:''}:{},note:notes[Math.floor(r()*notes.length)],star:i==11||i==3,sample:true})}
+ const MM=HB.MEM.find(x=>x.mid==mid);if(HB.mcCare(MM)){const Q=HB.mcQ(MM),pick=(id,v)=>{const q=Q.find(x=>x.id==id);return{id,s:q.s,text:q.text,type:q.type,unit:'',v,a:HB.ansTxt(q,v),al:HB.qAlert(q,v),crisis:false,cgq:!!q.cgq}};
+  const MN=['','','Good morning. Did the crossword with Chris after breakfast.','Asked twice what day her eye doctor was. Calendar on the fridge helped.','Restless after 5 pm, settled after dinner and music.','Walked to the park with Colin. Happy and chatty.','Could not find her glasses, they were in the fridge. Laughed about it.','Slept well. Took donepezil at bedtime with Chris reminding her.','Talked to her sister on the phone for an hour.'];
+  out.forEach((e,i)=>{const n=out.length-1-i,bad=n==9,fall=n==5;e.symptoms=e.symptoms.filter(x=>x!='Headache'&&x!='Back pain');if(bad)e.symptoms.push('Dizzy');e.pain=fall?3:Math.min(e.pain,2);e.areas=e.pain?(fall?['Hip']:['Knee']):[];e.vitals=e.vitals&&e.vitals.bp?Object.assign(e.vitals,{weight:'',glucose:String(128+(n*7)%30)}):e.vitals;
+   e.note=bad?'Very confused this afternoon, did not know where she was for about an hour. Called Dr. Lake\'s office, they asked to check for a urine infection.':fall?'Tripped on the rug by the back door, landed on her hip. No head bump. Rug is gone now.':MN[(i*5)%MN.length];e.star=bad||fall;if(bad)e.feel=2;
+   e.mc=[pick('mc0',n%3==0?'Together':n%3==1?(MM.cg||'Caregiver')+' (caregiver)':MM.first),pick('mc1',bad?'Much worse':n%4==1?'A little worse':n%7==0?'Better than usual':'About the same'),pick('mc2',bad?'Yes':'No'),pick('mc3',bad?'Many times':n%3==0?'A few times':'No'),pick('mc4',n==6?'Missed or doubled a dose':n%2?'With reminders':'On her own'),pick('mc5',fall?'Yes':'No'),pick('mc6','No'),pick('mc7',bad?'Hard to manage':n%3==1?'Mild':'None'),pick('mc8',bad?'Less than usual':'Yes'),pick('mc9',n%3==2?'No':'Yes'),pick('mc10',bad?8:fall?6:3+(n%3))];
+   if(n==6)e.meds='missed'})}
  d.entries=d.entries.filter(e=>!e.sample).concat(out).sort((a,b)=>a.date<b.date?-1:1);
- if(!d.questions.length)d.questions=[{id:'q1',text:'Could my headaches be linked to sleep or screen time?',sample:true},{id:'q2',text:'Is it safe to keep taking ibuprofen a few times a week?',sample:true}];
- if(!d.visit.date){const v=new Date();v.setDate(v.getDate()+3);d.visit={date:HB.ymd(v),with:'Primary care visit',reason:'Headaches and back stiffness',sample:true}}
+ const mcS=HB.mcCare(MM);
+ if(!d.questions.length)d.questions=mcS?[{id:'q1',text:'Was the confused afternoon from an infection, and what should we watch for?',sample:true},{id:'q2',text:'Is donepezil helping, and should the dose change?',sample:true},{id:'q3',text:'Is it time to talk about a Medicare cognitive assessment and care plan visit?',sample:true}]:[{id:'q1',text:'Could my headaches be linked to sleep or screen time?',sample:true},{id:'q2',text:'Is it safe to keep taking ibuprofen a few times a week?',sample:true}];
+ if(!d.visit.date){const v=new Date();v.setDate(v.getDate()+3);d.visit=mcS?{date:HB.ymd(v),with:'Neurology (memory care) with Chris',reason:'Memory check-in, one confused afternoon and a fall',sample:true}:{date:HB.ymd(v),with:'Primary care visit',reason:'Headaches and back stiffness',sample:true}}
  HB.save(mid,d)};
 HB.clearSample=mid=>{const d=HB.load(mid);d.entries=d.entries.filter(e=>!e.sample);d.questions=d.questions.filter(q=>!q.sample);if(d.visit.sample)d.visit={};HB.save(mid,d)};
 HB.download=(name,text,type)=>{const b=new Blob([text],{type:type||'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},500)};
@@ -123,6 +130,29 @@ HB.MH=[
 HB.TPL.mh.q=HB.MH;
 HB.mhOn=mid=>ocLS.getItem('ccHB:mh:'+mid)=='1';
 HB.setMH=(mid,on)=>on?ocLS.setItem('ccHB:mh:'+mid,'1'):ocLS.removeItem('ccHB:mh:'+mid);
+/* ---------- Memory care check-in ----------
+   For a member with a memory care profile (care:'memory'), Health Bot asks these
+   questions in every daily check-in. A family caregiver can answer with or for
+   the member. Not a cognitive test or diagnosis. Demo: saved in this browser only. */
+HB.MC=[
+ {id:'mc0',s:'Answered by',text:'Who is answering today?',type:'choice',opts:['{f}','{cg} (caregiver)','Together'],who:true},
+ {id:'mc1',s:'Memory vs. usual',text:'Compared with a usual day, how were {f}\'s memory and thinking today?',type:'choice',opts:['Better than usual','About the same','A little worse','Much worse'],alert:{v:'Much worse'}},
+ {id:'mc2',s:'Sudden new confusion',text:'Any sudden new confusion today that came on over hours, not {f}\'s usual?',type:'yesno',alert:{v:'Yes'},sudden:true},
+ {id:'mc3',s:'Repeating or misplacing',text:'Did {f} repeat questions or misplace things more than usual?',type:'choice',opts:['No','A few times','Many times']},
+ {id:'mc4',s:'Medicines',text:'How did {f} take medicines today, including donepezil at bedtime?',type:'choice',opts:['On her own','With reminders','Missed or doubled a dose'],alert:{v:'Missed or doubled a dose'},meds:true},
+ {id:'mc5',s:'Fall or head bump',text:'Any fall, near-fall or bump to the head today?',type:'yesno',alert:{v:'Yes'},fall:true},
+ {id:'mc6',s:'Wandering',text:'Any wandering, getting lost, or trying to leave home at an unusual time?',type:'yesno',alert:{v:'Yes'}},
+ {id:'mc7',s:'Evening restlessness',text:'Any restlessness, agitation or confusion in the late afternoon or evening?',type:'choice',opts:['None','Mild','Hard to manage'],alert:{v:'Hard to manage'}},
+ {id:'mc8',s:'Eating and drinking',text:'Did {f} eat and drink enough today?',type:'choice',opts:['Yes','Less than usual','Hardly at all'],alert:{v:'Hardly at all'}},
+ {id:'mc9',s:'Enjoyable activity',text:'Did {f} do something she enjoys today, like a walk, music, a puzzle or a visit?',type:'yesno'},
+ {id:'mc10',s:'Caregiver stress',text:'{cg}, how stressed do you feel as a caregiver today? (0 is not at all, 10 is overwhelmed)',type:'scale',alert:{op:'>=',v:8},cgq:true}];
+HB.mcQ=m=>HB.MC.map(q=>{const r=t=>String(t).replace(/\{f\}/g,m.first).replace(/\{cg\}/g,m.cg||'Caregiver');return Object.assign({},q,{text:r(q.text),opts:q.opts?q.opts.map(r):q.opts})});
+HB.mcCare=m=>!!(m&&m.care=='memory');
+/* On by default for a memory care profile; can be turned off on this device. */
+HB.mcOn=mid=>{const v=ocLS.getItem('ccHB:mc:'+mid);if(v!=null)return v=='1';return HB.mcCare(HB.MEM.find(x=>x.mid==mid))};
+HB.setMC=(mid,on)=>ocLS.setItem('ccHB:mc:'+mid,on?'1':'0');
+HB.TPL.mc={name:'Memory care check-in',days:90,msg:'A short daily check-in on memory, safety and routine. A family caregiver can answer with or for the patient.',q:HB.MC.filter(q=>!q.who).map(q=>Object.assign({},q,{text:q.text.replace(/\{f\}'s/g,'their').replace(/\{f\}/g,'they').replace(/\{cg\}, /,'Caregiver: ').replace('On her own','On their own').replace('she enjoys','they enjoy')}))};
+HB.ALZ='800-272-3900';
 HB.qid=()=>'pq'+Math.random().toString(36).slice(2,8);
 HB.qAlert=(q,v)=>{const a=q.alert;if(!a||v===''||v==null)return false;if(q.type=='scale'||q.type=='number'){const n=parseFloat(v);if(isNaN(n)||a.v===''||a.v==null)return false;return a.op=='<='?n<=+a.v:n>=+a.v}return String(v)==String(a.v)};
 HB.ansTxt=(q,v)=>{if(v===''||v==null)return 'Skipped';if(q.type=='scale')return v+'/10';if(q.type=='number')return v+(q.unit?' '+q.unit:'');return String(v)};

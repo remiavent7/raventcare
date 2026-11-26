@@ -298,6 +298,11 @@
       if(/margaret|mom|mother/.test(s)&&first(p)!=='Margaret'){switchTo('Margaret');setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}
       return {h:maCompare()};
     }
+    if(/memory|dementia|alzheimer|forget|confus|donepezil|caregiver|wander/.test(s)){
+      if(first(p)!=='Margaret'){switchTo('Margaret');setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}
+      return {h:'<b>Margaret · memory care profile</b><br>Mild cognitive impairment since Oct 21, 2026, on donepezil 5 mg at bedtime. Chris is her main caregiver. Next neurology visit Jan 27, memory re-test Apr 28.<br><br>Health Bot asks her memory care questions every day: memory compared with usual, sudden new confusion, medicines, falls or head bumps, wandering, evening restlessness, eating, activities and how Chris is coping. Sudden confusion or a head bump on Eliquis shows a same-day warning.<br><br>Caregiver support any time: Alzheimer\'s Association 24/7 Helpline, 800-272-3900.'+
+        acts([{t:'Open memory check-in',href:'healthbot.html?m=4TQ7-RM2-KX58'},{t:'See her profile',act:'scroll',arg:'mccard'},{t:'Call the helpline',href:'tel:8002723900'}])};
+    }
     if(/\bbook\b|make an appointment|schedule (a|an|my)|set up (a|an) (visit|appointment)|see a doctor|need an appointment/.test(s)){
       for(var j=0;j<ps.length;j++){var fn=ps[j].name.split(' ')[0];if(new RegExp('\\b'+fn.toLowerCase()+'\\b').test(s)&&fn!==first(p)){switchTo(fn);p=ps[j];setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}}
       var k=visitKey(s);return {h:k?bookTimes(k):bookStart(p)};

@@ -54,3 +54,5 @@ footer{max-width:980px;margin:auto;padding:0 18px 30px;font-size:12.5px;color:va
 .rqbar{height:8px;border-radius:99px;background:var(--s2);border:1px solid var(--line);overflow:hidden;margin:10px 0 4px}.rqbar i{display:block;height:100%;background:var(--ok)}
 .rqlog{margin-top:8px;font-size:13px;display:grid;gap:4px;overflow-wrap:anywhere}.rqlog>div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px}
 .rqdone{margin-top:12px}.rqdone summary{cursor:pointer;font-weight:700;color:var(--ac);min-height:32px}
+
+.mcbox{border-color:#bfe3dc;background:#f4fbf9}.mcbox .mhtog input{accent-color:#0f6b5c}
