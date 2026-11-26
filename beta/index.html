@@ -38,6 +38,7 @@
   <div class="dqa">
     <button data-act="qCheck">Check with my insurer</button>
     <button class="urg" data-act="qUrgent">+ Nearest urgent care</button>
+    <button data-act="jerry">Check in with Jerry</button>
     <button data-act="qUpload">Upload a card or document</button>
     <button data-act="addMember">Add a family member</button>
   </div>
@@ -45,6 +46,8 @@
   <nav class="dnav" id="dnav">
     <a href="#ov" data-jump="ov" class="on"><i class="dot"></i>Overview</a>
     <a href="#s-ben" data-jump="s-ben"><i class="dot"></i>Benefits</a>
+    <a href="#s-jerry" data-jump="s-jerry"><i class="dot"></i>Jerry · daily check-in</a>
+    <a href="#s-near" data-jump="s-near"><i class="dot"></i>Care near home</a>
     <a href="#s-find" data-jump="s-find"><i class="dot"></i>Find in-network care</a>
     <a href="#s-insurance" data-jump="s-insurance"><i class="dot"></i>Insurance</a>
     <a href="#s-doctor" data-jump="s-doctor"><i class="dot"></i>Doctors and care team</a>
@@ -130,7 +133,7 @@
   <!-- Family -->
   <section id="vFamily" class="view" hidden>
     <div class="ptop">
-      <div><p class="mut ctx" id="ctx"></p><h1 id="hello">Your family</h1></div>
+      <div><p class="mut ctx" id="ctx"></p><p class="homeln" id="homeLn"></p><h1 id="hello">Your family</h1></div>
       <div class="qa" id="qaRow"></div>
     </div>
     <div id="memEmpty" class="card" hidden><h2>Start with yourself</h2><p class="mut">Add yourself first, then anyone you help care for, such as a spouse, child or parent.</p><button class="btn" id="addSelf">Add myself</button></div>
@@ -150,6 +153,7 @@
     <div class="card"><h2>Account</h2><p class="mut" id="acctLine"></p>
       <form id="fName" class="row-f"><label>Display name<input name="name" maxlength="120"></label><button class="btn ghost">Save</button></form>
     </div>
+    <div class="card"><h2>Home address</h2><p class="mut" id="homeSet">Not added yet.</p><p class="mut small">Care searches, nearest urgent care and distances start from here. Only you can see it.</p><button class="btn ghost" data-act="editHome" id="homeBtn">Add home address</button></div>
     <div class="card"><h2>Two-step verification</h2><p class="mut" id="mfaState">Checking…</p><div id="mfaBox"></div></div>
     <div class="card" id="devBox" hidden><h2>This iPhone</h2><p class="small"><b>App lock with <span id="bioName">Face ID</span></b></p><p class="mut" id="bioState"></p><button class="btn sm" id="bioBtn">Turn on</button><p class="small gap"><b>Medication reminders</b></p><p class="mut" id="remState"></p></div>
     <div class="card"><h2>Your data</h2><p class="mut">Download a copy of everything you've added, including links to your documents.</p><button class="btn ghost" id="export">Download my data</button></div>

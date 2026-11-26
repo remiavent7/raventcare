@@ -1,0 +1,100 @@
+/* Jerry page script (moved out of the HTML for the strict content security policy). */
+
+const $=HB.$,esc=HB.esc;let M,D,PER=14;
+$('boticon').innerHTML=HB.botSVG;
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const r1=x=>x==null?'–':(Math.round(x*10)/10).toString();
+const feelW=x=>x==null?'–':HB.FEEL[Math.max(1,Math.min(5,Math.round(x)))].w;
+function range(){const end=new Date();end.setHours(0,0,0,0);const st=new Date(end);st.setDate(st.getDate()-(PER-1));return{st:HB.ymd(st),en:HB.ymd(end)}}
+function build(){
+ const R=range(),E=D.entries.filter(e=>e.date>=R.st&&e.date<=R.en),v=D.visit||{};
+ const byDay={};E.forEach(e=>{(byDay[e.date]=byDay[e.date]||[]).push(e)});const dayKeys=Object.keys(byDay).sort();
+ const dayAvg=k=>({feel:avg(byDay[k].map(e=>e.feel)),pain:Math.max(...byDay[k].map(e=>e.pain||0)),sleep:avg(byDay[k].map(e=>e.sleep))});
+ const DA=dayKeys.map(k=>Object.assign({k},dayAvg(k)));
+ const half=Math.floor(DA.length/2),f1=avg(DA.slice(0,half).map(d=>d.feel)),f2=avg(DA.slice(half).map(d=>d.feel));
+ const p1=avg(DA.slice(0,half).map(d=>d.pain)),p2=avg(DA.slice(half).map(d=>d.pain));
+ const aF=avg(DA.map(d=>d.feel)),aP=avg(DA.map(d=>d.pain)),aS=avg(DA.map(d=>d.sleep));
+ const maxP=DA.reduce((m,d)=>d.pain>(m?m.pain:-1)?d:m,null);
+ const sym={};E.forEach(e=>new Set(e.symptoms).forEach(s=>{const o=sym[s]=sym[s]||{n:0,days:new Set(),first:e.date,last:e.date};o.days.add(e.date);o.last=e.date}));
+ const midK=dayKeys[half]||R.en;
+ const SY=Object.entries(sym).map(([s,o])=>{const a=[...o.days].filter(d=>d<midK).length,b=[...o.days].filter(d=>d>=midK).length;return{s,n:o.days.size,first:o.first,last:o.last,tr:b>a?'More often lately':b<a?'Less often lately':'About the same'}}).sort((a,b)=>b.n-a.n);
+ const areas={};E.forEach(e=>(e.areas||[]).forEach(a=>areas[a]=(areas[a]||0)+1));
+ const missed=E.filter(e=>e.meds=='missed').length,medDays=E.filter(e=>e.meds=='yes'||e.meds=='missed').length;
+ const moods={};E.forEach(e=>(e.mood||[]).forEach(m=>moods[m]=(moods[m]||0)+1));
+ const flags=E.map(e=>({e,f:HB.flags(e)})).filter(x=>x.f.length);
+ const vit=k=>E.filter(e=>e.vitals&&e.vitals[k]).map(e=>({d:e.date,v:e.vitals[k]}));
+ const BP=vit('bp'),TP=vit('temp'),WT=vit('weight'),GL=vit('glucose');
+ const notes=E.filter(e=>e.note).slice().reverse();const starred=notes.filter(e=>e.star),other=notes.filter(e=>!e.star).slice(0,Math.max(0,6-starred.length));
+ // plain-language synopsis
+ const fn=M.first,trend=(a,b,up,dn)=>a==null||b==null||Math.abs(b-a)<.4?'':(b>a?up:dn);
+ let syn='';
+ if(!E.length)syn=`${fn} has no Jerry notes in the last ${PER} days. Add a daily check-in and this summary fills in on its own.`;
+ else{syn=`Over the last ${PER} days, ${fn} checked in on ${dayKeys.length} day${dayKeys.length==1?'':'s'}. Overall ${fn} felt mostly "${feelW(aF).toLowerCase()}" (${r1(aF)} out of 5)`;
+  const t=trend(f1,f2,'and has been feeling better lately','and has been feeling worse lately');syn+=(t?', '+t:'')+'. ';
+  if(SY.length)syn+=`Most common symptom${SY.length>1?'s':''}: ${SY.slice(0,3).map(s=>s.s.toLowerCase()+' ('+s.n+' day'+(s.n==1?'':'s')+')').join(', ')}. `;else syn+='No symptoms were reported. ';
+  if(aP&&aP>0)syn+=`Pain averaged ${r1(aP)} out of 10${maxP&&maxP.pain?`, highest ${maxP.pain} on ${HB.fmt(maxP.k,{month:'short',day:'numeric'})}`:''}${Object.keys(areas).length?` (mostly ${Object.entries(areas).sort((a,b)=>b[1]-a[1])[0][0].toLowerCase()})`:''}${trend(p1,p2,', getting worse',', easing')}. `;else syn+='No pain was reported. ';
+  if(aS!=null)syn+=`Sleep averaged ${r1(aS)} hours a night. `;
+  if(medDays)syn+=missed?`Missed a medicine dose on ${missed} day${missed==1?'':'s'}. `:'Took medicines as prescribed on every day logged. ';
+  if(flags.length)syn+=`${flags.length} note${flags.length==1?'':'s'} included a warning sign (see below).`}
+ // chart
+ const W=640,H=190,pl=34,pr=34,pt=14,pb=26,days=[];for(let i=PER-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(HB.ymd(d))}
+ const X=i=>pl+(W-pl-pr)*(days.length==1?.5:i/(days.length-1)),YF=v=>pt+(H-pt-pb)*(1-(v-1)/4),YP=v=>pt+(H-pt-pb)*(1-v/10);
+ const pts=(fn2,yf)=>days.map((k,i)=>{const d=DA.find(x=>x.k==k);return d&&d[fn2]!=null?[X(i),yf(d[fn2])]:null}).filter(Boolean);
+ const path=p=>p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+ const PF=pts('feel',YF),PP=pts('pain',YP);const step=Math.ceil(days.length/7);
+ const chart=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chart of how ${esc(fn)} felt and pain level by day">
+ ${[1,2,3,4,5].map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${YF(v)}" y2="${YF(v)}" stroke="#e3ebf5"/><text x="${pl-6}" y="${YF(v)+4}" font-size="10" text-anchor="end" fill="#1f6fd1">${v}</text>`).join('')}
+ ${[0,5,10].map(v=>`<text x="${W-pr+6}" y="${YP(v)+4}" font-size="10" fill="#c2410c">${v}</text>`).join('')}
+ ${days.map((k,i)=>i%step==0||i==days.length-1?`<text x="${X(i)}" y="${H-8}" font-size="10" text-anchor="middle" fill="#4d6180">${HB.fmt(k,{month:'numeric',day:'numeric'})}</text>`:'').join('')}
+ ${PP.length>1?`<path d="${path(PP)}" fill="none" stroke="#ea7a2e" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round"/>`:''}${PP.map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="3" fill="#ea7a2e"/>`).join('')}
+ ${PF.length>1?`<path d="${path(PF)}" fill="none" stroke="#1f6fd1" stroke-width="3" stroke-linejoin="round"/>`:''}${PF.map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="4" fill="#1f6fd1"/>`).join('')}</svg>
+ <div class="row mut" style="font-size:12.5px;gap:14px;margin-top:4px"><span class="row" style="gap:5px"><i style="width:16px;height:3px;background:#1f6fd1;display:block"></i>How I felt (1 bad to 5 great, left scale)</span><span class="row" style="gap:5px"><i style="width:16px;height:0;border-top:3px dashed #ea7a2e;display:block"></i>Highest pain that day (0 to 10, right scale)</span></div>`;
+ const vrow=(l,a,u)=>a.length?`<tr><td>${l}</td><td>${a.length}</td><td>${esc(a[a.length-1].v)}${u} <span class="mut">(${HB.fmt(a[a.length-1].d,{month:'short',day:'numeric'})})</span></td><td>${a.length>1?esc(a.map(x=>x.v).join(', '))+u:'–'}</td></tr>`:'';
+ const vt=vrow('Blood pressure',BP,'')+vrow('Temperature',TP,' F')+vrow('Weight',WT,' lb')+vrow('Blood sugar',GL,' mg/dL');
+ const PQ={};E.forEach(e=>(e.pq||[]).forEach(x=>{const g=PQ[x.text]=PQ[x.text]||{text:x.text,by:e.planBy,a:[]};g.a.push({d:e.date,a:x.a,al:x.al,skip:x.v===''||x.v==null})}));const PQL=Object.values(PQ);
+ const pqCard=PQL.length?`<div class="card"><h2>My doctor's daily questions</h2><p class="mut" style="font-size:13.5px;margin:0 0 8px">Asked by ${esc(PQL[0].by||'my doctor')} in each daily check-in. Red answers are ones my doctor asked to hear about.</p><div class="tw"><table><tr><th>Question</th><th>Answered</th><th>Latest</th><th>Recent answers</th></tr>${PQL.map(g=>{const ans=g.a.filter(x=>!x.skip),L=ans[ans.length-1];return `<tr><td><b>${esc(g.text)}</b></td><td>${ans.length} of ${g.a.length}</td><td>${L?`<span style="font-weight:700;color:${L.al?'#b42318':'inherit'}">${esc(L.a)}</span> <span class="mut">(${HB.fmt(L.d,{month:'short',day:'numeric'})})</span>`:'–'}</td><td>${ans.slice(-7).map(x=>`<span style="${x.al?'color:#b42318;font-weight:700':''}">${esc(x.a)}</span>`).join(', ')||'–'}</td></tr>`}).join('')}</table></div></div>`:'';
+ const MQ={};E.forEach(e=>(e.mh||[]).forEach(x=>{const g=MQ[x.text]=MQ[x.text]||{text:x.text,a:[]};g.a.push({d:e.date,a:x.a,al:x.al,skip:x.v===''||x.v==null})}));const MQL=Object.values(MQ);
+ const mhCard=MQL.length?`<div class="card"><h2>Mental health check-ins</h2><p class="mut" style="font-size:13.5px;margin:0 0 8px">Daily answers about mood, worry and coping. Not a screening score or diagnosis. Red answers are ones to talk about.</p><div class="tw"><table><tr><th>Question</th><th>Answered</th><th>Latest</th><th>Recent answers</th></tr>${MQL.map(g=>{const ans=g.a.filter(x=>!x.skip),L=ans[ans.length-1];return `<tr><td><b>${esc(g.text)}</b></td><td>${ans.length} of ${g.a.length}</td><td>${L?`<span style="font-weight:700;color:${L.al?'#b42318':'inherit'}">${esc(L.a)}</span> <span class="mut">(${HB.fmt(L.d,{month:'short',day:'numeric'})})</span>`:'–'}</td><td>${ans.slice(-7).map(x=>`<span style="${x.al?'color:#b42318;font-weight:700':''}">${esc(x.a)}</span>`).join(', ')||'–'}</td></tr>`}).join('')}</table></div><p class="mut" style="font-size:12.5px;margin:8px 0 0">Crisis support: call or text 988 any time.</p></div>`:'';
+ const sample=E.some(e=>e.sample);
+ $('out').innerHTML=`
+ <div class="printhead"><b style="font-size:18px">CollectCare · Jerry visit summary</b><br>${esc(M.name)} · ${esc(M.rel)}${M.age!==''?', age '+M.age:''} · ${M.ins?'Member ID '+esc(M.ins):''}<br>${v.date?'Appointment '+HB.fmt(v.date,{weekday:'long',month:'long',day:'numeric',year:'numeric'}):''}${v.with?' · '+esc(v.with):''}</div>
+ <div class="card"><div class="row"><h2 style="margin:0">${esc(M.first)}'s summary</h2>${sample?'<span class="tag">Includes sample notes</span>':''}<span class="sp"></span><span class="mut" style="font-size:13px">${HB.fmt(R.st,{month:'short',day:'numeric'})} to ${HB.fmt(R.en,{month:'short',day:'numeric',year:'numeric'})}</span></div>
+  ${v.reason?`<p style="margin:6px 0 10px"><b>Reason for visit:</b> ${esc(v.reason)}${v.date?` · <span class="mut">${HB.fmt(v.date,{weekday:'short',month:'short',day:'numeric'})}${v.with?', '+esc(v.with):''}</span>`:''}</p>`:''}
+  <p class="syn">${esc(syn)}</p>
+  ${E.length?`<div class="grid g4" style="gap:10px;margin-top:12px"><div class="kp"><b>${dayKeys.length}/${PER}</b><span>days with a note</span></div><div class="kp"><b>${feelW(aF)}</b><span>usual feeling (${r1(aF)} of 5)</span></div><div class="kp"><b>${r1(aP)}<small style="font-size:14px">/10</small></b><span>average pain${maxP&&maxP.pain?', top '+maxP.pain:''}</span></div><div class="kp"><b>${r1(aS)} h</b><span>average sleep</span></div></div>`:''}
+ </div>
+ ${flags.length?`<div class="card" style="border-color:#f1c7c2"><h2 style="color:#b42318">Warning signs I noted</h2><table><tr><th>Date</th><th>What I noted</th></tr>${flags.map(x=>`<tr><td>${HB.fmt(x.e.date)}</td><td>${esc(x.f.join(', '))}</td></tr>`).join('')}</table></div>`:''}
+ ${pqCard}
+ ${mhCard}
+ ${E.length?`<div class="card chart"><h2>How I felt each day</h2>${chart}</div>`:''}
+ ${SY.length?`<div class="card"><h2>Symptoms</h2><div class="tw"><table><tr><th>Symptom</th><th>Days</th><th>First</th><th>Last</th><th>Pattern</th></tr>${SY.map(s=>`<tr><td><b>${esc(s.s)}</b></td><td>${s.n}</td><td>${HB.fmt(s.first,{month:'short',day:'numeric'})}</td><td>${HB.fmt(s.last,{month:'short',day:'numeric'})}</td><td>${s.tr}</td></tr>`).join('')}</table></div>
+  ${Object.keys(areas).length?`<p class="mut" style="font-size:13.5px;margin:10px 0 0"><b style="color:var(--tx)">Where it hurt:</b> ${Object.entries(areas).sort((a,b)=>b[1]-a[1]).map(([a,n])=>esc(a)+' ('+n+')').join(', ')}</p>`:''}
+  ${Object.keys(moods).length?`<p class="mut" style="font-size:13.5px;margin:6px 0 0"><b style="color:var(--tx)">Mood:</b> ${Object.entries(moods).sort((a,b)=>b[1]-a[1]).map(([a,n])=>esc(a)+' ('+n+')').join(', ')}</p>`:''}</div>`:''}
+ ${E.length?`<div class="card"><h2>Medicines and readings</h2><p style="margin:0 0 8px">${medDays?(missed?`Missed a dose on <b>${missed}</b> of ${medDays} days logged.`:`Took medicines as prescribed on all ${medDays} days logged.`):'<span class="mut">No medicine answers logged.</span>'}</p>
+  ${vt?`<div class="tw"><table><tr><th>Reading</th><th>Times</th><th>Latest</th><th>All readings</th></tr>${vt}</table></div>`:'<p class="mut" style="font-size:13.5px;margin:0">No home readings logged.</p>'}</div>`:''}
+ ${notes.length?`<div class="card"><h2>In my own words</h2>${starred.concat(other).map(e=>`<div class="ent"><i class="dot" style="background:${HB.FEEL[e.feel]?HB.FEEL[e.feel].c:'#ccc'}"></i><div class="bd"><div class="row" style="gap:6px"><b>${HB.fmt(e.date)}</b>${e.star?'<span class="tag ac">For my doctor</span>':''}</div><p>${esc(e.note)}</p></div></div>`).join('')}${notes.length>starred.length+other.length?`<p class="mut" style="font-size:12.5px;margin:6px 0 0">${notes.length-starred.length-other.length} more notes in Jerry.</p>`:''}</div>`:''}
+ ${D.questions.length?`<div class="card printonly-q"><h2>My questions</h2><ol style="margin:0;padding-left:20px">${D.questions.map(q=>`<li style="margin:4px 0">${esc(q.text)}</li>`).join('')}</ol></div>`:''}
+ <p class="mut printhead" style="font-size:11px">Patient-reported notes from the CollectCare Jerry. Not a diagnosis or medical record.</p>`;
+ // text version
+ TXT=[`CollectCare Jerry visit summary`,`${M.name} (${M.rel}, ${M.age})`,v.date?`Appointment: ${HB.fmt(v.date,{weekday:'long',month:'long',day:'numeric'})}${v.with?' with '+v.with:''}`:'',v.reason?`Reason: ${v.reason}`:'',`Notes from ${HB.fmt(R.st,{month:'short',day:'numeric'})} to ${HB.fmt(R.en,{month:'short',day:'numeric'})}`,'',syn,
+  flags.length?'\nWarning signs: '+flags.map(x=>HB.fmt(x.e.date,{month:'short',day:'numeric'})+' '+x.f.join(', ')).join('; '):'',
+  SY.length?'\nSymptoms: '+SY.map(s=>`${s.s} ${s.n} day${s.n==1?'':'s'} (${s.tr.toLowerCase()})`).join('; '):'',
+  MQL.length?'\nMental health check-ins:\n'+MQL.map(g=>{const ans=g.a.filter(x=>!x.skip);return '- '+g.text+' '+(ans.length?ans.slice(-7).map(x=>x.a).join(', '):'no answers')}).join('\n'):'',
+  PQL.length?'\nDoctor\'s daily questions:\n'+PQL.map(g=>{const ans=g.a.filter(x=>!x.skip);return '- '+g.text+' '+(ans.length?ans.slice(-7).map(x=>x.a).join(', '):'no answers')}).join('\n'):'',
+  BP.length?'Blood pressure: '+BP.map(x=>x.v).join(', '):'',
+  starred.length?'\nFor my doctor:\n'+starred.map(e=>'- '+HB.fmt(e.date,{month:'short',day:'numeric'})+': '+e.note).join('\n'):'',
+  D.questions.length?'\nMy questions:\n'+D.questions.map((q,i)=>(i+1)+'. '+q.text).join('\n'):''].filter(Boolean).join('\n');
+}
+let TXT='';
+function drawQ(){$('ql').innerHTML=D.questions.length?D.questions.map(q=>`<div class="q"><span>${esc(q.text)}</span><button class="x" data-qx="${q.id}">Remove</button></div>`).join(''):'<p class="mut" style="margin:0;font-size:13.5px">No questions yet.</p>'}
+$('qf').onsubmit=e=>{e.preventDefault();const t=$('qi').value.trim();if(!t)return;D.questions.push({id:'q'+Date.now(),text:t});HB.save(M.mid,D);$('qi').value='';drawQ();build()};
+$('ql').onclick=e=>{const b=e.target.closest('[data-qx]');if(!b)return;D.questions=D.questions.filter(q=>q.id!=b.dataset.qx);HB.save(M.mid,D);drawQ();build()};
+$('per').onclick=e=>{const b=e.target.closest('button');if(!b)return;PER=+b.dataset.p;[...$('per').children].forEach(c=>c.classList.toggle('on',c==b));build()};
+['vd','vw','vr'].forEach(id=>$(id).oninput=()=>{D.visit={date:$('vd').value,with:$('vw').value.trim(),reason:$('vr').value.trim()};HB.save(M.mid,D);build()});
+$('pr').onclick=()=>window.print();
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText(TXT);$('cpm').textContent='Copied. Paste it into your check-in form or a message to the office.'}catch(e){const t=document.createElement('textarea');t.value=TXT;document.body.appendChild(t);t.select();try{document.execCommand('copy');$('cpm').textContent='Copied.'}catch(_){$('cpm').textContent='Copy is blocked here. Use Print instead.'}t.remove()}};
+HB.guard($('sm'),()=>{M=HB.member();D=HB.load(M.mid);HB.memBar($('mem'),M,'jerry-summary.html');
+ const q='?m='+encodeURIComponent(M.mid);$('nhb').href='jerry.html'+q;$('toc').href='jerry.html'+q;
+ const v=D.visit||{};$('vd').value=v.date||'';$('vw').value=v.with||'';$('vr').value=v.reason||'';
+ const p=new URLSearchParams(location.search).get('p');if(['7','14','30','90'].includes(p)){PER=+p;[...$('per').children].forEach(c=>c.classList.toggle('on',c.dataset.p==p))}
+ drawQ();build()});

@@ -92,6 +92,7 @@
     const a = await sb.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
     isAdmin = !!(a.data); $('#navAdmin').hidden = !isAdmin;
     await loadAll(); show('family');
+    if (new URLSearchParams(location.search).get('urgent') === '1') { history.replaceState(null, '', location.pathname); setTimeout(() => { const b = $('#qaRow [data-act="qUrgent"]'); if (b) b.click(); }, 50); }
   }
 
   function initAuthForms() {
@@ -176,6 +177,68 @@
     const end = new Date(st.getFullYear() + 1, st.getMonth(), st.getDate());
     return { year: st.getMonth() === 0 && st.getDate() === 1 ? st.getFullYear() : st.getFullYear() + '\u2013' + String(end.getFullYear()).slice(2), end, left: Math.max(0, Math.ceil((end - now) / 864e5)) };
   }
+  // Home address lives in the account's own profile (auth user metadata), like the demo family's home in Long Beach.
+  function home() { const h = (user && user.user_metadata || {}).home; return h && /^\d{5}$/.test(h.zip || '') ? h : null; }
+  function homeCity(h) { return [h.city, [h.state, h.zip].filter(Boolean).join(' ')].filter(Boolean).join(', '); }
+  function homeFull(h) { return [h.line1, homeCity(h)].filter(Boolean).join(', '); }
+  async function editHome() {
+    const h = home() || {};
+    const v = await ask('Home address', [['line1', 'Street address'], ['city', 'City'], ['state', 'State (2 letters)'], ['zip', 'ZIP code', 'text', 1]], h, 'Save',
+      'Care searches, nearest urgent care and distances start from your home ZIP code. Only you can see this.');
+    if (!v) return;
+    const zip = String(v.zip || '').trim().slice(0, 5);
+    if (!/^\d{5}$/.test(zip)) return toast('Enter a 5-digit ZIP code');
+    const g = (await zf(zip.slice(0, 3)))[zip];
+    if (!g) return toast('We couldn\u2019t find ZIP code ' + zip + '. Check the number and try again.');
+    const nh = { line1: String(v.line1 || '').trim().slice(0, 120), city: String(v.city || '').trim().slice(0, 60) || tc(g[2]), state: (String(v.state || '').trim().slice(0, 2) || g[3]).toUpperCase(), zip, lat: g[0], lng: g[1] };
+    const r = await sb.auth.updateUser({ data: { home: nh } }); if (r.error) return fail(r.error);
+    user = r.data.user; localStorage.setItem('cc_zip', zip); NEAR.k = null;
+    log('Updated home address', nh.city + ', ' + nh.state); toast('Home address saved');
+    renderFamily(); if (!$('#vSettings').hidden) renderSettings();
+  }
+  function renderHomeLn() {
+    const h = home(), el = $('#homeLn'); if (!el) return;
+    el.innerHTML = h ? `<span class="hpill">${ICO.home}Home \u00b7 ${esc(homeFull(h))}</span> <button class="lnk small" data-act="editHome">Change</button>`
+      : `<button class="hpill add" data-act="editHome">${ICO.home}Add your home address</button> <span class="mut small">so care searches start from home</span>`;
+  }
+
+  // Jerry, the health bot. Notes stay in this browser (see jerry-core.js); the dashboard only reads them for the 7-day dots.
+  const FEELW = [null, 'bad', 'not great', 'okay', 'good', 'great'];
+  function jerryData(id) { try { return JSON.parse(localStorage.getItem('ccJB:v1:' + id) || 'null') || { entries: [] }; } catch (e) { return { entries: [] }; } }
+  function jerryCard(m) {
+    const f = first(m.full_name), D = jerryData(m.id), by = {}, q = '?m=' + encodeURIComponent(m.id);
+    (D.entries || []).forEach(e => { (by[e.date] = by[e.date] || []).push(e.feel); });
+    const avg = v => v ? Math.round(v.reduce((x, y) => x + y, 0) / v.length) : 0;
+    const today = avg(by[localDay()]);
+    let dots = ''; for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); const a = avg(by[localDay(d)]); dots += `<i class="${a ? 'f' + a : ''}" title="${d.toLocaleDateString('en-US', { weekday: 'short' })}${a ? ': ' + FEELW[a] : ''}"></i>`; }
+    const n = (D.entries || []).length;
+    const msg = today ? `${esc(f)} checked in today: feeling ${FEELW[today]}.` : `How is ${esc(f)} feeling today?`;
+    return `<div class="card jerry" id="s-jerry"><a class="jbot" href="jerry.html${q}" aria-label="Check in with Jerry"><img src="bot.svg" alt="" width="84" height="84"></a>
+      <div class="jt"><span class="eyebrow">Jerry \u00b7 private daily notes</span><b>${msg}</b><div class="jd" aria-label="Last 7 days">${dots}</div>
+      <p class="mut xs">${n ? n + ' note' + (n === 1 ? '' : 's') + ' on this device. ' : ''}A minute a day. Before a visit, Jerry turns the notes into a one-page summary for the doctor. Notes stay on this device.</p></div>
+      <div class="ja"><a class="btn" href="jerry.html${q}">${today ? 'Add a note' : 'Check in with Jerry'}</a><a class="btn ghost" href="jerry-summary.html${q}">Visit summary</a></div></div>`;
+  }
+
+  // Closest urgent care to the family's home, from the national NPI registry (cached per ZIP for this tab).
+  const NEAR = { k: null, list: null };
+  function nearCard() {
+    const h = home();
+    if (!h) return `<div class="card nearc" id="s-near"><div class="fh2"><h2>Care near home</h2></div><p class="mut small">Add your home address and CollectCare will show the closest urgent care and start every doctor search from home, the way the sample family\u2019s dashboard works.</p><button class="btn sm" data-act="editHome">Add home address</button></div>`;
+    return `<div class="card nearc" id="s-near"><div class="fh2"><h2>Closest urgent care to home</h2><span class="mut small">${esc(homeCity(h))} \u00b7 <button class="lnk small" data-act="qUrgent">See all and map distance</button></span></div><div id="nearList"><p class="mut small">Looking near home\u2026</p></div><p class="mut xs">Licensed urgent care clinics from the national NPI registry, by distance from your home ZIP code. Call ahead and confirm the clinic is in your plan\u2019s network. In an emergency call 911.</p></div>`;
+  }
+  async function loadNear() {
+    const h = home(), el = $('#nearList'); if (!h || !el) return;
+    const k = h.zip;
+    const draw = L => { const e2 = $('#nearList'); if (!e2) return; e2.innerHTML = L.length ? '<div class="nl">' + L.slice(0, 3).map(p => `<div class="ni"><b>${esc(p.name)}</b><span class="mut small">${esc(p.addr)}</span><span class="small"><b>${p.d < 0.1 ? 'under 0.1' : p.d.toFixed(1)} mi</b>${p.tel ? ` \u00b7 <a class="lnk small" href="tel:+1${p.tel}">${esc(niceTel(p.tel))}</a>` : ''} \u00b7 <a class="lnk small" href="https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(homeFull(h))}&destination=${encodeURIComponent(p.addr)}" target="_blank" rel="noopener">Directions</a></span></div>`).join('') + '</div>' : '<p class="mut small">No urgent care clinics found within 25 miles of home.</p>'; };
+    if (NEAR.k === k && NEAR.list) return draw(NEAR.list);
+    try { const c = sessionStorage.getItem('cc_near_' + k); if (c) { NEAR.k = k; NEAR.list = JSON.parse(c); return draw(NEAR.list); } } catch (e) { }
+    try {
+      const r = await searchCare('urgent', k, 25);
+      NEAR.k = k; NEAR.list = r.list.slice(0, 6).map(x => provOf(x, CARE.urgent[3] === 'org'));
+      try { sessionStorage.setItem('cc_near_' + k, JSON.stringify(NEAR.list)); } catch (e) { }
+      draw(NEAR.list);
+    } catch (e) { const e2 = $('#nearList'); if (e2) e2.innerHTML = '<p class="mut small">The national provider registry didn\u2019t respond. Try again in a moment.</p>'; }
+  }
   function renderSide() {
     const f = famName(); $('#dsub').textContent = (f ? f + ' family' : 'Your family') + ' \u00b7 private beta';
     $('#dAdmin').hidden = !isAdmin;
@@ -185,15 +248,15 @@
     $('#memEmpty').hidden = members.length > 0;
     const m = members.find(x => x.id === cur);
     const f = famName();
-    if (!m) { $('#ctx').textContent = (f ? f + ' family' : 'Your family') + ' \u00b7 private beta'; $('#hello').textContent = 'Your family'; $('#qaRow').innerHTML = ''; $('#memBody').innerHTML = ''; return; }
+    if (!m) { $('#ctx').textContent = (f ? f + ' family' : 'Your family') + ' \u00b7 private beta'; $('#hello').textContent = 'Your family'; $('#qaRow').innerHTML = ''; $('#memBody').innerHTML = ''; renderHomeLn(); return; }
     const mi = items.filter(x => x.member_id === m.id), md = docs.filter(x => x.member_id === m.id);
     const age = ageOf(m), p = primaryIns(mi), d = p ? p.data : {}, py = planYear(d);
     const rel = m.relationship === 'self' ? 'you' : (REL[m.relationship] || '').toLowerCase();
-    $('#ctx').textContent = [(f ? f + ' family' : 'Your family') + ' \u00b7 viewing ' + first(m.full_name) + ' (' + [rel, age != null ? age : ''].filter(Boolean).join(', ') + ')', p ? (d.payer_name && d.plan && d.plan.indexOf(d.payer_name) < 0 ? d.payer_name + ' ' : '') + (d.plan || 'Insurance') : 'No insurance on file yet'].join(' \u00b7 ');
+    $('#ctx').textContent = [(f ? f + ' family' : 'Your family') + ' \u00b7 viewing ' + first(m.full_name) + ' (' + [rel, age != null ? age : ''].filter(Boolean).join(', ') + ')', p ? (d.payer_name && d.plan && d.plan.indexOf(d.payer_name) < 0 ? d.payer_name + ' ' : '') + (d.plan || 'Insurance') : 'No insurance on file yet', home() ? homeCity(home()) : ''].filter(Boolean).join(' \u00b7 ');
     $('#hello').textContent = (m.relationship === 'self' ? 'Your ' : first(m.full_name) + '\u2019s ') + py.year + ' benefits';
     const camBtn = NAT ? '<button class="qb" data-act="scan">' + ICO.cam + 'Scan a card</button>' : (TOUCH ? '<label class="qb">' + ICO.cam + 'Take a photo<input type="file" id="camTop" accept="image/*" capture="environment" hidden></label>' : '<button class="qb" data-act="qUpload">' + ICO.up + 'Upload a card</button>');
     $('#qaRow').innerHTML = (p && BEN ? `<button class="qb" data-act="checkBen" data-id="${p.id}">${ICO.chk}Check with my insurer</button>` : '') +
-      `<button class="qb urg" data-act="qUrgent">${ICO.plus}Nearest urgent care</button>` + camBtn +
+      `<button class="qb urg" data-act="qUrgent">${ICO.plus}Nearest urgent care</button>` + `<a class="qbot" href="jerry.html?m=${encodeURIComponent(m.id)}" aria-label="Check in with Jerry, the health bot" title="Check in with Jerry"><img src="bot.svg" alt="" width="54" height="54"></a>` + camBtn +
       `<button class="qb" data-act="addMember">${ICO.add}Add family member</button>`;
 
     // Insurance card + family tiles
@@ -211,6 +274,7 @@
       <div class="stats"><div><b>${nIns}</b><span>Insurance plan${nIns === 1 ? '' : 's'}</span></div><div><b>${nDoc}</b><span>Doctor${nDoc === 1 ? '' : 's'}</span></div><div><b>${nMed}</b><span>Medication${nMed === 1 ? '' : 's'}</span></div><div><b>${md.length}</b><span>Document${md.length === 1 ? '' : 's'}</span></div></div>
       ${p && BEN ? `<p class="small mut ins">${d.payer_id ? 'Insurer for benefit checks: <b>' + esc(d.payer_name || d.payer_id) + '</b> \u00b7 ' : ''}<button class="lnk small" data-act="pickPayer" data-id="${p.id}">${d.payer_id ? 'Change' : 'Find my insurance company'}</button></p>` : ''}</div>`;
     h += glanceCard(m, mi, p, py) + '</div>';
+    h += '<div class="row2">' + jerryCard(m) + nearCard() + '</div>';
     h += findCard(m, p);
 
     h += '<div class="sects">';
@@ -225,8 +289,10 @@
     $('#memBody').querySelectorAll('[data-w]').forEach(e => { e.style.width = e.dataset.w + '%'; });
     ['#upFile', '#camFile'].forEach(s => { const el = $(s); if (el) el.addEventListener('change', () => upload(el)); });
     const ct = $('#camTop'); if (ct) ct.addEventListener('change', () => upload(ct));
+    renderHomeLn(); loadNear();
   }
   const ICO = {
+    home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     chk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     plus: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor"/></svg>',
     cam: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
@@ -458,7 +524,7 @@
   function openFind(m, insItem, chip) {
     const [label, keys] = CHIP_CARE[chip]; const d = insItem.data, dir = planDir(d), mt = telOf(d.phone);
     FC.m = m; FC.ins = insItem; FC.chip = chip; FC.key = keys[0]; FC.res = [];
-    const zip = localStorage.getItem('cc_zip') || '';
+    const hm = home(), zip = (hm && hm.zip) || localStorage.getItem('cc_zip') || '';
     const cost = d[chip] ? `Your ${esc(label.toLowerCase())} cost: <b>${esc(d[chip])}</b> in network.` : '';
     const er = chip === 'c_er' ? '<div class="note bad"><b>In an emergency, call 911 or go to the nearest ER.</b> Under the federal No Surprises Act, emergency care is billed at your in-network cost sharing even at an out-of-network hospital.</div>' : '';
     findDlg().innerHTML = `<div class="fdh"><div><h2>Find in-network ${esc(label.toLowerCase())}</h2><p class="mut small">For ${esc(first(m.full_name))} \u00b7 ${esc(d.payer_name || d.plan || 'your plan')}${d.member_id ? ' \u00b7 ID ' + esc(d.member_id) : ''}</p></div><button class="lnk" data-fc="close" aria-label="Close">Close</button></div>${er}
@@ -466,6 +532,7 @@
       <label>ZIP code<input name="zip" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required value="${esc(zip)}" placeholder="90277"></label>
       <label>Within<select name="r">${[5, 10, 25, 50].map(r => `<option value="${r}"${r === 10 ? ' selected' : ''}>${r} miles</option>`).join('')}</select></label>
       <button class="btn">Search</button></form>
+      <p class="small fwhere">${hm ? `<button type="button" class="lnk small" data-fc="home">From home \u00b7 ${esc(homeCity(hm))}</button> \u00b7 ` : `<button type="button" class="lnk small" data-fc="sethome">Save a home address</button> \u00b7 `}<button type="button" class="lnk small" data-fc="here">Use my current location</button></p>
       ${cost ? `<p class="small">${cost}</p>` : ''}
       <div class="note"><b>Confirm the network with your plan.</b> These are licensed providers near you from the national NPI registry. CollectCare can\u2019t see ${esc(dir ? dir.name : 'your plan')}\u2019s network yet, so check each one in your plan\u2019s directory or call member services before you book. Save what your plan tells you and we\u2019ll show it with the date.
         <div class="fact">${dir ? `<a class="btn sm" href="${dir.url}" target="_blank" rel="noopener" data-fc="dir">Open ${esc(dir.name)}\u2019s directory</a>` : ''}${mt ? `<a class="btn ghost sm" href="tel:+1${mt}">Call member services ${esc(niceTel(mt))}</a>` : ''}${!dir && !mt ? '<span class="small">Use the website or phone number on the back of your card. Add the member services phone to this plan to call from here.</span>' : ''}</div></div>
@@ -527,6 +594,17 @@
   async function onFindClick(e) {
     const t = e.target.closest('[data-fc]'); if (!t) { if (e.target === findDlg()) findDlg().close(); return; }
     const a = t.dataset.fc, p = FC.res[+t.dataset.k];
+    if (a === 'home' || a === 'here' || a === 'sethome') {
+      const f = $('#fcForm');
+      if (a === 'home') { f.zip.value = home().zip; return runFind(); }
+      if (a === 'sethome') { findDlg().close(); return editHome(); }
+      if (!navigator.geolocation) return toast('Location isn\u2019t available on this device');
+      toast('Finding your location\u2026');
+      navigator.geolocation.getCurrentPosition(async pos => {
+        try { const zs = await zipsNear(pos.coords.latitude, pos.coords.longitude, 10); if (!zs.length) return toast('We couldn\u2019t match your location to a ZIP code'); f.zip.value = zs[0].z; runFind(); } catch (err) { fail(err); }
+      }, () => toast('Location is off. Using the ZIP code instead.'), { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
+      return;
+    }
     if (a === 'close') return findDlg().close();
     if (a === 'check' && p) {
       const dir = planDir(FC.ins.data);
@@ -575,6 +653,10 @@
         } else Object.keys(v).forEach(k => { if (!v[k]) delete v[k]; });
         const r = it ? await sb.from('items').update({ data }).eq('id', it.id) : await sb.from('items').insert({ member_id: m.id, kind, data });
         if (r.error) return fail(r.error); log((it ? 'Edited ' : 'Added ') + K.one, first(m.full_name)); await loadAll();
+      } else if (act === 'editHome') {
+        await editHome();
+      } else if (act === 'jerry') {
+        location.href = 'jerry.html' + (m ? '?m=' + encodeURIComponent(m.id) : '');
       } else if (act === 'addMember') {
         await addMember(members.length === 0);
       } else if (act === 'qUpload') {
@@ -583,8 +665,9 @@
       } else if (act === 'qCheck' || act === 'qUrgent') {
         if (!m) return addMember(true);
         const p = primaryIns(items.filter(x => x.member_id === m.id));
+        if (act === 'qUrgent') return openFind(m, p || { data: {} }, 'c_urgent');
         if (!p) { toast('Add ' + first(m.full_name) + '\u2019s insurance first'); show('family'); const b = $('#memBody [data-kind="insurance"]'); if (b) b.click(); return; }
-        if (act === 'qUrgent') openFind(m, p, 'c_urgent'); else if (BEN) await checkBen(p, m); else toast('Benefit checks aren\u2019t switched on yet');
+        if (BEN) await checkBen(p, m); else toast('Benefit checks aren\u2019t switched on yet');
       } else if (act === 'findCare') {
         const it = items.find(x => x.id === t.dataset.id); if (it) openFind(m, it, t.dataset.chip);
       } else if (act === 'pickPayer' || act === 'checkBen') {
@@ -649,6 +732,7 @@
     $('#acctLine').textContent = 'Signed in as ' + user.email;
     if (NAT) renderDevice();
     $('#fName').elements.name.value = (user.user_metadata || {}).display_name || '';
+    { const h = home(); $('#homeSet').textContent = h ? homeFull(h) : 'Not added yet.'; $('#homeBtn').textContent = h ? 'Change home address' : 'Add home address'; }
     const box = $('#mfaBox'), st = $('#mfaState');
     const fs = await sb.auth.mfa.listFactors();
     const ver = (fs.data && fs.data.totp || []).filter(f => f.status === 'verified');
@@ -810,6 +894,7 @@
       if (e.target.closest('[data-act]')) { if ($('#vFamily').hidden) show('family'); onFamilyClick(e); }
     });
     $('#addSelf').addEventListener('click', () => addMember(true));
+    $('#homeBtn').addEventListener('click', () => editHome().catch(fail));
     $('#export').addEventListener('click', () => exportData().catch(fail));
     $('#delAcct').addEventListener('click', deleteAccount);
     $('#fName').addEventListener('submit', async e => {

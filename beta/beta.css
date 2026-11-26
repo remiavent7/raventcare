@@ -203,3 +203,28 @@ dialog.big{max-width:720px;max-height:calc(100vh - 28px);overflow:auto}
   #dsk .dnote{font-size:11.5px;color:var(--mut);margin:6px 10px 0;line-height:1.4}
   #vFamily [id^="s-"],#ov{scroll-margin-top:20px}
 }
+
+/* Home address line, Jerry card and care near home (matching the sample-data demo) */
+.homeln{margin:4px 0 2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hpill{display:inline-flex;align-items:center;gap:6px;background:#e0f2fe;color:#075985;border:0;border-radius:999px;padding:4px 10px;font:inherit;font-size:12.5px;font-weight:600}
+.hpill svg{width:14px;height:14px;flex:none}
+button.hpill{cursor:pointer}button.hpill:hover{background:#bae6fd}
+.qbot{display:inline-flex;align-items:center;justify-content:center;width:58px;height:50px;border-radius:12px}
+.qbot img{width:54px;height:54px;transition:transform .15s}.qbot:hover img{transform:translateY(-2px) rotate(-4deg)}
+.row2{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin-bottom:14px;align-items:start}
+.jerry{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:0}
+.jbot img{display:block;width:84px;height:84px}
+.jt{flex:1;min-width:200px;display:flex;flex-direction:column;gap:4px}
+.jt b{font-size:17px}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.jd{display:flex;gap:6px;margin:4px 0}
+.jd i{width:18px;height:18px;border-radius:50%;background:#e8eef6;border:1px solid #d5deea;display:block}
+.jd i.f1{background:#d64545;border-color:#d64545}.jd i.f2{background:#ef8a3c;border-color:#ef8a3c}.jd i.f3{background:#e8c33a;border-color:#e8c33a}.jd i.f4{background:#5bbf6a;border-color:#5bbf6a}.jd i.f5{background:#16a34a;border-color:#16a34a}
+.ja{display:flex;flex-direction:column;gap:8px}
+.ja .btn{justify-content:center;text-decoration:none}
+.nearc{margin:0}
+.nl{display:flex;flex-direction:column;gap:8px;margin:6px 0 8px}
+.ni{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#f7fafd}
+.fwhere{margin:-4px 0 8px}
+@media(max-width:900px){.row2{grid-template-columns:1fr}}
+@media(max-width:560px){.ja{flex-direction:row;flex-wrap:wrap;width:100%}.ja .btn{flex:1}}

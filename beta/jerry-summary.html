@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://api.fontshare.com; font-src https://cdn.fontshare.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>CollectCare · Visit summary</title><link rel="icon" href="../logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="jerry.css">
+</head><body>
+<div class="top"><div class="in"><a class="brand" href="./"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span style="color:var(--ac)">Care</span></span></a>
+<nav><a href="./">Family</a><a href="jerry.html" id="nhb">Jerry</a><a href="jerry-summary.html" class="on">Visit summary</a><a href="../privacy.html">Privacy</a></nav></div></div>
+<main>
+<div id="gatebox"></div>
+<div id="sm" class="hidden">
+ <div class="noprint">
+  <div class="hero"><div class="bot-ic" id="boticon"></div><div style="flex:1;min-width:220px"><span class="tag ac">Jerry</span><h1>Visit summary</h1><p class="mut" style="margin:0;max-width:640px">Your own notes, put together for your appointment. Show it on your phone, print it, or copy it into the check-in form.</p></div></div>
+  <div class="mem" id="mem" aria-label="Choose a family member"></div>
+  <div class="card"><div class="grid g4" style="gap:10px;align-items:end">
+   <div><label class="f" for="vd">Appointment date</label><input type="date" id="vd"></div>
+   <div><label class="f" for="vw">Seeing</label><input type="text" id="vw" placeholder="Doctor or clinic"></div>
+   <div style="grid-column:span 2"><label class="f" for="vr">Main reason for the visit</label><input type="text" id="vr" placeholder="For example: headaches"></div></div>
+   <label class="f" style="margin-top:12px">Include notes from</label>
+   <div class="chips" id="per" style="margin-top:0"><button class="chip" data-p="7">Last 7 days</button><button class="chip on" data-p="14">Last 14 days</button><button class="chip" data-p="30">Last 30 days</button><button class="chip" data-p="90">Last 90 days</button></div>
+   <div class="row" style="margin-top:6px"><button class="btn" id="pr">Print or save as PDF</button><button class="btn ghost" id="cp">Copy summary text</button><a class="btn ghost" id="toc" href="jerry.html">Add today's check-in</a><span class="mut" id="cpm" style="font-size:13px" role="status"></span></div></div>
+ </div>
+ <div id="out"></div>
+ <div class="card noprint"><h2>Questions for my doctor</h2><p class="mut" style="font-size:13.5px;margin:0 0 8px">Write them down now so you don't forget in the exam room. They print with your summary.</p>
+  <form id="qf" class="row"><input type="text" id="qi" placeholder="Type a question" style="flex:1;min-width:200px" aria-label="New question"><button class="btn sm">Add</button></form>
+  <div id="ql" style="margin-top:6px"></div></div>
+ <p class="mut noprint" style="font-size:12px;margin-top:14px">This summary is built in your browser from notes saved on this device. Nothing is sent to your doctor unless you show, print or share it yourself. It is what you reported, not a diagnosis. For an emergency call 911. For a mental health crisis call or text 988.</p>
+</div>
+</main>
+<footer>CollectCare private beta by Ravent Care LLC. Jerry is a personal notebook, not a medical service. <a href="../privacy.html">Privacy policy</a></footer>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<script src="jerry-core.js"></script>
+<script src="jerry-sum.js"></script>
+</body></html>

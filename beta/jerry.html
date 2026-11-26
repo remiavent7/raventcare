@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://api.fontshare.com; font-src https://cdn.fontshare.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>CollectCare · Jerry</title><link rel="icon" href="../logo.svg"><link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="jerry.css">
+</head><body>
+<div class="top"><div class="in"><a class="brand" href="./"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span style="color:var(--ac)">Care</span></span></a>
+<nav><a href="./">Family</a><a href="jerry.html" class="on" id="nhb">Jerry</a><a href="jerry-summary.html" id="nsum">Visit summary</a><a href="../privacy.html">Privacy</a></nav></div></div>
+<main>
+<div id="gatebox"></div>
+<div id="hb" class="hidden">
+ <div class="hero"><div class="bot-ic" id="boticon"></div><div style="flex:1;min-width:220px"><span class="tag ac">Daily health notes</span><h1>Jerry</h1><p class="mut" style="margin:0;max-width:640px">A minute a day. Tell Jerry how you feel, and when it's time for an appointment it turns your notes into a short summary you can show your doctor.</p></div></div>
+ <div class="mem" id="mem" aria-label="Choose a family member"></div>
+ <div class="priv"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><div><b>Private to this device.</b> Your notes are saved only in this browser on this phone or computer. They are not sent to CollectCare, your insurer or anyone else. You decide when to show the summary. <a href="#privacy" style="color:#7dd3fc">Lock or delete</a></div></div>
+
+ <div class="card hidden" id="reqs" aria-live="polite"></div>
+ <div class="grid g2" style="margin-top:2px;align-items:start">
+  <div class="card" id="ccard" style="grid-column:1/-1"><div class="row"><h2 style="margin:0" id="ctitle">Today's check-in</h2><span class="sp"></span><span class="tag" id="cstat"></span></div>
+   <div id="planban"></div><div class="chat" id="chat" aria-live="polite"></div></div>
+ </div>
+
+ <div class="grid g2" style="align-items:start">
+  <div class="card"><div class="row"><h2 style="margin:0">Last 14 days</h2><span class="sp"></span><span class="mut" style="font-size:13px" id="streak"></span></div>
+   <div class="strip" id="strip" aria-label="How you felt over the last 14 days"></div>
+   <div class="row mut" style="font-size:12px;margin-top:24px;gap:10px" id="legend"></div></div>
+  <div class="card"><h2>Getting ready for a visit?</h2><p class="mut" style="font-size:14px;margin:0 0 12px">Jerry puts your notes into one page: how you have felt, your symptoms, pain, sleep and the questions you want to ask.</p>
+   <div class="row"><a class="btn" id="tosum" href="jerry-summary.html">See my visit summary</a><a class="btn ghost" href="./">Back to my benefits</a></div></div>
+ </div>
+
+ <div class="card"><div class="row"><h2 style="margin:0">My notes</h2><span class="sp"></span><div class="chips" id="hf" style="margin:0"><button class="chip on" data-f="all">All</button><button class="chip" data-f="star">Flagged for doctor</button></div></div>
+  <div id="hist"></div></div>
+
+ <div class="card" id="privacy"><h2>Privacy</h2>
+  <p class="mut" style="font-size:14px;margin:0 0 10px">Jerry opens only when you are signed in to CollectCare. Notes are saved in this browser on this device, not in your CollectCare account, so they don’t appear on your other devices. Sign out when you hand your phone to someone else.</p>
+  <div class="row"><span class="tag lock">Sign-in required</span><button class="btn ghost sm" id="lk">Back to my family</button></div>
+  <div class="row" style="margin-top:12px"><button class="btn ghost sm" id="exp">Download my notes</button><button class="btn red sm" id="del">Delete all notes for <span class="who"></span></button></div>
+  <h3>Demo</h3><p class="mut" style="font-size:13px;margin:0 0 8px">Fill in three weeks of sample check-ins to see how the visit summary looks. Sample notes are labeled and can be removed.</p>
+  <div class="row"><button class="btn ghost sm" id="smp">Add sample check-ins</button><button class="btn ghost sm" id="smpx">Remove sample check-ins</button></div>
+  <p class="mut" style="font-size:12px;margin:14px 0 0">Jerry is a personal notebook, not a medical service. No one watches these notes. For an emergency call 911. For a mental health crisis call or text 988.</p></div>
+</div>
+</main>
+<footer>CollectCare private beta by Ravent Care LLC. Jerry is a personal notebook, not a medical service. <a href="../privacy.html">Privacy policy</a></footer>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<script src="jerry-core.js"></script>
+<script src="jerry-page.js"></script>
+</body></html>
