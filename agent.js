@@ -298,6 +298,12 @@
       if(/margaret|mom|mother/.test(s)&&first(p)!=='Margaret'){switchTo('Margaret');setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}
       return {h:maCompare()};
     }
+    if(/(request|order|need|get|ask for|schedule).{0,25}(blood ?work|blood test|labs?\b|lab test|lab order)|(blood ?work|lab) (order|request)/.test(s)){
+      if(/margaret|mom|mother/.test(s)&&first(p)!=='Margaret'){switchTo('Margaret');p=viewing()||p;setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}
+      var mm=/memory|confus|margaret|mom|mother/.test(s)&&(viewing()||p).name.indexOf('Margaret')===0;
+      setTimeout(function(){if(window.bwOpen)window.bwOpen(mm?{reason:/confus/.test(s)?'conf':'mem',doc:'neuro'}:{})},250);
+      return {h:'Opening a blood work request for <b>'+esc((viewing()||p).name)+'</b>. Pick the doctor, the reason and the tests to ask about. Only a doctor can order labs, so this asks them to review it and send the order to the lab. In this demo nothing is actually sent.'};
+    }
     if(/memory|dementia|alzheimer|forget|confus|donepezil|caregiver|wander/.test(s)){
       if(first(p)!=='Margaret'){switchTo('Margaret');setTimeout(function(){$('ccaWho').textContent='Viewing '+(viewing()||{}).name+' · sample data'},150)}
       return {h:'<b>Margaret · memory care profile</b><br>Mild cognitive impairment since Oct 21, 2026, on donepezil 5 mg at bedtime. Chris is her main caregiver. Next neurology visit Jan 27, memory re-test Apr 28.<br><br>Health Bot asks her memory care questions every day: memory compared with usual, sudden new confusion, medicines, falls or head bumps, wandering, evening restlessness, eating, activities and how Chris is coping. Sudden confusion or a head bump on Eliquis shows a same-day warning.<br><br>Caregiver support any time: Alzheimer\'s Association 24/7 Helpline, 800-272-3900.'+
