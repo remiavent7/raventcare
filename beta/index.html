@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://api.fontshare.com; font-src https://cdn.fontshare.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://api.fontshare.com; font-src https://cdn.fontshare.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://clinicaltables.nlm.nih.gov https://collectmycare.com; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
 <title>CollectCare · Private beta</title>
 <link rel="icon" href="../logo.svg">
 <link rel="manifest" href="manifest.json">
@@ -140,6 +140,7 @@
 </main>
 
 <div id="lock" hidden><div class="lockin"><img src="../logo.svg" alt="" width="56" height="56"><h2>CollectCare is locked</h2><p class="mut">Unlock to see your family's information.</p><button class="btn" id="lockBtn">Unlock</button><button class="lnk" id="lockOut">Sign out</button></div></div>
+<dialog id="findDlg" class="big" aria-label="Find in-network care"></dialog>
 <dialog id="dlg"><form method="dialog" id="dlgForm" class="frm"></form></dialog>
 
 <footer class="foot">CollectCare private beta by Ravent Care LLC. Not medical advice, not an insurance service and not a substitute for your doctor or plan. <a href="../privacy.html">Privacy policy</a> · <a href="../law.html">Your rights</a></footer>

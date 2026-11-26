@@ -20,7 +20,7 @@
       ['_h2', 'What you pay per visit (copay, or coinsurance like 20%)', 'head'], ['c_pcp', 'Primary care visit'], ['c_spec', 'Specialist visit'], ['c_urgent', 'Urgent care'], ['c_er', 'Emergency room'], ['c_tele', 'Video visit'], ['c_rx', 'Generic prescription'], ['c_ther', 'Therapy or counseling'], ['coins', 'Coinsurance after deductible (e.g. 20%)'],
       ['_h3', 'Health savings', 'head'], ['hsa', 'HSA or FSA balance ($)', 'money'], ['notes', 'Notes', 'area']],
       t: d => d.plan, s: d => [d.type, d.member_id && 'ID ' + d.member_id, d.group && 'Group ' + d.group, d.phone, d.notes] },
-    doctor: { label: 'Doctors and care team', one: 'doctor', fields: [['name', 'Name', 'text', 1], ['specialty', 'Specialty'], ['practice', 'Practice or hospital'], ['phone', 'Phone', 'tel'], ['portal', 'Patient portal (e.g. MyChart at Cedars-Sinai)'], ['notes', 'Notes', 'area']], t: d => d.name, s: d => [d.specialty, d.practice, d.phone, d.portal, d.notes] },
+    doctor: { label: 'Doctors and care team', one: 'doctor', fields: [['name', 'Name', 'text', 1], ['specialty', 'Specialty'], ['practice', 'Practice or hospital'], ['phone', 'Phone', 'tel'], ['portal', 'Patient portal (e.g. MyChart at Cedars-Sinai)'], ['network', 'Network status (what your plan said)', 'select', 0, [['', 'Not checked yet'], ['in', 'In network'], ['out', 'Out of network']]], ['network_on', 'Date your plan said it', 'date'], ['npi', 'NPI number'], ['notes', 'Notes', 'area']], t: d => d.name, s: d => [d.specialty, d.practice, d.phone, d.portal, netLine(d), d.notes] },
     medication: { label: 'Medications', one: 'medication', fields: [['name', 'Medication', 'text', 1], ['dose', 'Dose'], ['how', 'How often'], ['prescriber', 'Prescribed by'], ['pharmacy', 'Pharmacy'], ['notes', 'Notes', 'area']], t: d => [d.name, d.dose].filter(Boolean).join(' '), s: d => [d.how, d.prescriber && 'By ' + d.prescriber, d.pharmacy, d.notes] },
     allergy: { label: 'Allergies', one: 'allergy', fields: [['name', 'Allergic to', 'text', 1], ['reaction', 'Reaction'], ['severity', 'Severity', 'select', 0, ['', 'Mild', 'Moderate', 'Severe']]], t: d => d.name, s: d => [d.reaction, d.severity] },
     condition: { label: 'Conditions', one: 'condition', fields: [['name', 'Condition', 'text', 1], ['since', 'Since'], ['notes', 'Notes', 'area']], t: d => d.name, s: d => [d.since && 'Since ' + d.since, d.notes] },
@@ -240,14 +240,17 @@
     const has = ded != null || oop != null || C.length || d.hsa;
     let h = `<div class="card bcard"><div class="sh"><div><h2>${esc(first(m.full_name))}\u2019s benefits</h2><p class="mut small">${esc(d.plan || 'Insurance')}${d.member_id ? ' \u00b7 ID ' + esc(d.member_id) : ''}</p></div><div class="a">${BEN ? `<button class="btn sm" data-act="checkBen" data-id="${p.id}">Check with my insurer</button> ` : ''}<button class="btn ghost sm" data-act="editItem" data-id="${p.id}">${has ? 'Update amounts' : 'Add costs'}</button></div></div>`;
     if (BEN) h += `<p class="small mut">${d.payer_id ? 'Insurer: <b>' + esc(d.payer_name || d.payer_id) + '</b> \u00b7 ' : ''}<button class="lnk small" data-act="pickPayer" data-id="${p.id}">${d.payer_id ? 'Change' : 'Find my insurance company'}</button>${d.coverage === 'inactive' ? ' <span class="tag bad">Insurer reports coverage inactive</span>' : d.coverage === 'active' && d.src === 'insurer' ? ' <span class="tag ok">Coverage active</span>' : ''}</p>`;
-    if (!has) return h + `<p class="mut">Add your deductible, out-of-pocket maximum and copays from your plan\u2019s website or app to see what you\u2019ve met and what visits will cost.</p></div>`;
+    // Care types are buttons that open Find in-network care; copays show on them when known.
+    const FIND = Object.keys(CHIP_CARE);
+    const findRow = `<p class="fh">Find in-network care \u00b7 tap a type of care</p><div class="chips">` + FIND.map(k => `<button type="button" class="chipc fbtn" data-act="findCare" data-id="${p.id}" data-chip="${k}" aria-label="Find in-network ${esc(CHIP_CARE[k][0].toLowerCase())}"><span>${esc(CHIP_CARE[k][0])}</span><b>${d[k] ? esc(d[k]) : 'Find'}</b><i>${d[k] ? 'Find providers \u203a' : 'Search nearby \u203a'}</i></button>`).join('') + C.filter(([k]) => !FIND.includes(k)).map(([k, l]) => `<div class="chipc"><span>${esc(l)}</span><b>${esc(d[k])}</b></div>`).join('') + '</div>';
+    if (!has) return h + findRow + `<p class="mut small">Add your deductible, out-of-pocket maximum and copays from your plan\u2019s website or app to see what you\u2019ve met and what visits will cost.</p></div>`;
     h += '<div class="bgrid">';
     if (ded != null) h += bar('Deductible', dm, ded);
     if (oop != null) h += bar('Out-of-pocket maximum', om, oop);
     h += '</div>';
     if (ded != null && dm < ded) h += `<p class="small">Until the deductible is met, most non-preventive visits cost the plan\u2019s full negotiated rate. After that you pay ${d.coins ? esc(d.coins) + ' coinsurance or ' : ''}the copays below.</p>`;
     else if (oop != null && om >= oop) h += '<p class="small"><span class="tag ok">Max met</span> Covered in-network care should be $0 for the rest of this plan year.</p>';
-    if (C.length) h += '<div class="chips">' + C.map(([k, l]) => `<div class="chipc"><span>${esc(l)}</span><b>${esc(d[k])}</b></div>`).join('') + '</div>';
+    h += findRow;
     if (d.ded_fam || d.oop_fam) h += `<p class="small"><b>Family:</b> ${d.ded_fam ? 'deductible ' + (d.ded_fam_met != null ? usd(d.ded_fam_met) + ' of ' : '') + usd(d.ded_fam) : ''}${d.ded_fam && d.oop_fam ? ' \u00b7 ' : ''}${d.oop_fam ? 'out-of-pocket ' + (d.oop_fam_met != null ? usd(d.oop_fam_met) + ' of ' : '') + usd(d.oop_fam) : ''}</p>`;
     if (d.hsa) h += `<p class="small"><b>HSA/FSA balance:</b> ${usd(d.hsa)}</p>`;
     if (vis.length) h += `<p class="small"><b>${vis.length} visit${vis.length > 1 ? 's' : ''} this plan year</b>${billed ? ' \u00b7 billed ' + usd(billed) : ''}${paid ? ' \u00b7 you paid ' + usd(paid) : ''}</p>`;
@@ -255,6 +258,215 @@
       ? `From ${esc(d.payer_name || 'your insurer')}\u2019s real-time benefits check on ${esc(checkedOn(d))}. Totals can lag behind claims that are still processing.`
       : `Entered by you from your plan${d.as_of ? ', as of ' + esc(d.as_of) : ''}.${BEN ? '' : ' CollectCare doesn\u2019t pull these from your insurer yet.'} Check with your plan before a visit.`;
     return h + `<p class="mut small">${foot}</p></div>`;
+  }
+
+  // ---------- Find in-network care ----------
+  // Providers come from the national NPI registry (NLM Clinical Tables API). CollectCare can't see a plan's
+  // network yet, so every result is "not confirmed" until the member checks their plan's directory or calls,
+  // and what the plan said is saved with the date.
+  const NPI_API = 'https://clinicaltables.nlm.nih.gov/api/';
+  const GEO = NAT ? 'https://collectmycare.com/geo/' : '../geo/';
+  const qq = s => '"' + s + '"';
+  const PT = (...a) => a.map(s => 'provider_type:' + qq(s)).join(' OR ');
+  const SP = (...a) => a.map(s => 'licenses.taxonomy.specialization:' + qq(s)).join(' OR ');
+  const CL = (...a) => a.map(s => 'licenses.taxonomy.classification:' + qq(s)).join(' OR ');
+  const OR = (...a) => a.join(' OR ');
+  // [key, label, query, 'org' for places]
+  const CARE = {
+    primary: ['primary', 'Primary care (family and internal medicine)', PT('Physician/Family Practice', 'Physician/Internal Medicine', 'Physician/General Practice')],
+    family: ['family', 'Family medicine', PT('Physician/Family Practice')],
+    internal: ['internal', 'Internal medicine', PT('Physician/Internal Medicine')],
+    peds: ['peds', 'Pediatrics', PT('Physician/Pediatric Medicine')],
+    obgyn: ['obgyn', 'OB-GYN', PT('Physician/Obstetrics & Gynecology')],
+    np: ['np', 'Nurse practitioner', PT('Nurse Practitioner')],
+    allergy: ['allergy', 'Allergy and immunology', OR(PT('Physician/Allergy/ Immunology'), SP('Allergy & Immunology'))],
+    cardio: ['cardio', 'Cardiology (heart)', OR(PT('Physician/Cardiovascular Disease (Cardiology)'), SP('Cardiovascular Disease'))],
+    derm: ['derm', 'Dermatology (skin)', PT('Physician/Dermatology')],
+    endo: ['endo', 'Endocrinology and diabetes', SP('Endocrinology, Diabetes & Metabolism')],
+    ent: ['ent', 'Ear, nose and throat (ENT)', PT('Physician/Otolaryngology')],
+    gi: ['gi', 'Gastroenterology (digestive)', OR(PT('Physician/Gastroenterology'), SP('Gastroenterology'))],
+    onc: ['onc', 'Hematology and oncology (cancer)', OR(SP('Hematology & Oncology', 'Medical Oncology', 'Hematology'), PT('Physician/Hematology-Oncology', 'Physician/Medical Oncology'))],
+    neph: ['neph', 'Nephrology (kidney)', OR(SP('Nephrology'), PT('Physician/Nephrology'))],
+    neuro: ['neuro', 'Neurology', PT('Physician/Neurology')],
+    ophth: ['ophth', 'Ophthalmology (eye doctor, MD)', PT('Physician/Ophthalmology')],
+    opt: ['opt', 'Optometry (eye exams and glasses)', PT('Optometry')],
+    ortho: ['ortho', 'Orthopedics (bones and joints)', OR(CL('Orthopaedic Surgery'), PT('Physician/Orthopedic Surgery'))],
+    pod: ['pod', 'Podiatry (foot and ankle)', PT('Podiatry')],
+    psych: ['psych', 'Psychiatry', PT('Physician/Psychiatry')],
+    pulm: ['pulm', 'Pulmonology (lungs)', OR(SP('Pulmonary Disease'), PT('Physician/Pulmonary Disease'))],
+    rheum: ['rheum', 'Rheumatology', OR(SP('Rheumatology'), PT('Physician/Rheumatology'))],
+    sleep: ['sleep', 'Sleep medicine', OR(SP('Sleep Medicine'), PT('Physician/Sleep Medicine'))],
+    uro: ['uro', 'Urology', PT('Physician/Urology')],
+    pt: ['pt', 'Physical therapy', CL('Physical Therapist')],
+    chiro: ['chiro', 'Chiropractic', PT('Chiropractic')],
+    therapy: ['therapy', 'Therapists and counselors', CL('Psychologist', 'Clinical Social Worker', 'Marriage & Family Therapist', 'Counselor')],
+    mh: ['mh', 'Mental health clinics', OR(CL('Community/Behavioral Health'), SP('Mental Health (Including Community Mental Health Center)')), 'org'],
+    urgent: ['urgent', 'Urgent care centers', SP('Urgent Care'), 'org'],
+    clinic: ['clinic', 'Primary care and community clinics', SP('Primary Care', 'Federally Qualified Health Center (FQHC)', 'Rural Health'), 'org'],
+    hosp: ['hosp', 'Hospitals', CL('General Acute Care Hospital'), 'org'],
+    rx: ['rx', 'Pharmacies', SP('Community/Retail Pharmacy'), 'org'],
+    img: ['img', 'Imaging and radiology', OR(CL('Radiology'), SP('Diagnostic Radiology', 'Mammography', 'Magnetic Resonance Imaging (MRI)')), 'org'],
+    lab: ['lab', 'Labs', CL('Clinical Medical Laboratory'), 'org']
+  };
+  // Benefit chip -> what to search. The first option is the default.
+  const CHIP_CARE = {
+    c_pcp: ['Primary care', ['primary', 'family', 'internal', 'peds', 'obgyn', 'np', 'clinic']],
+    c_spec: ['Specialist', ['cardio', 'derm', 'ortho', 'gi', 'endo', 'ent', 'neuro', 'onc', 'pulm', 'rheum', 'uro', 'allergy', 'neph', 'ophth', 'opt', 'pod', 'sleep', 'obgyn', 'psych', 'pt', 'chiro']],
+    c_urgent: ['Urgent care', ['urgent']],
+    c_er: ['Emergency room', ['hosp']],
+    c_ther: ['Therapy', ['therapy', 'psych', 'mh']],
+    c_rx: ['Pharmacy', ['rx']]
+  };
+  // Insurers' own public provider directories, matched on the insurer or plan name.
+  const DIRS = [
+    [/kaiser/i, 'Kaiser Permanente', 'https://healthy.kaiserpermanente.org/doctors-locations'],
+    [/anthem/i, 'Anthem', 'https://www.anthem.com/find-care/'],
+    [/^(?!.*blue cross).*blue shield of california|blueshieldca/i, 'Blue Shield of California', 'https://www.blueshieldca.com/fad/home'],
+    [/aetna/i, 'Aetna', 'https://www.aetna.com/dsepublic/'],
+    [/united ?health|\buhc\b|\bumr\b/i, 'UnitedHealthcare', 'https://www.uhc.com/find-a-doctor'],
+    [/cigna/i, 'Cigna', 'https://hcpdirectory.cigna.com/web/public/consumer/directory/search'],
+    [/humana/i, 'Humana', 'https://finder.humana.com/finder/search'],
+    [/^\s*(original )?medicare\b/i, 'Medicare', 'https://www.medicare.gov/care-compare/'],
+    [/blue cross|blue shield|bcbs|highmark|regence|premera|carefirst|wellmark|horizon/i, 'Blue Cross Blue Shield', 'https://provider.bcbs.com/']
+  ];
+  function planDir(d) { const s = [d.payer_name, d.plan].filter(Boolean).join(' '); const h = DIRS.find(([rx]) => rx.test(s)); return h ? { name: h[1], url: h[2] } : null; }
+  function telOf(p) { const t = String(p || '').replace(/\D/g, ''); return t.length >= 10 ? t.slice(-10) : ''; }
+  function niceTel(t) { return t ? '(' + t.slice(0, 3) + ') ' + t.slice(3, 6) + '-' + t.slice(6) : ''; }
+  function tc(s) { return String(s || '').toLowerCase().replace(/(^|[\s\-\/'(&.])([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(Llc|Inc|Pc|Lp|Llp|Md|Do|Np|Pa|Pt|Dpt|Od|Usa|Ii|Iii|Iv|Mri|Ct|Fqhc|Ucla|Usc)\b/g, m => m.toUpperCase()).replace(/\bMc([a-z])/g, (m, a) => 'Mc' + a.toUpperCase()); }
+  async function getJ(u, signal) { const r = await fetch(u, { signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
+  const geo = { idx: null, z: {} };
+  async function zf(p) { if (!geo.z[p]) { try { geo.z[p] = await getJ(GEO + 'z' + p + '.json'); } catch (e) { geo.z[p] = {}; } } return geo.z[p]; }
+  function hav(a, b, c, d) { const R = 3958.8, r = Math.PI / 180, x = (c - a) * r, y = (d - b) * r, h = Math.sin(x / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin(y / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+  async function zipsNear(lat, lng, mi) {
+    if (!geo.idx) geo.idx = await getJ(GEO + 'idx.json');
+    const ps = Object.keys(geo.idx).filter(p => { const b = geo.idx[p]; return hav(lat, lng, Math.max(b[2], Math.min(b[3], lat)), Math.max(b[4], Math.min(b[5], lng))) <= mi; });
+    const fs = await Promise.all(ps.map(zf)), out = [];
+    fs.forEach(f => { for (const z in f) { const d = hav(lat, lng, f[z][0], f[z][1]); if (d <= mi) out.push({ z, d }); } });
+    return out.sort((a, b) => a.d - b.d);
+  }
+  function zipQ(zs) {
+    let l = zs.map(x => x.z);
+    if (l.length > 90) { l = [...new Set(l.map(z => z.slice(0, 4)))]; if (l.length > 90) l = [...new Set(l.map(z => z.slice(0, 3)))]; }
+    return 'addr_practice.zip:(' + l.map(z => z + '*').join(' OR ') + ')';
+  }
+  const NDF = ['NPI', 'name.full', 'name.credential', 'provider_type', 'licenses.taxonomy.specialization', 'licenses.taxonomy.classification', 'addr_practice.line1', 'addr_practice.line2', 'addr_practice.city', 'addr_practice.state', 'addr_practice.zip', 'addr_practice.phone'];
+  async function searchCare(key, zip, R, signal) {
+    const spec = CARE[key], set = spec[3] === 'org' ? 'npi_org' : 'npi_idv';
+    const f = await zf(zip.slice(0, 3)); const o = f[zip];
+    if (!o) throw new Error('We couldn\u2019t find ZIP code ' + zip + '. Check the number and try again.');
+    const zs = await zipsNear(o[0], o[1], R);
+    const rings = [R, ...[25, 10, 5, 2, 1].filter(r => r < R)];
+    let d, used = R;
+    for (let i = 0; i < rings.length; i++) {
+      used = rings[i]; const sub = zs.filter(x => x.d <= used); const zz = sub.length ? sub : zs.slice(0, 1);
+      d = await getJ(NPI_API + set + '/v3/search?count=500&terms=&df=' + encodeURIComponent(NDF.join(',')) + '&q=' + encodeURIComponent(zipQ(zz) + ' AND (' + spec[2] + ')'), signal);
+      if (d[0] <= 500) break;
+    }
+    const dist = {}; zs.forEach(x => { dist[x.z] = x.d; });
+    const seen = {}, out = [];
+    (d[3] || []).forEach(row => {
+      const r = {}; NDF.forEach((k, j) => { r[k] = row[j]; });
+      const z5 = String(r['addr_practice.zip'] || '').slice(0, 5); r.d = dist[z5];
+      if (r.d == null || r.d > used + 0.5) return;
+      if (set === 'npi_org') { const k = (r['name.full'] + '|' + r['addr_practice.line1']).toUpperCase(); if (seen[k]) return; seen[k] = 1; }
+      out.push(r);
+    });
+    out.sort((a, b) => a.d - b.d);
+    return { list: out, total: d[0], used, place: tc(o[2]) + ', ' + o[3] };
+  }
+  function provOf(r, org) {
+    const nm = String(r['name.full'] || ''), parts = nm.split(',');
+    const name = org ? tc(nm) : tc(parts.length > 1 ? parts.slice(1).join(' ').trim() + ' ' + parts[0] : nm) + (r['name.credential'] ? ', ' + String(r['name.credential']).replace(/\./g, '').toUpperCase() : '');
+    const lst = k => [...new Set(String(r[k] || '').split(/[;|]/).map(x => x.trim()).filter(Boolean))];
+    let sp = lst('licenses.taxonomy.specialization'); if (!sp.length) sp = lst('licenses.taxonomy.classification');
+    const spec = (sp.length ? sp.slice(0, 3).join(' \u00b7 ') : String(r.provider_type || '').replace(/^Physician\//, ''));
+    const zip = String(r['addr_practice.zip'] || '');
+    const addr = [tc(r['addr_practice.line1']), tc(r['addr_practice.line2'])].filter(Boolean).join(' ') + ', ' + tc(r['addr_practice.city']) + ', ' + (r['addr_practice.state'] || '') + ' ' + zip.slice(0, 5);
+    return { name, spec: tc(spec), addr, tel: telOf(r['addr_practice.phone']), npi: r.NPI, d: r.d };
+  }
+
+  const FC = { m: null, ins: null, chip: null, key: null, res: [], shown: 0, ctl: null };
+  function findDlg() { return $('#findDlg'); }
+  function openFind(m, insItem, chip) {
+    const [label, keys] = CHIP_CARE[chip]; const d = insItem.data, dir = planDir(d), mt = telOf(d.phone);
+    FC.m = m; FC.ins = insItem; FC.chip = chip; FC.key = keys[0]; FC.res = [];
+    const zip = localStorage.getItem('cc_zip') || '';
+    const cost = d[chip] ? `Your ${esc(label.toLowerCase())} cost: <b>${esc(d[chip])}</b> in network.` : '';
+    const er = chip === 'c_er' ? '<div class="note bad"><b>In an emergency, call 911 or go to the nearest ER.</b> Under the federal No Surprises Act, emergency care is billed at your in-network cost sharing even at an out-of-network hospital.</div>' : '';
+    findDlg().innerHTML = `<div class="fdh"><div><h2>Find in-network ${esc(label.toLowerCase())}</h2><p class="mut small">For ${esc(first(m.full_name))} \u00b7 ${esc(d.payer_name || d.plan || 'your plan')}${d.member_id ? ' \u00b7 ID ' + esc(d.member_id) : ''}</p></div><button class="lnk" data-fc="close" aria-label="Close">Close</button></div>${er}
+      <form class="fform" id="fcForm">${keys.length > 1 ? `<label>${chip === 'c_spec' ? 'Specialty' : 'Type of care'}<select name="key">${keys.map(k => `<option value="${k}">${esc(CARE[k][1])}</option>`).join('')}</select></label>` : ''}
+      <label>ZIP code<input name="zip" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required value="${esc(zip)}" placeholder="90277"></label>
+      <label>Within<select name="r">${[5, 10, 25, 50].map(r => `<option value="${r}"${r === 10 ? ' selected' : ''}>${r} miles</option>`).join('')}</select></label>
+      <button class="btn">Search</button></form>
+      ${cost ? `<p class="small">${cost}</p>` : ''}
+      <div class="note"><b>Confirm the network with your plan.</b> These are licensed providers near you from the national NPI registry. CollectCare can\u2019t see ${esc(dir ? dir.name : 'your plan')}\u2019s network yet, so check each one in your plan\u2019s directory or call member services before you book. Save what your plan tells you and we\u2019ll show it with the date.
+        <div class="fact">${dir ? `<a class="btn sm" href="${dir.url}" target="_blank" rel="noopener" data-fc="dir">Open ${esc(dir.name)}\u2019s directory</a>` : ''}${mt ? `<a class="btn ghost sm" href="tel:+1${mt}">Call member services ${esc(niceTel(mt))}</a>` : ''}${!dir && !mt ? '<span class="small">Use the website or phone number on the back of your card. Add the member services phone to this plan to call from here.</span>' : ''}</div></div>
+      <div id="fcList" aria-live="polite"></div>`;
+    const f = $('#fcForm');
+    f.addEventListener('submit', e => { e.preventDefault(); runFind(); });
+    if (f.key) f.key.addEventListener('change', () => { if (/^\d{5}$/.test(f.zip.value)) runFind(); });
+    findDlg().showModal();
+    if (/^\d{5}$/.test(zip)) runFind(); else f.zip.focus();
+    log('Opened find care', label);
+  }
+  async function runFind() {
+    const f = $('#fcForm'), zip = f.zip.value.trim(), R = +f.r.value, key = f.key ? f.key.value : CHIP_CARE[FC.chip][1][0];
+    if (!/^\d{5}$/.test(zip)) { f.zip.focus(); return toast('Enter a 5-digit ZIP code'); }
+    FC.key = key; localStorage.setItem('cc_zip', zip);
+    if (FC.ctl) FC.ctl.abort(); FC.ctl = new AbortController();
+    const L = $('#fcList'); L.innerHTML = '<p class="mut">Searching\u2026</p>';
+    try {
+      const r = await searchCare(key, zip, R, FC.ctl.signal);
+      FC.res = r.list.map(x => provOf(x, CARE[key][3] === 'org')); FC.shown = 0; FC.meta = r;
+      if (!FC.res.length) { L.innerHTML = `<p class="empty">No ${esc(CARE[key][1].toLowerCase())} found within ${R} miles of ${esc(r.place)}. Try a wider distance.</p>`; return; }
+      L.innerHTML = `<p class="small mut">${FC.res.length}${r.total > 500 ? '+' : ''} results for ${esc(CARE[key][1])} within ${r.used} miles of ${esc(r.place)}, closest first.${r.used < R ? ' Narrowed from ' + R + ' miles because there are so many.' : ''}</p><div id="fcRows"></div><button class="btn ghost sm" id="fcMore" hidden>Show more</button>`;
+      $('#fcMore').addEventListener('click', moreFind); moreFind();
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      L.innerHTML = `<p class="msg bad">${esc(/HTTP|fetch|Load failed|NetworkError/i.test(e.message) ? 'The national provider registry didn\u2019t respond. Check your connection and try again.' : e.message)}</p>`;
+    }
+  }
+  function moreFind() {
+    const saved = items.filter(x => x.kind === 'doctor' && x.member_id === FC.m.id && x.data.npi).reduce((a, x) => (a[x.data.npi] = x, a), {});
+    const dir = planDir(FC.ins.data), next = FC.res.slice(FC.shown, FC.shown + 15);
+    $('#fcRows').insertAdjacentHTML('beforeend', next.map((p, i) => {
+      const k = FC.shown + i, s = saved[p.npi], st = s ? netTag(s.data) : '<span class="tag">Network not confirmed</span>';
+      return `<div class="it fr"><div><div class="t">${esc(p.name)}</div><div class="d">${esc(p.spec)}\n${esc(p.addr)} \u00b7 ${p.d < 0.1 ? 'under 0.1' : p.d.toFixed(1)} mi${p.tel ? '\n' + esc(niceTel(p.tel)) : ''}</div><div class="small">${st}</div></div>
+        <div class="a">${p.tel ? `<a class="lnk small" href="tel:+1${p.tel}">Call</a>` : ''}${dir ? `<button class="lnk small" data-fc="check" data-k="${k}">Check in ${esc(dir.name)}</button>` : ''}<button class="lnk small" data-fc="save" data-k="${k}">${s ? 'Update network' : 'Save to doctors'}</button></div></div>`;
+    }).join(''));
+    FC.shown += next.length; $('#fcMore').hidden = FC.shown >= FC.res.length;
+  }
+  const NET = { in: 'In network', out: 'Out of network', unk: 'Not checked yet' };
+  function netLine(d) { if (!d.network || d.network === 'unk') return d.npi ? 'Network not confirmed with your plan' : ''; return NET[d.network] + (d.network_plan ? ' for ' + d.network_plan : '') + (d.network_on ? ', as your plan said on ' + new Date(d.network_on + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : ''); }
+  function netTag(d) {
+    if (!d.network || d.network === 'unk') return '<span class="tag">Network not confirmed</span>';
+    const on = d.network_on ? ' \u00b7 plan said on ' + esc(new Date(d.network_on + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })) : '';
+    return `<span class="tag ${d.network === 'in' ? 'ok' : 'bad'}">${esc(NET[d.network])}${on}</span>`;
+  }
+  async function saveProv(p) {
+    const ex = items.find(x => x.kind === 'doctor' && x.member_id === FC.m.id && x.data.npi === p.npi);
+    const ins = FC.ins.data, plan = ins.payer_name || ins.plan || 'your plan';
+    const v = await ask(ex ? 'Update network for ' + p.name : 'Save ' + p.name, [['network', 'What did ' + plan + ' say?', 'select', 1, [['unk', 'I haven\u2019t checked yet'], ['in', 'In network for my plan'], ['out', 'Out of network for my plan']]], ['network_on', 'Date the plan told you', 'date']], { network: ex ? ex.data.network || 'unk' : 'unk', network_on: localDay() }, 'Save', 'Save only what your plan\u2019s directory or member services told you. Networks change, so check again before each new visit.');
+    if (!v) return;
+    const data = { ...(ex ? ex.data : { name: p.name, specialty: p.spec, practice: p.addr, phone: niceTel(p.tel), npi: p.npi }), network: v.network, network_plan: plan };
+    if (v.network === 'unk') delete data.network_on; else data.network_on = v.network_on || localDay();
+    const r = ex ? await sb.from('items').update({ data }).eq('id', ex.id) : await sb.from('items').insert({ member_id: FC.m.id, kind: 'doctor', data });
+    if (r.error) return fail(r.error);
+    log(ex ? 'Updated network status' : 'Saved provider from search', first(FC.m.full_name));
+    await loadAll(); toast(ex ? 'Network status saved' : p.name + ' saved to doctors');
+    $('#fcRows').innerHTML = ''; const n = FC.shown; FC.shown = 0; while (FC.shown < n) moreFind();
+  }
+  async function onFindClick(e) {
+    const t = e.target.closest('[data-fc]'); if (!t) { if (e.target === findDlg()) findDlg().close(); return; }
+    const a = t.dataset.fc, p = FC.res[+t.dataset.k];
+    if (a === 'close') return findDlg().close();
+    if (a === 'check' && p) {
+      const dir = planDir(FC.ins.data);
+      try { await navigator.clipboard.writeText(p.name.replace(/,.*$/, '')); toast('Name copied. Paste it into ' + dir.name + '\u2019s search.'); } catch (err) { }
+      if (NAT) { e.preventDefault(); await NAT.Browser.open({ url: dir.url, presentationStyle: 'popover' }); } else { const w = window.open(dir.url, '_blank', 'noopener'); if (w) w.opener = null; }
+      log('Opened plan directory', dir.name);
+    } else if (a === 'dir' && NAT) { e.preventDefault(); await NAT.Browser.open({ url: t.href, presentationStyle: 'popover' }); }
+    else if (a === 'save' && p) { try { await saveProv(p); } catch (err) { fail(err); } }
   }
 
   const MEMBER_FIELDS = () => [['full_name', 'Full name', 'text', 1], ['relationship', 'Relationship to you', 'select', 1, Object.entries(REL)], ['birth_date', 'Date of birth', 'date'], ['notes', 'Notes', 'area']];
@@ -295,6 +507,8 @@
         } else Object.keys(v).forEach(k => { if (!v[k]) delete v[k]; });
         const r = it ? await sb.from('items').update({ data }).eq('id', it.id) : await sb.from('items').insert({ member_id: m.id, kind, data });
         if (r.error) return fail(r.error); log((it ? 'Edited ' : 'Added ') + K.one, first(m.full_name)); await loadAll();
+      } else if (act === 'findCare') {
+        const it = items.find(x => x.id === t.dataset.id); if (it) openFind(m, it, t.dataset.chip);
       } else if (act === 'pickPayer' || act === 'checkBen') {
         const it = items.find(x => x.id === t.dataset.id); if (!it) return;
         if (act === 'pickPayer') await pickPayer(it); else await checkBen(it, m);
@@ -509,6 +723,7 @@
       try { if (v === 'activity') await renderActivity(); if (v === 'settings') await renderSettings(); if (v === 'admin') await renderAdmin(); if (v === 'family') await loadAll(); } catch (e) { fail(e); }
     }));
     $('#vFamily').addEventListener('click', onFamilyClick);
+    $('#findDlg').addEventListener('click', e => onFindClick(e).catch(fail));
     $('#addMember').addEventListener('click', () => addMember(members.length === 0));
     $('#addSelf').addEventListener('click', () => addMember(true));
     $('#export').addEventListener('click', () => exportData().catch(fail));
