@@ -36,7 +36,7 @@
   // ---------- helpers ----------
   function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 3200); }
   function authMsg(m, bad = true) { const e = $('#authMsg'); e.textContent = m || ''; e.className = 'msg ' + (m ? (bad ? 'bad' : 'ok') : ''); }
-  function show(v) { $$('.view').forEach(x => x.hidden = true); $('#v' + v[0].toUpperCase() + v.slice(1)).hidden = false; $$('#nav .lnk[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v)); window.scrollTo(0, 0); }
+  function show(v) { $$('.view').forEach(x => x.hidden = true); $('#v' + v[0].toUpperCase() + v.slice(1)).hidden = false; $$('#nav .lnk[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v)); $$('#dsk [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v)); $$('#dnav a').forEach((a, i) => a.classList.toggle('on', v === 'family' && i === 0)); document.body.classList.toggle('dsk-on', !!user && v !== 'auth' && v !== 'setup'); window.scrollTo(0, 0); }
   function busy(btn, on) { if (btn) btn.disabled = on; }
   function fmt(ts) { try { return new Date(ts).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return ts; } }
   function num(v) { const n = parseFloat(String(v == null ? '' : v).replace(/[$,]/g, '')); return isFinite(n) ? n : null; }
@@ -161,28 +161,92 @@
     renderFamily();
   }
 
+  // Layout matches the sample-data demo (app.html): context line, big title, insurance card, family tiles, year at a glance.
+  function ageOf(m) { return m && m.birth_date ? Math.floor((Date.now() - new Date(m.birth_date + 'T00:00:00')) / 31557600000) : null; }
+  function famName() {
+    const me = members.find(x => x.relationship === 'self'), n = (me && me.full_name) || (user.user_metadata || {}).display_name || '';
+    const parts = String(n).trim().split(/\s+/); return parts.length > 1 ? parts[parts.length - 1] : '';
+  }
+  function initials(n) { const p = String(n || '').trim().split(/\s+/); return ((p[0] || '')[0] || '?').toUpperCase() + (p.length > 1 ? (p[p.length - 1][0] || '').toUpperCase() : ''); }
+  function primaryIns(mi) { const ins = mi.filter(x => x.kind === 'insurance'); return ins.find(x => num(x.data.ded) != null || num(x.data.oop) != null) || ins.find(x => !/dental|vision/i.test(x.data.type || '')) || ins[0] || null; }
+  function planYear(d) {
+    const now = new Date(); let st = d && d.year_start ? new Date(d.year_start + 'T00:00:00') : new Date(now.getFullYear(), 0, 1);
+    if (isNaN(st)) st = new Date(now.getFullYear(), 0, 1);
+    while (new Date(st.getFullYear() + 1, st.getMonth(), st.getDate()) <= now) st = new Date(st.getFullYear() + 1, st.getMonth(), st.getDate());
+    const end = new Date(st.getFullYear() + 1, st.getMonth(), st.getDate());
+    return { year: st.getMonth() === 0 && st.getDate() === 1 ? st.getFullYear() : st.getFullYear() + '\u2013' + String(end.getFullYear()).slice(2), end, left: Math.max(0, Math.ceil((end - now) / 864e5)) };
+  }
+  function renderSide() {
+    const f = famName(); $('#dsub').textContent = (f ? f + ' family' : 'Your family') + ' \u00b7 private beta';
+    $('#dAdmin').hidden = !isAdmin;
+  }
   function renderFamily() {
-    const p = user.user_metadata || {};
-    $('#hello').textContent = p.display_name ? first(p.display_name) + '\u2019s family' : 'Your family';
+    renderSide();
     $('#memEmpty').hidden = members.length > 0;
-    $('#memTabs').innerHTML = members.map(m => `<button data-mid="${m.id}" class="${m.id === cur ? 'on' : ''}"><b>${esc(first(m.full_name))}</b><span>${esc(REL[m.relationship] || '')}</span></button>`).join('');
     const m = members.find(x => x.id === cur);
-    if (!m) { $('#memBody').innerHTML = ''; return; }
+    const f = famName();
+    if (!m) { $('#ctx').textContent = (f ? f + ' family' : 'Your family') + ' \u00b7 private beta'; $('#hello').textContent = 'Your family'; $('#qaRow').innerHTML = ''; $('#memBody').innerHTML = ''; return; }
     const mi = items.filter(x => x.member_id === m.id), md = docs.filter(x => x.member_id === m.id);
-    const age = m.birth_date ? Math.floor((Date.now() - new Date(m.birth_date + 'T00:00:00')) / 31557600000) : null;
-    let h = `<div class="card"><div class="mhead"><div><h2>${esc(m.full_name)}</h2><p class="mut small">${esc(REL[m.relationship] || '')}${age != null ? ' · ' + age + ' years old' : ''}${m.birth_date ? ' · Born ' + esc(m.birth_date) : ''}</p>${m.notes ? `<p class="d small">${esc(m.notes)}</p>` : ''}</div><div class="a"><button class="btn ghost sm" data-act="editMember">Edit</button> <button class="btn red sm" data-act="delMember">Remove</button></div></div></div>` + benefitsCard(m, mi) + `<div class="sects">`;
+    const age = ageOf(m), p = primaryIns(mi), d = p ? p.data : {}, py = planYear(d);
+    const rel = m.relationship === 'self' ? 'you' : (REL[m.relationship] || '').toLowerCase();
+    $('#ctx').textContent = [(f ? f + ' family' : 'Your family') + ' \u00b7 viewing ' + first(m.full_name) + ' (' + [rel, age != null ? age : ''].filter(Boolean).join(', ') + ')', p ? (d.payer_name && d.plan && d.plan.indexOf(d.payer_name) < 0 ? d.payer_name + ' ' : '') + (d.plan || 'Insurance') : 'No insurance on file yet'].join(' \u00b7 ');
+    $('#hello').textContent = (m.relationship === 'self' ? 'Your ' : first(m.full_name) + '\u2019s ') + py.year + ' benefits';
+    const camBtn = NAT ? '<button class="qb" data-act="scan">' + ICO.cam + 'Scan a card</button>' : (TOUCH ? '<label class="qb">' + ICO.cam + 'Take a photo<input type="file" id="camTop" accept="image/*" capture="environment" hidden></label>' : '<button class="qb" data-act="qUpload">' + ICO.up + 'Upload a card</button>');
+    $('#qaRow').innerHTML = (p && BEN ? `<button class="qb" data-act="checkBen" data-id="${p.id}">${ICO.chk}Check with my insurer</button>` : '') +
+      `<button class="qb urg" data-act="qUrgent">${ICO.plus}Nearest urgent care</button>` + camBtn +
+      `<button class="qb" data-act="addMember">${ICO.add}Add family member</button>`;
+
+    // Insurance card + family tiles
+    let h = '<div class="toprow" id="ov">' + insCard(m, p, mi);
+    const fd = d.ded_fam ? 'Family deductible ' + (d.ded_fam_met != null ? usd(d.ded_fam_met) + ' of ' : '') + usd(d.ded_fam) : (d.oop_fam ? 'Family out-of-pocket ' + (d.oop_fam_met != null ? usd(d.oop_fam_met) + ' of ' : '') + usd(d.oop_fam) : '');
+    h += `<div class="card famcard"><div class="fh2"><h2>${esc(f ? f + ' family' : 'Your family')} \u00b7 ${members.length} member${members.length === 1 ? '' : 's'}</h2>${fd ? `<span class="mut small">${esc(fd)}</span>` : ''}</div><div class="fam">` +
+      members.map((x, i) => { const a = ageOf(x); return `<button data-mid="${x.id}" class="${x.id === cur ? 'on' : ''}"><span class="av av${i % 5}">${esc(initials(x.full_name))}</span><b>${esc(first(x.full_name))}</b><span class="small mut">${esc(REL[x.relationship] || '')}${a != null ? ' \u00b7 ' + a : ''}</span></button>`; }).join('') +
+      `<button class="addt" data-act="addMember"><span class="av">+</span><b>Add someone</b><span class="small mut">Spouse, child, parent</span></button></div></div>`;
+
+    // About this person
+    const nIns = mi.filter(x => x.kind === 'insurance').length, nDoc = mi.filter(x => x.kind === 'doctor').length, nMed = mi.filter(x => x.kind === 'medication').length;
+    h += `<div class="card about"><div class="fh2"><h2>About ${esc(first(m.full_name))}</h2><span class="a"><button class="btn ghost sm" data-act="editMember">Edit</button> <button class="btn red sm" data-act="delMember">Remove</button></span></div>
+      <div class="who"><span class="av big av${Math.max(0, members.indexOf(m)) % 5}">${esc(initials(m.full_name))}</span><div><b>${esc(m.full_name)}</b><div class="mut small">${esc(REL[m.relationship] || '')}${age != null ? ' \u00b7 ' + age + ' years old' : ''}${m.birth_date ? ' \u00b7 Born ' + esc(new Date(m.birth_date + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })) : ''}</div></div></div>
+      ${m.notes ? `<p class="d small">${esc(m.notes)}</p>` : ''}
+      <div class="stats"><div><b>${nIns}</b><span>Insurance plan${nIns === 1 ? '' : 's'}</span></div><div><b>${nDoc}</b><span>Doctor${nDoc === 1 ? '' : 's'}</span></div><div><b>${nMed}</b><span>Medication${nMed === 1 ? '' : 's'}</span></div><div><b>${md.length}</b><span>Document${md.length === 1 ? '' : 's'}</span></div></div>
+      ${p && BEN ? `<p class="small mut ins">${d.payer_id ? 'Insurer for benefit checks: <b>' + esc(d.payer_name || d.payer_id) + '</b> \u00b7 ' : ''}<button class="lnk small" data-act="pickPayer" data-id="${p.id}">${d.payer_id ? 'Change' : 'Find my insurance company'}</button></p>` : ''}</div>`;
+    h += glanceCard(m, mi, p, py) + '</div>';
+    h += findCard(m, p);
+
+    h += '<div class="sects">';
     ORDER.forEach(k => {
       const K = KINDS[k]; let list = mi.filter(x => x.kind === k); if (K.sort) list = list.slice().sort(K.sort);
-      h += `<div class="card sect"><div class="sh"><h3>${esc(K.label)}</h3><button class="btn ghost sm" data-act="addItem" data-kind="${k}">Add</button></div>` +
+      h += `<div class="card sect" id="s-${k}"><div class="sh"><h3>${esc(K.label)}</h3><button class="btn ghost sm" data-act="addItem" data-kind="${k}">Add</button></div>` +
         (list.length ? list.map(x => `<div class="it"><div><div class="t">${esc(K.t(x.data) || K.one)}</div><div class="d">${K.s(x.data).filter(Boolean).map(esc).join('\n')}</div></div><div class="a">${NAT && k === 'medication' ? remBtn(x) : ''}<button class="lnk small" data-act="editItem" data-id="${x.id}">Edit</button><button class="lnk small" data-act="delItem" data-id="${x.id}">Delete</button></div></div>`).join('') : `<p class="empty">No ${esc(K.label.toLowerCase())} yet.</p>`) + '</div>';
     });
-    h += `<div class="card sect"><div class="sh"><h3>Documents</h3><span>${NAT ? '<button class="btn sm" data-act="scan">Scan with camera</button> ' : (TOUCH ? '<label class="btn sm">Take a photo<input type="file" id="camFile" accept="image/*" capture="environment" hidden></label> ' : '')}<label class="btn ghost sm">Upload<input type="file" id="upFile" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,image/webp" hidden></label></span></div><p class="mut small">Insurance cards, lab reports, visit summaries. PDF or photo, up to 10 MB.</p>` +
+    h += `<div class="card sect" id="s-docs"><div class="sh"><h3>Documents</h3><span>${NAT ? '<button class="btn sm" data-act="scan">Scan with camera</button> ' : (TOUCH ? '<label class="btn sm">Take a photo<input type="file" id="camFile" accept="image/*" capture="environment" hidden></label> ' : '')}<label class="btn ghost sm">Upload<input type="file" id="upFile" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,image/webp" hidden></label></span></div><p class="mut small">Insurance cards, lab reports, visit summaries. PDF or photo, up to 10 MB.</p>` +
       (md.length ? md.map(x => `<div class="it"><div><div class="t">${esc(x.name)}</div><div class="d">${fmt(x.created_at)} · ${Math.max(1, Math.round((x.size_bytes || 0) / 1024))} KB</div></div><div class="a"><button class="lnk small" data-act="openDoc" data-id="${x.id}">Open</button><button class="lnk small" data-act="delDoc" data-id="${x.id}">Delete</button></div></div>`).join('') : '<p class="empty">No documents yet.</p>') + '</div></div>';
     $('#memBody').innerHTML = h;
     $('#memBody').querySelectorAll('[data-w]').forEach(e => { e.style.width = e.dataset.w + '%'; });
-    const up = $('#upFile'); if (up) up.addEventListener('change', () => upload(up));
-    const cam = $('#camFile'); if (cam) cam.addEventListener('change', () => upload(cam));
+    ['#upFile', '#camFile'].forEach(s => { const el = $(s); if (el) el.addEventListener('change', () => upload(el)); });
+    const ct = $('#camTop'); if (ct) ct.addEventListener('change', () => upload(ct));
   }
+  const ICO = {
+    chk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor"/></svg>',
+    cam: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    up: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    add: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c.8-3.5 3.6-5.5 7-5.5s6.2 2 7 5.5M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  };
+  // A card-style view of what the person typed in from their own insurance card.
+  function insCard(m, p, mi) {
+    if (!p) return `<div class="ic icempty"><div class="cb-top"><div class="cb-logo">${CARDLOGO}<span>Insurance card</span></div></div><div class="ice"><b>Add ${esc(m.relationship === 'self' ? 'your' : first(m.full_name) + '\u2019s')} insurance card</b><p class="mut small">Type in the details from the card. You can also upload a photo of the front and back to Documents.</p><button class="btn sm" data-act="addItem" data-kind="insurance">Add insurance</button></div></div>`;
+    const d = p.data, others = mi.filter(x => x.kind === 'insurance' && x.id !== p.id);
+    const holder = d.holder_name ? 'Subscriber: ' + esc(String(d.holder_name).toUpperCase()) + (d.holder_dob ? '<br>Subscriber DOB: ' + esc(d.holder_dob) : '') : (m.relationship === 'self' ? 'Subscriber' : 'Member');
+    const dob = m.birth_date ? '<br>DOB: ' + esc(m.birth_date) : '';
+    const status = d.coverage === 'inactive' ? '<span class="cb-st bad">Insurer reports inactive</span>' : (d.coverage === 'active' && d.src === 'insurer' ? '<span class="cb-st ok">Active \u00b7 checked ' + esc(checkedOn(d)) + '</span>' : '<span class="cb-hsa">Entered by you</span>');
+    return `<div class="icw"><div class="ic"><div class="cb-top"><div class="cb-logo">${CARDLOGO}<span>Insurance card</span></div><div class="cb-net">${esc(d.payer_name || d.type || 'Health plan')}<small>${esc(d.type || 'Medical')}</small></div></div>
+<div class="cb-body"><div class="cb-l"><div class="cb-name">${esc(String(m.full_name).toUpperCase())}</div><div class="cb-k">Member ID:</div><div class="cb-id">${esc(d.member_id || '\u2014')}</div><hr><dl>${d.group ? `<dt>Group No:</dt><dd>${esc(d.group)}</dd>` : ''}${d.c_pcp ? `<dt>Office visit:</dt><dd>${esc(d.c_pcp)}</dd>` : ''}${d.c_spec ? `<dt>Specialist:</dt><dd>${esc(d.c_spec)}</dd>` : ''}${d.c_er ? `<dt>ER:</dt><dd>${esc(d.c_er)}</dd>` : ''}${d.c_rx ? `<dt>Rx generic:</dt><dd>${esc(d.c_rx)}</dd>` : ''}</dl></div>
+<div class="cb-r"><div class="cb-plan">${esc(d.plan || 'Insurance')}</div><div class="cb-sub">${holder}${dob}</div><hr><div class="cb-info">${d.phone ? `<span>Member services</span><br>${esc(d.phone)}` : '<span>Add the member services phone</span> from the back of the card.'}</div></div></div>
+<div class="cb-bot">${status}<span class="cb-badges">${d.hsa ? '<span class="cb-ppo">HSA</span>' : ''}${d.c_rx ? '<span class="cb-rx">R<sub>x</sub></span>' : ''}</span></div></div>
+<div class="icact"><button class="lnk small" data-act="editItem" data-id="${p.id}">Edit card details</button>${others.length ? `<span class="mut small">Also on file: ${others.map(x => esc(x.data.plan || x.data.type || 'plan')).join(', ')}</span>` : ''}</div></div>`;
+  }
+  const CARDLOGO = '<svg viewBox="0 0 24 28" aria-hidden="true"><rect x="1" y="3" width="22" height="22" rx="6" fill="#1d4f91"/><path d="M10 7h4v5h5v4h-5v5h-4v-5H5v-4h5z" fill="#fff"/></svg>';
 
   // Benefits at a glance, built only from numbers the user entered from their own plan.
   function bar(label, met, max) {
@@ -228,36 +292,40 @@
     await loadAll();
     toast(b.coverage === 'inactive' ? 'Your insurer reports this coverage as inactive' : 'Benefits updated from your insurer');
   }
-  function benefitsCard(m, mi) {
-    const ins = mi.filter(x => x.kind === 'insurance');
-    if (!ins.length) return '';
-    const p = ins.find(x => num(x.data.ded) != null || num(x.data.oop) != null) || ins[0], d = p.data;
-    const ded = num(d.ded), dm = num(d.ded_met) || 0, oop = num(d.oop), om = num(d.oop_met) || 0;
+  // Benefits at a glance, built only from numbers the user entered or their insurer returned.
+  function gbar(met, max, cls) { const pct = max ? Math.max(0, Math.min(100, Math.round(met / max * 100))) : 100; return `<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i class="${cls}" data-w="${pct}"></i></div>`; }
+  function glanceCard(m, mi, p, py) {
+    let h = `<div class="card glance" id="s-ben"><div class="fh2"><h2>Year at a glance</h2>${p ? `<button class="btn ghost sm" data-act="editItem" data-id="${p.id}">Update amounts</button>` : ''}</div>`;
+    if (!p) return h + `<p class="mut small">Add ${esc(m.relationship === 'self' ? 'your' : first(m.full_name) + '\u2019s')} insurance to see the deductible, out-of-pocket maximum and what visits cost.</p></div>`;
+    const d = p.data, ded = num(d.ded), dm = num(d.ded_met) || 0, oop = num(d.oop), om = num(d.oop_met) || 0;
     const start = d.year_start || (new Date().getFullYear() + '-01-01');
     const vis = mi.filter(x => x.kind === 'visit' && x.data.date && x.data.date >= start);
     const paid = vis.reduce((a, x) => a + (num(x.data.paid) || 0), 0), billed = vis.reduce((a, x) => a + (num(x.data.billed) || 0), 0);
-    const C = [['c_pcp', 'Primary care'], ['c_spec', 'Specialist'], ['c_urgent', 'Urgent care'], ['c_er', 'Emergency room'], ['c_tele', 'Video visit'], ['c_rx', 'Generic drugs'], ['c_ther', 'Therapy'], ['coins', 'After deductible']].filter(([k]) => d[k]);
-    const has = ded != null || oop != null || C.length || d.hsa;
-    let h = `<div class="card bcard"><div class="sh"><div><h2>${esc(first(m.full_name))}\u2019s benefits</h2><p class="mut small">${esc(d.plan || 'Insurance')}${d.member_id ? ' \u00b7 ID ' + esc(d.member_id) : ''}</p></div><div class="a">${BEN ? `<button class="btn sm" data-act="checkBen" data-id="${p.id}">Check with my insurer</button> ` : ''}<button class="btn ghost sm" data-act="editItem" data-id="${p.id}">${has ? 'Update amounts' : 'Add costs'}</button></div></div>`;
-    if (BEN) h += `<p class="small mut">${d.payer_id ? 'Insurer: <b>' + esc(d.payer_name || d.payer_id) + '</b> \u00b7 ' : ''}<button class="lnk small" data-act="pickPayer" data-id="${p.id}">${d.payer_id ? 'Change' : 'Find my insurance company'}</button>${d.coverage === 'inactive' ? ' <span class="tag bad">Insurer reports coverage inactive</span>' : d.coverage === 'active' && d.src === 'insurer' ? ' <span class="tag ok">Coverage active</span>' : ''}</p>`;
-    // Care types are buttons that open Find in-network care; copays show on them when known.
-    const FIND = Object.keys(CHIP_CARE);
-    const findRow = `<p class="fh">Find in-network care \u00b7 tap a type of care</p><div class="chips">` + FIND.map(k => `<button type="button" class="chipc fbtn" data-act="findCare" data-id="${p.id}" data-chip="${k}" aria-label="Find in-network ${esc(CHIP_CARE[k][0].toLowerCase())}"><span>${esc(CHIP_CARE[k][0])}</span><b>${d[k] ? esc(d[k]) : 'Find'}</b><i>${d[k] ? 'Find providers \u203a' : 'Search nearby \u203a'}</i></button>`).join('') + C.filter(([k]) => !FIND.includes(k)).map(([k, l]) => `<div class="chipc"><span>${esc(l)}</span><b>${esc(d[k])}</b></div>`).join('') + '</div>';
-    if (!has) return h + findRow + `<p class="mut small">Add your deductible, out-of-pocket maximum and copays from your plan\u2019s website or app to see what you\u2019ve met and what visits will cost.</p></div>`;
-    h += '<div class="bgrid">';
-    if (ded != null) h += bar('Deductible', dm, ded);
-    if (oop != null) h += bar('Out-of-pocket maximum', om, oop);
-    h += '</div>';
-    if (ded != null && dm < ded) h += `<p class="small">Until the deductible is met, most non-preventive visits cost the plan\u2019s full negotiated rate. After that you pay ${d.coins ? esc(d.coins) + ' coinsurance or ' : ''}the copays below.</p>`;
-    else if (oop != null && om >= oop) h += '<p class="small"><span class="tag ok">Max met</span> Covered in-network care should be $0 for the rest of this plan year.</p>';
-    h += findRow;
-    if (d.ded_fam || d.oop_fam) h += `<p class="small"><b>Family:</b> ${d.ded_fam ? 'deductible ' + (d.ded_fam_met != null ? usd(d.ded_fam_met) + ' of ' : '') + usd(d.ded_fam) : ''}${d.ded_fam && d.oop_fam ? ' \u00b7 ' : ''}${d.oop_fam ? 'out-of-pocket ' + (d.oop_fam_met != null ? usd(d.oop_fam_met) + ' of ' : '') + usd(d.oop_fam) : ''}</p>`;
-    if (d.hsa) h += `<p class="small"><b>HSA/FSA balance:</b> ${usd(d.hsa)}</p>`;
-    if (vis.length) h += `<p class="small"><b>${vis.length} visit${vis.length > 1 ? 's' : ''} this plan year</b>${billed ? ' \u00b7 billed ' + usd(billed) : ''}${paid ? ' \u00b7 you paid ' + usd(paid) : ''}</p>`;
+    if (ded == null && oop == null) h += `<p class="mut small">Add your deductible and out-of-pocket maximum from your plan\u2019s website or app${BEN ? ', or select <b>Check with my insurer</b>' : ''} to see what you\u2019ve met.</p>`;
+    else {
+      h += '<div class="g2">';
+      if (ded != null) h += `<div><div class="mut small">Deductible met</div><div class="big">${usd(dm)} <span class="of">/ ${usd(ded)}</span></div>${gbar(dm, ded, 'b1')}<div class="mut xs">${ded - dm > 0 ? usd(ded - dm) + ' to go' : 'Deductible met'}</div></div>`;
+      if (oop != null) h += `<div><div class="mut small">Out-of-pocket max</div><div class="big">${usd(om)} <span class="of">/ ${usd(oop)}</span></div>${gbar(om, oop, 'b2')}<div class="mut xs">${oop - om > 0 ? usd(oop - om) + ' until care is covered 100%' : 'Max met \u00b7 covered in-network care should be $0'}</div></div>`;
+      h += '</div>';
+    }
+    const C = [['c_pcp', 'primary care'], ['c_spec', 'specialist'], ['c_urgent', 'urgent care'], ['c_er', 'ER'], ['coins', 'after deductible']].filter(([k]) => d[k]).map(([k, l]) => d[k] + ' ' + l);
+    const bits = [py.left + ' days left in the plan year (resets ' + py.end.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ').'];
+    if (C.length) bits.push('Costs: ' + C.join(' \u00b7 ') + '.');
+    if (d.hsa) bits.push('HSA/FSA balance ' + usd(d.hsa) + '.');
+    if (vis.length) bits.push(vis.length + ' visit' + (vis.length > 1 ? 's' : '') + ' this plan year' + (billed ? ', billed ' + usd(billed) : '') + (paid ? ', you paid ' + usd(paid) : '') + '.');
+    h += `<p class="mut small gl">${esc(bits.join(' '))}</p>`;
     const foot = d.src === 'insurer'
       ? `From ${esc(d.payer_name || 'your insurer')}\u2019s real-time benefits check on ${esc(checkedOn(d))}. Totals can lag behind claims that are still processing.`
       : `Entered by you from your plan${d.as_of ? ', as of ' + esc(d.as_of) : ''}.${BEN ? '' : ' CollectCare doesn\u2019t pull these from your insurer yet.'} Check with your plan before a visit.`;
-    return h + `<p class="mut small">${foot}</p></div>`;
+    return h + `<p class="mut xs">${foot}</p></div>`;
+  }
+  function findCard(m, p) {
+    if (!p) return '';
+    const d = p.data, FIND = Object.keys(CHIP_CARE);
+    const C = [['c_tele', 'Video visit'], ['coins', 'After deductible']].filter(([k]) => d[k]);
+    return `<div class="card findc" id="s-find"><div class="fh2"><h2>Find in-network care</h2><span class="mut small">Tap a type of care \u00b7 ${esc(d.payer_name || d.plan || 'your plan')}</span></div><div class="chips">` +
+      FIND.map(k => `<button type="button" class="chipc fbtn" data-act="findCare" data-id="${p.id}" data-chip="${k}" aria-label="Find in-network ${esc(CHIP_CARE[k][0].toLowerCase())}"><span>${esc(CHIP_CARE[k][0])}</span><b>${d[k] ? esc(d[k]) : 'Find'}</b><i>${d[k] ? 'Find providers \u203a' : 'Search nearby \u203a'}</i></button>`).join('') +
+      C.map(([k, l]) => `<div class="chipc"><span>${esc(l)}</span><b>${esc(d[k])}</b></div>`).join('') + '</div></div>';
   }
 
   // ---------- Find in-network care ----------
@@ -507,6 +575,16 @@
         } else Object.keys(v).forEach(k => { if (!v[k]) delete v[k]; });
         const r = it ? await sb.from('items').update({ data }).eq('id', it.id) : await sb.from('items').insert({ member_id: m.id, kind, data });
         if (r.error) return fail(r.error); log((it ? 'Edited ' : 'Added ') + K.one, first(m.full_name)); await loadAll();
+      } else if (act === 'addMember') {
+        await addMember(members.length === 0);
+      } else if (act === 'qUpload') {
+        if (!m) return addMember(true);
+        if (NAT) await scanDoc(); else { const u = $('#upFile'); if (u) u.click(); }
+      } else if (act === 'qCheck' || act === 'qUrgent') {
+        if (!m) return addMember(true);
+        const p = primaryIns(items.filter(x => x.member_id === m.id));
+        if (!p) { toast('Add ' + first(m.full_name) + '\u2019s insurance first'); show('family'); const b = $('#memBody [data-kind="insurance"]'); if (b) b.click(); return; }
+        if (act === 'qUrgent') openFind(m, p, 'c_urgent'); else if (BEN) await checkBen(p, m); else toast('Benefit checks aren\u2019t switched on yet');
       } else if (act === 'findCare') {
         const it = items.find(x => x.id === t.dataset.id); if (it) openFind(m, it, t.dataset.chip);
       } else if (act === 'pickPayer' || act === 'checkBen') {
@@ -724,7 +802,13 @@
     }));
     $('#vFamily').addEventListener('click', onFamilyClick);
     $('#findDlg').addEventListener('click', e => onFindClick(e).catch(fail));
-    $('#addMember').addEventListener('click', () => addMember(members.length === 0));
+    $('#dsk').addEventListener('click', e => {
+      const j = e.target.closest('[data-jump]'), v = e.target.closest('[data-view]');
+      if (j) { e.preventDefault(); const go = () => { const el = document.getElementById(j.dataset.jump); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; if ($('#vFamily').hidden) { show('family'); setTimeout(go, 30); } else go(); $$('#dnav a').forEach(a => a.classList.toggle('on', a === j)); return; }
+      if (v) { e.preventDefault(); const b = $('#nav .lnk[data-view="' + v.dataset.view + '"]'); if (b) b.click(); return; }
+      if (e.target.closest('#dOut')) return $('#signOut').click();
+      if (e.target.closest('[data-act]')) { if ($('#vFamily').hidden) show('family'); onFamilyClick(e); }
+    });
     $('#addSelf').addEventListener('click', () => addMember(true));
     $('#export').addEventListener('click', () => exportData().catch(fail));
     $('#delAcct').addEventListener('click', deleteAccount);

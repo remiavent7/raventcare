@@ -31,6 +31,42 @@
   </nav>
 </div></header>
 
+<aside id="dsk" aria-label="CollectCare menu">
+  <a class="db" href="./"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41C12 32.5 5.5 25.5 5.5 17.6 5.5 11.4 10.2 7 15.8 7c3.6 0 6.5 1.8 8.2 4.6C25.7 8.8 28.6 7 32.2 7 37.8 7 42.5 11.4 42.5 17.6 42.5 25.5 36 32.5 24 41Z" fill="none" stroke="#1f6fd1" stroke-width="5" stroke-linejoin="round"/><circle cx="24" cy="21.5" r="5" fill="#0ea5c6"/></svg><span>Collect<span class="acc">Care</span></span></a>
+  <div class="dsub" id="dsub">Private beta</div>
+  <div class="dlab">Quick actions</div>
+  <div class="dqa">
+    <button data-act="qCheck">Check with my insurer</button>
+    <button class="urg" data-act="qUrgent">+ Nearest urgent care</button>
+    <button data-act="qUpload">Upload a card or document</button>
+    <button data-act="addMember">Add a family member</button>
+  </div>
+  <div class="dlab">Your dashboard</div>
+  <nav class="dnav" id="dnav">
+    <a href="#ov" data-jump="ov" class="on"><i class="dot"></i>Overview</a>
+    <a href="#s-ben" data-jump="s-ben"><i class="dot"></i>Benefits</a>
+    <a href="#s-find" data-jump="s-find"><i class="dot"></i>Find in-network care</a>
+    <a href="#s-insurance" data-jump="s-insurance"><i class="dot"></i>Insurance</a>
+    <a href="#s-doctor" data-jump="s-doctor"><i class="dot"></i>Doctors and care team</a>
+    <a href="#s-medication" data-jump="s-medication"><i class="dot"></i>Medications</a>
+    <a href="#s-allergy" data-jump="s-allergy"><i class="dot"></i>Allergies</a>
+    <a href="#s-condition" data-jump="s-condition"><i class="dot"></i>Conditions</a>
+    <a href="#s-vaccine" data-jump="s-vaccine"><i class="dot"></i>Vaccines</a>
+    <a href="#s-visit" data-jump="s-visit"><i class="dot"></i>Visits</a>
+    <a href="#s-docs" data-jump="s-docs"><i class="dot"></i>Documents</a>
+    <a href="#s-note" data-jump="s-note"><i class="dot"></i>Notes</a>
+  </nav>
+  <div class="dlab">More</div>
+  <nav class="dnav">
+    <a href="#" data-view="activity"><i class="dot"></i>Activity</a>
+    <a href="#" data-view="settings"><i class="dot"></i>Settings</a>
+    <a href="#" data-view="admin" id="dAdmin" hidden><i class="dot"></i>Invites</a>
+    <a class="lk" href="../find.html" target="_blank" rel="noopener"><i class="dot"></i>Live doctor search</a>
+    <a class="lk" href="../app.html" target="_blank" rel="noopener"><i class="dot"></i>Sample-data demo</a>
+  </nav>
+  <div class="dfoot"><button class="dl" id="dOut">Sign out</button><p class="dnote">Private beta · only you can see what you add.</p></div>
+</aside>
+
 <main id="main">
   <div id="toast" role="status" aria-live="polite"></div>
 
@@ -93,11 +129,10 @@
 
   <!-- Family -->
   <section id="vFamily" class="view" hidden>
-    <div class="head">
-      <div><h1 id="hello">Your family</h1><p class="mut">Only you can see what you add here.</p></div>
-      <button class="btn" id="addMember">Add a family member</button>
+    <div class="ptop">
+      <div><p class="mut ctx" id="ctx"></p><h1 id="hello">Your family</h1></div>
+      <div class="qa" id="qaRow"></div>
     </div>
-    <div id="memTabs" class="mem"></div>
     <div id="memEmpty" class="card" hidden><h2>Start with yourself</h2><p class="mut">Add yourself first, then anyone you help care for, such as a spouse, child or parent.</p><button class="btn" id="addSelf">Add myself</button></div>
     <div id="memBody"></div>
     <div class="card soon"><h2>Coming next: connect your accounts</h2><p class="mut">We're registering CollectCare with Epic/MyChart, Medicare and health plans so records can come in automatically after you approve each connection. Until then, nothing here is pulled from any outside system.</p></div>

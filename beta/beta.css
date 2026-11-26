@@ -105,3 +105,101 @@ dialog.big{max-width:720px;max-height:calc(100vh - 28px);overflow:auto}
 #fcList .it:first-of-type{border-top:1px solid var(--line)}
 @media(max-width:600px){.fform{grid-template-columns:1fr 1fr}.fform label:first-child{grid-column:1/-1}.fform .btn{grid-column:1/-1}}
 @media(max-width:600px){.fr{flex-direction:column;gap:6px}.fr .a{max-width:none;justify-content:flex-start;gap:10px}}
+
+/* ===== Dashboard layout matching the sample-data demo (app.html) ===== */
+:root{--ac2:#4f5fd6}
+.xs{font-size:12px}
+.ptop{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.ctx{font-size:16px;margin:0 0 6px}
+#vFamily h1{font-size:clamp(28px,4vw,38px);letter-spacing:-.03em;font-weight:900;margin:0}
+.qa{display:flex;gap:8px;flex-wrap:wrap}
+.qb{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--ac);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-weight:700;font-size:15.5px;cursor:pointer}
+.qb svg{width:17px;height:17px;flex:none}
+.qb:hover{border-color:var(--ac)}
+.qb.urg{color:#b91c1c;border:2px solid #c8102e}
+.qb.urg:hover{background:#fff5f5}
+.toprow{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:16px;align-items:start}
+.toprow>.card{margin-top:0}
+.card h2{font-size:18px}
+.fh2{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}.fh2 h2{margin:0}
+/* insurance card */
+.icw{display:flex;flex-direction:column;gap:8px}
+.ic{display:flex;flex-direction:column;overflow:hidden;background:#f6f3ec;color:#1b1b1b;font-family:Arial,Helvetica,sans-serif;container-type:inline-size;border-radius:16px;box-shadow:0 20px 50px #1f6fd126;border:1px solid #d8d2c4}
+.cb-top{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(#bcd2ee,#d3e2f5);padding:3.2cqw 4.5cqw;border-bottom:.5cqw solid #9fb9de;gap:8px}
+.cb-logo{display:flex;align-items:center;gap:2cqw;color:#1d4f91;font-weight:800;font-size:5.4cqw;line-height:1}
+.cb-logo svg{width:6.5cqw;height:auto}
+.cb-net{text-align:right;color:#c8102e;font-weight:800;font-size:3.2cqw;line-height:1.1;max-width:45%;overflow-wrap:anywhere}
+.cb-net small{display:block;color:#333;font-weight:400;font-size:2.9cqw}
+.cb-body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4cqw;padding:2.6cqw 4.5cqw 2.5cqw}
+.cb-body hr{border:0;border-top:.35cqw solid #222;margin:2cqw 0}
+.cb-name{color:#1d4f91;font-weight:700;font-size:3.5cqw;border-top:.45cqw solid #222;padding-top:1.2cqw;overflow-wrap:anywhere}
+.cb-k{font-size:3cqw;margin-top:2cqw}
+.cb-id{color:#1d4f91;font-weight:700;font-size:3.4cqw;letter-spacing:.02em;overflow-wrap:anywhere}
+.cb-body dl{display:grid;grid-template-columns:auto 1fr;gap:.6cqw 2cqw;margin:0;font-size:2.9cqw}
+.cb-body dt{font-weight:400}.cb-body dd{margin:0;color:#1d4f91;font-weight:700;overflow-wrap:anywhere}
+.cb-plan{font-weight:700;font-size:3.4cqw;border-top:.45cqw solid #222;padding-top:1.2cqw;overflow-wrap:anywhere}
+.cb-sub{font-size:2.7cqw;margin-top:1.2cqw;line-height:1.3;color:#333}
+.cb-info{font-size:2.8cqw;line-height:1.3}.cb-info span{color:#1d4f91}
+.cb-bot{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(#cfdff3,#bcd2ee);padding:2cqw 4.5cqw;min-height:8cqw}
+.cb-hsa{font-size:2.7cqw;color:#1d4f91;font-weight:700}
+.cb-st{font-size:2.7cqw;font-weight:700}.cb-st.ok{color:#0f6b4a}.cb-st.bad{color:var(--bad)}
+.cb-badges{display:flex;align-items:center;gap:2.4cqw}
+.cb-ppo{border:.5cqw solid #111;border-radius:1cqw;padding:.3cqw 1.2cqw;font-weight:900;font-size:3.2cqw;color:#111;background:#fff}
+.cb-rx{font-family:Georgia,serif;font-size:4.4cqw;color:#111}
+.icact{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;padding:0 4px}
+.icempty .ice{padding:18px;font-family:Satoshi,system-ui,sans-serif;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.icempty .ice p{margin:0 0 6px}
+/* family tiles */
+.fam{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fam button{background:var(--s2);border:1px solid var(--line);color:var(--tx);border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;font:inherit;min-width:0;display:flex;flex-direction:column;gap:2px}
+.fam button:hover{border-color:var(--ac)}
+.fam button.on{background:#fff;border-color:var(--ac);box-shadow:0 0 0 2px #1f6fd133}
+.fam b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px;margin-top:6px}
+.fam .addt{border-style:dashed;background:#fff}
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:#7c8cff33;color:#4f5fd6;flex:none}
+.av1{background:#0ea5c633;color:#0b7f99}.av2{background:#f59e0b2e;color:#a15c07}.av3{background:#10b98126;color:#0f6b4a}.av4{background:#ec48992b;color:#be185d}
+.addt .av{background:#e3eefc;color:var(--ac);font-size:18px}
+.av.big{width:46px;height:46px;font-size:16px}
+/* about + glance */
+.who{display:flex;gap:12px;align-items:center}.who b{font-size:16px}
+.about .d{margin:10px 0 0;white-space:pre-wrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.stats div{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column}
+.stats b{font-size:20px;font-weight:900}.stats span{font-size:12px;color:var(--mut)}
+.about .ins{margin:12px 0 0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.big{font-size:30px;font-weight:900;letter-spacing:-.02em;line-height:1.2}.big .of{font-size:15px;color:var(--mut);font-weight:700}
+.bar{height:10px;background:var(--s2);border-radius:99px;overflow:hidden;margin:10px 0 6px;border:1px solid var(--line)}
+.bar i{display:block;height:100%;border-radius:99px;width:0;transition:width .8s}.bar i.b1{background:var(--ac)}.bar i.b2{background:var(--ac2)}
+.glance .gl{margin:14px 0 6px}
+.findc{margin-top:16px}.findc .chips{margin:4px 0 0}
+#vFamily .sects{margin-top:16px}
+@media(max-width:900px){.toprow{grid-template-columns:1fr}.fam{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.g2{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.qb{padding:11px 14px;font-size:15px}.qa{width:100%}}
+
+/* desktop sidebar, like the demo */
+#dsk{display:none}
+@media (min-width:1180px){
+  body.dsk-on #dsk{display:flex}
+  body.dsk-on .top{display:none}
+  body.dsk-on main,body.dsk-on .foot{max-width:1180px;margin-left:272px;margin-right:auto;padding-left:40px;padding-right:40px}
+  body.dsk-on main{padding-top:28px}
+  #dsk{position:fixed;inset:0 auto 0 0;width:248px;flex-direction:column;background:var(--s1);border-right:1px solid var(--line);padding:22px 14px 16px;z-index:30;overflow-y:auto}
+  #dsk .db{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:-.02em;padding:0 8px 4px;color:var(--tx);text-decoration:none}
+  #dsk .db svg{width:30px;height:30px}
+  #dsk .dsub{font-size:12px;color:var(--mut);padding:0 8px 10px}
+  #dsk .dlab{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);padding:12px 10px 5px}
+  #dsk .dnav a,#dsk button.dl{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;font:inherit;font-size:14px;color:var(--tx);padding:6px 10px;border-radius:10px;text-decoration:none;cursor:pointer}
+  #dsk .dnav a:hover,#dsk button.dl:hover{background:var(--s2)}
+  #dsk .dnav a.on{background:#e3eefc;color:var(--ac);font-weight:700}
+  #dsk .dnav a.lk{color:var(--ac);font-weight:700}
+  #dsk .dot{width:6px;height:6px;border-radius:99px;background:currentColor;opacity:.35;flex:none}
+  #dsk a.on .dot{opacity:1}
+  #dsk .dqa{display:grid;gap:6px;margin-top:4px}
+  #dsk .dqa button{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:9px 10px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
+  #dsk .dqa button:hover{border-color:var(--ac)}
+  #dsk .dqa .urg{color:#b91c1c;border-color:#f3c4c4}
+  #dsk .dfoot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line)}
+  #dsk .dnote{font-size:11.5px;color:var(--mut);margin:6px 10px 0;line-height:1.4}
+  #vFamily [id^="s-"],#ov{scroll-margin-top:20px}
+}
