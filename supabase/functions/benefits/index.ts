@@ -146,7 +146,10 @@ Deno.serve(async (req: Request) => {
     if (!r.ok && !fe) return send({ error: 'Your insurer could not be reached (' + r.status + '). Try again later.' }, 502);
     if (fe && !(j.plans || []).length) return send({ error: fe, test: !live }, 200);
     const { out, status } = parse271(j);
-    const today = new Date().toISOString().slice(0, 10);
+    // Use the person's local date when the app sends one (within a day of the server's UTC date).
+    const utc = new Date().toISOString().slice(0, 10);
+    const sent = String(body.today || '');
+    const today = /^\d{4}-\d{2}-\d{2}$/.test(sent) && Math.abs(Date.parse(sent) - Date.parse(utc)) <= 864e5 ? sent : utc;
     const result = { ...out, coverage: status, as_of: today, src: live ? 'insurer' : 'test', checked_at: new Date().toISOString(), check_id: j.id || null };
     if (live) {
       const merged = { ...d, ...result };

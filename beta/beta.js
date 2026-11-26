@@ -209,9 +209,16 @@
     const { error } = await sb.from('items').update({ data: { ...it.data, payer_id: pick.id, payer_name: pick.name } }).eq('id', it.id);
     if (error) return fail(error); log('Set insurance company', pick.name); await loadAll(); toast('Insurer saved');
   }
+  // Dates for benefit checks use the person's own time zone, not the server's (UTC).
+  function localDay(t) { const x = t ? new Date(t) : new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); }
+  function checkedOn(d) {
+    const t = d.checked_at ? new Date(d.checked_at) : null;
+    if (t && !isNaN(t)) return t.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    return d.as_of || '';
+  }
   async function checkBen(it, m) {
     toast('Checking with your insurer\u2026');
-    const r = await callBen({ action: 'check', item_id: it.id });
+    const r = await callBen({ action: 'check', item_id: it.id, today: localDay() });
     if (r.need === 'payer') return pickPayer(it);
     if (r.error) return ask(r.test ? 'Test check' : 'Benefit check', [], {}, 'OK', esc(r.error));
     const b = r.benefits || {};
@@ -245,7 +252,7 @@
     if (d.hsa) h += `<p class="small"><b>HSA/FSA balance:</b> ${usd(d.hsa)}</p>`;
     if (vis.length) h += `<p class="small"><b>${vis.length} visit${vis.length > 1 ? 's' : ''} this plan year</b>${billed ? ' \u00b7 billed ' + usd(billed) : ''}${paid ? ' \u00b7 you paid ' + usd(paid) : ''}</p>`;
     const foot = d.src === 'insurer'
-      ? `From ${esc(d.payer_name || 'your insurer')}\u2019s real-time benefits check on ${esc(d.as_of || '')}. Totals can lag behind claims that are still processing.`
+      ? `From ${esc(d.payer_name || 'your insurer')}\u2019s real-time benefits check on ${esc(checkedOn(d))}. Totals can lag behind claims that are still processing.`
       : `Entered by you from your plan${d.as_of ? ', as of ' + esc(d.as_of) : ''}.${BEN ? '' : ' CollectCare doesn\u2019t pull these from your insurer yet.'} Check with your plan before a visit.`;
     return h + `<p class="mut small">${foot}</p></div>`;
   }
