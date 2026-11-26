@@ -102,7 +102,7 @@ Deno.serve(async (req: Request) => {
     if (body.action === 'payers') {
       const q = String(body.q || '').slice(0, 60).trim();
       if (q.length < 2) return send({ payers: [] });
-      const r = await stedi('/2024-04-01/payers/search?pageSize=8&query=' + encodeURIComponent(q));
+      const r = await stedi('/2024-04-01/payers/search?pageSize=10&query=' + encodeURIComponent(q));
       const j = await r.json().catch(() => ({}));
       if (!r.ok) return send({ error: 'Could not search insurers right now.' }, 502);
       return send({ payers: (j.items || []).map((x: any) => ({ id: x.payer.primaryPayerId, name: x.payer.displayName, elig: x.payer.transactionSupport && x.payer.transactionSupport.eligibilityCheck })) });
